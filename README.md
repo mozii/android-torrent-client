@@ -1,12 +1,10 @@
-# Audio Recorder
+# Torrent Client
 
-Android friendly!
-
-Audio Recorder with custom recording folder, nice recording volume indicator, recording notification, recording lock screen activity.
+Torrent Client simple UI.
 
 # Install
 
-[![ Google Play](docs/google-play-badge.png)](https://play.google.com/store/apps/details?id=com.github.axet.audiorecorder) 
+[![ Google Play](docs/google-play-badge.png)](https://play.google.com/store/apps/details?id=com.github.axet.torrentclient) 
 
 Manual install
 
