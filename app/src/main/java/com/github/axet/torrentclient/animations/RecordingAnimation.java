@@ -15,6 +15,8 @@ public class RecordingAnimation extends MarginAnimation {
 
     View convertView;
 
+    View expandView;
+
     boolean partial;
     Handler handler;
 
@@ -41,6 +43,8 @@ public class RecordingAnimation extends MarginAnimation {
 
         this.convertView = v;
         this.list = list;
+
+        this.expandView = v.findViewById(R.id.torrent_expand);
     }
 
     @Override
@@ -63,6 +67,8 @@ public class RecordingAnimation extends MarginAnimation {
         super.calc(i, t);
 
         float ii = expand ? i : 1 - i;
+
+        expandView.setRotation(180 * ii);
 
         // ViewGroup will crash on null pointer without this post pone.
         // seems like some views are removed by RecyvingView when they

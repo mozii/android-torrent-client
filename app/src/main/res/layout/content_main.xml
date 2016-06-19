@@ -20,22 +20,22 @@
         android:padding="5dp"
         android:text="32G free · ↓ 1.6 Mb/s · ↑ 0.6 Mb/s" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
     <LinearLayout
         android:id="@+id/empty_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Torrents List is Empty\n\nClick Add to add new Torrent"
+            android:text="Torrents List is Empty\n\nClick 'Add' to add new Torrent"
             android:textAlignment="center"></TextView>
 
     </LinearLayout>
