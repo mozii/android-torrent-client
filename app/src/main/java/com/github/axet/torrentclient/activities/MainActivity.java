@@ -398,30 +398,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         checkPending();
 
         updateHeader();
-
-        final int selected = getLastRecording();
-        if (selected != -1) {
-            list.setSelection(selected);
-            recordings.select(selected);
-        }
-    }
-
-    int getLastRecording() {
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
-        last = last.toLowerCase();
-
-        for (int i = 0; i < recordings.getCount(); i++) {
-            File f = recordings.getItem(i);
-            String n = f.getName().toLowerCase();
-            if (n.equals(last)) {
-                SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, "");
-                edit.commit();
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Override

@@ -245,15 +245,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_STORAGE));
             }
 
-            Preference rate = findPreference(MainApplication.PREFERENCE_ENCODING);
-
-            if (Build.VERSION.SDK_INT < 21) {
-                getPreferenceScreen().removePreference(rate);
-            } else {
-                bindPreferenceSummaryToValue(rate);
-            }
-
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_RATE));
             bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_THEME));
         }
 

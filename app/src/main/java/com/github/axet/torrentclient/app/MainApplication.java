@@ -10,11 +10,6 @@ import com.github.axet.torrentclient.R;
 
 public class MainApplication extends Application {
     public static final String PREFERENCE_STORAGE = "storage_path";
-    public static final String PREFERENCE_RATE = "sample_rate";
-    public static final String PREFERENCE_CALL = "call";
-    public static final String PREFERENCE_SILENT = "silence";
-    public static final String PREFERENCE_ENCODING = "encoding";
-    public static final String PREFERENCE_LAST = "last_recording";
     public static final String PREFERENCE_THEME = "theme";
 
     @Override
