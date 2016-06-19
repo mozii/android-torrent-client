@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,12 +23,44 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add_black_24dp" />
+        android:layout_margin="16dp"
+        fab:fab_addButtonColorNormal="?colorAccent"
+        fab:fab_addButtonColorPressed="?secondBackground"
+        fab:fab_addButtonSize="normal"
+        fab:fab_labelStyle="@style/menu_labels_style"
+        fab:fab_labelsPosition="left">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="?secondBackground"
+            fab:fab_colorPressed="@android:color/white"
+            fab:fab_icon="@drawable/ic_file_upload_black_24dp"
+            fab:fab_title="Create Torrent" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="?secondBackground"
+            fab:fab_colorPressed="@android:color/white"
+            fab:fab_icon="@drawable/ic_folder_open_black_24dp"
+            fab:fab_size="mini"
+            fab:fab_title="Add Torrent" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="?secondBackground"
+            fab:fab_colorPressed="@android:color/white"
+            fab:fab_icon="@drawable/ic_playlist_add_black_24dp"
+            fab:fab_size="mini"
+            fab:fab_title="Add Magnet" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>

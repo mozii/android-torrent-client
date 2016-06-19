@@ -34,6 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.PopupShareActionProvider;
@@ -311,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         toolbar.setBackground(new ColorDrawable(MainApplication.getActionbarColor(this)));
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -28,4 +28,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="menu_labels_style">
+    </style>
+
 </resources>
