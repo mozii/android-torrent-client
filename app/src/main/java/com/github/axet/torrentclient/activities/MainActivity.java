@@ -269,6 +269,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 stateImage.setImageDrawable(d);
             }
 
+            ImageView expand = (ImageView)convertView.findViewById(R.id.torrent_expand);
+
             if (selected == position) {
                 RecordingAnimation.apply(list, convertView, true, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_COLLAPSED);
                 convertView.setTag(TYPE_EXPANDED);
@@ -308,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
 
-                View expand = convertView.findViewById(R.id.torrent_expand);
+                expand.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_expand_less_black_24dp));
                 expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -319,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 RecordingAnimation.apply(list, convertView, false, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_EXPANDED);
                 convertView.setTag(TYPE_COLLAPSED);
 
-                View expand = convertView.findViewById(R.id.torrent_expand);
+                expand.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_expand_more_black_24dp));
                 expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

@@ -68,7 +68,8 @@ public class RecordingAnimation extends MarginAnimation {
 
         float ii = expand ? i : 1 - i;
 
-        expandView.setRotation(180 * ii);
+        float e = expand ? -(1 - i) : (1 - i);
+        expandView.setRotation(180 * e);
 
         // ViewGroup will crash on null pointer without this post pone.
         // seems like some views are removed by RecyvingView when they
@@ -110,6 +111,8 @@ public class RecordingAnimation extends MarginAnimation {
     @Override
     public void restore() {
         super.restore();
+
+        expandView.setRotation(0);
     }
 
     @Override
