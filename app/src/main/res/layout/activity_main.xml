@@ -38,26 +38,29 @@
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_file_upload_black_24dp"
+            android:tint="@android:color/white"
             fab:fab_colorNormal="?secondBackground"
             fab:fab_colorPressed="@android:color/white"
-            fab:fab_icon="@drawable/ic_file_upload_black_24dp"
             fab:fab_title="Create Torrent" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_folder_open_black_24dp"
+            android:tint="@android:color/white"
             fab:fab_colorNormal="?secondBackground"
             fab:fab_colorPressed="@android:color/white"
-            fab:fab_icon="@drawable/ic_folder_open_black_24dp"
             fab:fab_size="mini"
             fab:fab_title="Add Torrent" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_playlist_add_black_24dp"
+            android:tint="@android:color/white"
             fab:fab_colorNormal="?secondBackground"
             fab:fab_colorPressed="@android:color/white"
-            fab:fab_icon="@drawable/ic_playlist_add_black_24dp"
             fab:fab_size="mini"
             fab:fab_title="Add Magnet" />
 
