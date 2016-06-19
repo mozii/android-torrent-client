@@ -7,15 +7,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.AvoidXfermode;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -26,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -156,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, final ViewGroup parent) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
 
             if (convertView == null) {
@@ -255,21 +261,21 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 switch (f.getStatus()) {
                     case Libtorrent.StatusPaused:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
-                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(),R.attr.secondBackground));
+                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground));
                         stateImage.setAlpha(1f);
-                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(),R.attr.secondBackground), PorterDuff.Mode.SRC_IN);
+                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground), PorterDuff.Mode.SRC_IN);
                         break;
                     case Libtorrent.StatusDownloading:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.play);
-                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(),R.attr.colorAccent));
+                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
                         stateImage.setAlpha(0.3f);
-                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(),R.attr.colorAccent), PorterDuff.Mode.SRC_IN);
+                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent), PorterDuff.Mode.SRC_IN);
                         break;
                 }
                 stateImage.setImageDrawable(d);
             }
 
-            ImageView expand = (ImageView)convertView.findViewById(R.id.torrent_expand);
+            ImageView expand = (ImageView) convertView.findViewById(R.id.torrent_expand);
 
             if (selected == position) {
                 RecordingAnimation.apply(list, convertView, true, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_COLLAPSED);
@@ -330,6 +336,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 });
             }
 
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showDetails(f);
+                }
+            });
+
             convertView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -362,6 +375,108 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             selected = pos;
             notifyDataSetChanged();
         }
+    }
+
+    public static class DetailsFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_status, container, false);
+            return rootView;
+        }
+    }
+
+    public static class FilesFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_files, container, false);
+            return rootView;
+        }
+    }
+
+    public static class PeersFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_peers, container, false);
+            return rootView;
+        }
+    }
+
+    public static class TrackersFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_trackers, container, false);
+            return rootView;
+        }
+    }
+
+    public static class DemoCollectionPagerAdapter extends FragmentPagerAdapter {
+        public DemoCollectionPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            switch (i) {
+                case 0:
+                    return new DetailsFragment();
+                case 1:
+                    return new FilesFragment();
+                case 2:
+                    return new PeersFragment();
+                case 3:
+                    return new TrackersFragment();
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 4;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "DETAILS";
+                case 1:
+                    return "FILES";
+                case 2:
+                    return "PEERS";
+                case 3:
+                    return "TRACKERS";
+                default:
+                    return "EMPTY";
+            }
+        }
+    }
+
+    public static class DialogFragmentWindow extends DialogFragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.torrent_details, container);
+
+            ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
+            DemoCollectionPagerAdapter adapter = new DemoCollectionPagerAdapter(getChildFragmentManager());
+            pager.setAdapter(adapter);
+
+            TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+            tabLayout.setupWithViewPager(pager);
+
+            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            return view;
+        }
+    }
+
+    void showDetails(Torrent f) {
+        new DialogFragmentWindow().show(getSupportFragmentManager(), "");
     }
 
     void renameDialog(final Torrent f) {
