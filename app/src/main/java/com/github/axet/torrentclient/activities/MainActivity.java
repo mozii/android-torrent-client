@@ -377,106 +377,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
     }
 
-    public static class DetailsFragment extends Fragment {
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.torrent_status, container, false);
-            return rootView;
-        }
-    }
-
-    public static class FilesFragment extends Fragment {
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.torrent_files, container, false);
-            return rootView;
-        }
-    }
-
-    public static class PeersFragment extends Fragment {
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.torrent_peers, container, false);
-            return rootView;
-        }
-    }
-
-    public static class TrackersFragment extends Fragment {
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.torrent_trackers, container, false);
-            return rootView;
-        }
-    }
-
-    public static class DemoCollectionPagerAdapter extends FragmentPagerAdapter {
-        public DemoCollectionPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            switch (i) {
-                case 0:
-                    return new DetailsFragment();
-                case 1:
-                    return new FilesFragment();
-                case 2:
-                    return new PeersFragment();
-                case 3:
-                    return new TrackersFragment();
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 4;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "DETAILS";
-                case 1:
-                    return "FILES";
-                case 2:
-                    return "PEERS";
-                case 3:
-                    return "TRACKERS";
-                default:
-                    return "EMPTY";
-            }
-        }
-    }
-
-    public static class DialogFragmentWindow extends DialogFragment {
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.torrent_details, container);
-
-            ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
-            DemoCollectionPagerAdapter adapter = new DemoCollectionPagerAdapter(getChildFragmentManager());
-            pager.setAdapter(adapter);
-
-            TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-            tabLayout.setupWithViewPager(pager);
-
-            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-            return view;
-        }
-    }
-
     void showDetails(Torrent f) {
-        new DialogFragmentWindow().show(getSupportFragmentManager(), "");
+        new TorrentDialogFragment().show(getSupportFragmentManager(), "");
     }
 
     void renameDialog(final Torrent f) {
@@ -726,5 +628,111 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         long free = storage.getFree(f);
         TextView text = (TextView) findViewById(R.id.space_left);
         text.setText(((MainApplication) getApplication()).formatFree(free, 0));
+    }
+
+    public static class TorrentPagerAdapter extends FragmentPagerAdapter {
+        public TorrentPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            switch (i) {
+                case 0:
+                    return new DetailsFragment();
+                case 1:
+                    return new FilesFragment();
+                case 2:
+                    return new PeersFragment();
+                case 3:
+                    return new TrackersFragment();
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 4;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "DETAILS";
+                case 1:
+                    return "FILES";
+                case 2:
+                    return "PEERS";
+                case 3:
+                    return "TRACKERS";
+                default:
+                    return "EMPTY";
+            }
+        }
+    }
+
+    public static class TorrentDialogFragment extends DialogFragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.torrent_details, container);
+
+            View v = view.findViewById(R.id.torrent_close);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getDialog().dismiss();
+                }
+            });
+
+            ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
+            TorrentPagerAdapter adapter = new TorrentPagerAdapter(getChildFragmentManager());
+            pager.setAdapter(adapter);
+
+            TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+            tabLayout.setupWithViewPager(pager);
+
+            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            return view;
+        }
+    }
+
+    public static class DetailsFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_status, container, false);
+            return rootView;
+        }
+    }
+
+    public static class FilesFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_files, container, false);
+            return rootView;
+        }
+    }
+
+    public static class PeersFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_peers, container, false);
+            return rootView;
+        }
+    }
+
+    public static class TrackersFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.torrent_trackers, container, false);
+            return rootView;
+        }
     }
 }
