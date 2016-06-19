@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Torrent Client</string>
+
+    <string-array name="themes">
+        <item>Theme White (default)</item>
+        <item>Theme Dark</item>
+    </string-array>
+
+    <string-array name="themes_values">
+        <item>Theme_White</item>
+        <item>Theme_Dark</item>
+    </string-array>
+
+    <string name="title_activity_main">Torrent Client</string>
+    <string name="action_settings">Settings</string>
+
+    <plurals name="days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+
+</resources>
