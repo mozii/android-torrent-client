@@ -33,7 +33,7 @@ public class Peices extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        cellSize = ThemeUtils.dp2px(getContext(), 5);
+        cellSize = ThemeUtils.dp2px(getContext(), 4);
         borderSize = ThemeUtils.dp2px(getContext(), 1);
         stepSize = cellSize + borderSize;
 

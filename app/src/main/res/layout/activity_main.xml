@@ -36,6 +36,7 @@
         fab:fab_labelsPosition="left">
 
         <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/torrent_create_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_file_upload_black_24dp"
@@ -45,6 +46,7 @@
             fab:fab_title="Create Torrent" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/torrent_add_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_folder_open_black_24dp"
@@ -55,6 +57,7 @@
             fab:fab_title="Add Torrent" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/torrent_magnet_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_playlist_add_black_24dp"

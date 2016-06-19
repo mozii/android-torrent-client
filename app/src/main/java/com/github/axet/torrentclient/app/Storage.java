@@ -18,7 +18,7 @@ import java.io.OutputStream;
 
 public class Storage {
     public static final String TMP_REC = "recorind.data";
-    public static final String RECORDINGS = "recordings";
+    public static final String TORRENTS = "torrents";
 
     Context context;
 
@@ -38,7 +38,7 @@ public class Storage {
     }
 
     public File getLocalStorage() {
-        return new File(context.getApplicationInfo().dataDir, RECORDINGS);
+        return new File(context.getApplicationInfo().dataDir, TORRENTS);
     }
 
     public boolean isLocalStorageEmpty() {

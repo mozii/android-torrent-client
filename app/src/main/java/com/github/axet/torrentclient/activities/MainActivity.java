@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
@@ -13,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -40,6 +42,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     int scrollState;
 
-    Recordings recordings;
+    Torrents torrents;
     Storage storage;
     ListView list;
     Handler handler;
@@ -94,31 +97,22 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     static class Torrent {
-        public int torrent;
-        public Libtorrent.Status status;
+        public long torrent;
         public int test;
 
-        public Torrent() {
+        public Torrent(long t) {
+            this.torrent = t;
         }
 
         public String getName() {
-            return "test1";
+            return Libtorrent.TorrentStatus(torrent).getName();
         }
 
         public int getStatus() {
-            return test;
-        }
-
-        public void setStatus(int i) {
-            test = i;
-        }
-
-        public long lastModified() {
-            return new Date().getTime();
+            return Libtorrent.TorrentStatus(torrent).getStatus();
         }
 
         public void delete() {
-
         }
 
         public Uri Uri() {
@@ -126,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         public void rename(String n) {
-
         }
     }
 
@@ -142,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
     }
 
-    public class Recordings extends ArrayAdapter<Torrent> {
+    public class Torrents extends ArrayAdapter<Torrent> {
         int selected = -1;
 
-        public Recordings(Context context) {
+        public Torrents(Context context) {
             super(context, 0);
         }
 
@@ -153,9 +146,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             setNotifyOnChange(false);
             clear();
 
-            add(new Torrent());
-
             notifyDataSetChanged();
+        }
+
+        public void add(long i) {
+            add(new Torrent(i));
         }
 
         public void close() {
@@ -244,11 +239,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (f.getStatus() == Libtorrent.StatusPaused)
-                        f.setStatus(Libtorrent.StatusDownloading);
+                    if (f.getStatus() != Libtorrent.StatusDownloading)
+                        Libtorrent.StartTorrent(f.torrent);
                     else
-                        f.setStatus(Libtorrent.StatusPaused);
-                    recordings.notifyDataSetChanged();
+                        Libtorrent.StopTorrent(f.torrent);
+                    torrents.notifyDataSetChanged();
                 }
             });
 
@@ -378,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     void showDetails(Torrent f) {
-        new TorrentDialogFragment().show(getSupportFragmentManager(), "");
+        TorrentDialogFragment.create(f).show(getSupportFragmentManager(), "");
     }
 
     void renameDialog(final Torrent f) {
@@ -413,51 +408,114 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         setContentView(R.layout.activity_main);
 
-        Libtorrent.Create();
-
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-
-        storage = new Storage(this);
-        handler = new Handler();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackground(new ColorDrawable(MainApplication.getActionbarColor(this)));
         setSupportActionBar(toolbar);
 
-        FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
+        if (!Libtorrent.Create()) {
+            Fatal(Libtorrent.Error());
+            return;
+        }
+
+        storage = new Storage(this);
+        handler = new Handler();
+
+        final FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("123", "click");
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
             }
         });
 
-        recordings = new Recordings(this);
+        FloatingActionButton create = (FloatingActionButton) findViewById(R.id.torrent_create_button);
+        create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
+
+                String path = "";
+
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                shared.getString(MainApplication.PREFERENCE_STORAGE, "");
+
+                if (path == null || path.isEmpty()) {
+                    path = "/sdcard";
+                }
+
+                f.setCurrentPath(new File(path));
+                f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File ff = f.getCurrentPath();
+                        String fileName = ff.getPath();
+                        //byte[] buf = Libtorrent.CreateTorrent(fileName);
+                    }
+                });
+                f.show();
+            }
+        });
+        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.torrent_add_button);
+        FloatingActionButton magnet = (FloatingActionButton) findViewById(R.id.torrent_magnet_button);
+        magnet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final OpenFileDialog.EditTextDialog f = new OpenFileDialog.EditTextDialog(MainActivity.this);
+                f.setTitle("Add Magnet");
+                f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String ff = f.getText();
+                        long torrent = Libtorrent.AddMagnet(ff);
+                        if (torrent == -1) {
+                            Error(Libtorrent.Error());
+                        }
+                        torrents.add(torrent);
+                    }
+                });
+                f.show();
+
+                fab.collapse();
+            }
+        });
+
+        torrents = new Torrents(this);
 
         list = (ListView) findViewById(R.id.list);
         list.setOnScrollListener(this);
-        list.setAdapter(recordings);
+        list.setAdapter(torrents);
         list.setEmptyView(findViewById(R.id.empty_list));
 
         if (permitted()) {
             ;
+        } else {
+            // with no permission we can't choise files to 'torrent', or select downloaded torrent
+            // file, since we have no persmission to user files.
+            create.setVisibility(View.GONE);
+            add.setVisibility(View.GONE);
         }
 
         TorrentService.startService(this);
     }
 
     void checkPending() {
-        if (storage.recordingPending()) {
-            return;
+        if (storage != null) {
+            if (storage.recordingPending()) {
+                return;
+            }
         }
     }
 
-    // load recordings
+    // load torrents
     void load() {
-        recordings.scan();
+        if (torrents != null)
+            torrents.scan();
     }
 
     @Override
@@ -568,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         handler.post(new Runnable() {
             @Override
             public void run() {
-                list.smoothScrollToPosition(recordings.selected);
+                list.smoothScrollToPosition(torrents.selected);
             }
         });
     }
@@ -577,7 +635,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onDestroy() {
         super.onDestroy();
 
-        recordings.close();
+        if (torrents != null)
+            torrents.close();
 
         Libtorrent.Close();
     }
@@ -623,7 +682,46 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         client.disconnect();
     }
 
+    void Error(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    void Fatal(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(this)
+                .setTitle("Fatal")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        finish();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
     void updateHeader() {
+        if (storage == null)
+            return;
+
         File f = storage.getStoragePath();
         long free = storage.getFree(f);
         TextView text = (TextView) findViewById(R.id.space_left);
@@ -631,24 +729,41 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     public static class TorrentPagerAdapter extends FragmentPagerAdapter {
-        public TorrentPagerAdapter(FragmentManager fm) {
+        long t;
+
+        public TorrentPagerAdapter(FragmentManager fm, long t) {
             super(fm);
+
+            this.t = t;
         }
 
         @Override
         public Fragment getItem(int i) {
+            Bundle args = new Bundle();
+            args.putLong("torrent", t);
+
+            Fragment f;
+
             switch (i) {
                 case 0:
-                    return new DetailsFragment();
+                    f = new DetailsFragment();
+                    break;
                 case 1:
-                    return new FilesFragment();
+                    f = new FilesFragment();
+                    break;
                 case 2:
-                    return new PeersFragment();
+                    f = new PeersFragment();
+                    break;
                 case 3:
-                    return new TrackersFragment();
+                    f = new TrackersFragment();
+                    break;
                 default:
                     return null;
             }
+
+            f.setArguments(args);
+
+            return f;
         }
 
         @Override
@@ -674,6 +789,16 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     public static class TorrentDialogFragment extends DialogFragment {
+        Torrent t;
+
+        public static TorrentDialogFragment create(Torrent t) {
+            TorrentDialogFragment f = new TorrentDialogFragment();
+            Bundle args = new Bundle();
+            args.putLong("torrent", t.torrent);
+            f.setArguments(args);
+            return f;
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.torrent_details, container);
@@ -686,8 +811,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 }
             });
 
+            long t = getArguments().getLong("torrent");
+
             ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
-            TorrentPagerAdapter adapter = new TorrentPagerAdapter(getChildFragmentManager());
+            TorrentPagerAdapter adapter = new TorrentPagerAdapter(getChildFragmentManager(), t);
             pager.setAdapter(adapter);
 
             TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
@@ -705,7 +832,34 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.torrent_status, container, false);
+
+            update(getArguments().getLong("torrent"), rootView);
+
             return rootView;
+        }
+
+        void update(long t, View v) {
+            Libtorrent.Status status = Libtorrent.TorrentStatus(t);
+            TextView s = (TextView) v.findViewById(R.id.torrent_status);
+            switch (status.getStatus()) {
+                case Libtorrent.StatusDownloading:
+                    s.setText("Downloading");
+                    break;
+                case Libtorrent.StatusPaused:
+                    s.setText("Paused");
+                    break;
+                case Libtorrent.StatusSeeding:
+                    s.setText("Seeding");
+                    break;
+            }
+
+            s = (TextView) v.findViewById(R.id.torrent_progress);
+            long c = status.getCompleted();
+            int r = 0;
+            if (c > 0) {
+                r = (int)(status.getTotalSize() * 100 / c);
+            }
+            s.setText(String.format("%d%%", r));
         }
     }
 
