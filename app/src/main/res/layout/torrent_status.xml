@@ -84,6 +84,7 @@
                             android:text="Downloaded:" />
 
                         <TextView
+                            android:id="@+id/torrent_downloaded"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="left"
@@ -104,6 +105,7 @@
                             android:text="Uploaded:" />
 
                         <TextView
+                            android:id="@+id/torrent_uploaded"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="left"
@@ -124,6 +126,7 @@
                             android:text="Ratio:" />
 
                         <TextView
+                            android:id="@+id/torrent_ratio"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="left"

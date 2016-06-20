@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class Storage {
-    public static final String TMP_REC = "recorind.data";
     public static final String TORRENTS = "torrents";
 
     Context context;
@@ -49,10 +48,6 @@ public class Storage {
         return permitted(PERMISSIONS);
     }
 
-    public boolean recordingPending() {
-        return getTempRecording().exists();
-    }
-
     public File getStoragePath() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String path = shared.getString(MainApplication.PREFERENCE_STORAGE, "");
@@ -60,6 +55,27 @@ public class Storage {
             return new File(path);
         } else {
             return getLocalStorage();
+        }
+    }
+
+    public void migrateLocalStorage() {
+        if (!permitted(PERMISSIONS)) {
+            return;
+        }
+
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        String path = shared.getString(MainApplication.PREFERENCE_STORAGE, "");
+
+        File l = getLocalStorage();
+        File t = new File(path);
+        File[] ff = l.listFiles();
+
+        if (ff == null)
+            return;
+
+        for (File f : ff) {
+            File tt = getNextFile(t, f);
+            move(f, tt);
         }
     }
 
@@ -83,6 +99,45 @@ public class Storage {
         return "";
     }
 
+    File getNextFile(File parent, File f) {
+        String fileName = f.getName();
+
+        String extension = "";
+
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+            fileName = fileName.substring(0, i);
+        }
+
+        return getNextFile(parent, fileName, extension);
+    }
+
+    File getNextFile(File parent, String name, String ext) {
+        String fileName;
+        if (ext.isEmpty())
+            fileName = name;
+        else
+            fileName = String.format("%s.%s", name, ext);
+
+        File file = new File(parent, fileName);
+
+        int i = 1;
+        while (file.exists()) {
+            fileName = String.format("%s (%d).%s", name, i, ext);
+            file = new File(parent, fileName);
+            i++;
+        }
+
+//        try {
+//            file.createNewFile();
+//        } catch (IOException e) {
+//            throw new RuntimeException("Unable to create: " + file, e);
+//        }
+
+        return file;
+    }
+
     public long getFree(File f) {
         while (!f.exists())
             f = f.getParentFile();
@@ -92,33 +147,6 @@ public class Storage {
             return fsi.getBlockSize() * fsi.getAvailableBlocks();
         else
             return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
-    }
-
-    public File getTempRecording() {
-        File internal = new File(context.getApplicationInfo().dataDir, TMP_REC);
-
-        if (internal.exists())
-            return internal;
-
-        // Starting in KITKAT, no permissions are required to read or write to the returned path;
-        // it's always accessible to the calling app.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            if (!permitted(PERMISSIONS))
-                return internal;
-        }
-
-        File external = new File(context.getExternalCacheDir(), TMP_REC);
-
-        if (external.exists())
-            return external;
-
-        long freeI = getFree(internal);
-        long freeE = getFree(external);
-
-        if (freeI > freeE)
-            return internal;
-        else
-            return external;
     }
 
     public FileOutputStream open(File f) {

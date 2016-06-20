@@ -5,11 +5,11 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.github.axet.audiorecorder"
+        applicationId "com.github.axet.torrentclient"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 61
-        versionName "1.1.39"
+        versionCode 1
+        versionName "1.0.0"
     }
     signingConfigs {
         release {
