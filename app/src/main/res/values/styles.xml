@@ -29,6 +29,8 @@
     </style>
 
     <style name="menu_labels_style">
+        <item name="android:padding">5dp</item>
+        <item name="android:background">?attr/secondBackground</item>
     </style>
 
 </resources>

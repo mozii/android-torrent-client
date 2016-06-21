@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             playerBase.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "ignored");
                 }
             });
 
@@ -276,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d(TAG, "Click Play");
                     if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusPaused)
                         t.start();
                     else
@@ -334,7 +332,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 rename.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "Click Rename");
                         //renameDialog(t);
                     }
                 });
@@ -343,7 +340,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 check.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "Click Check");
                         //renameDialog(t);
                     }
                 });
@@ -352,7 +348,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 share.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "Click Share");
                         shareProvider = new PopupShareActionProvider(getContext(), share);
 
                         Intent emailIntent = new Intent(Intent.ACTION_SEND);
@@ -372,7 +367,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 trash.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "Click Trash");
                         delete.run();
                     }
                 });
@@ -381,7 +375,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "Click Collapse");
                         select(-1);
                     }
                 });
@@ -394,7 +387,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "Click Expand");
                         select(position);
                     }
                 });
@@ -403,7 +395,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d(TAG, "Click Details");
                     showDetails(t.t);
                 }
             });
@@ -514,15 +505,57 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        File ff = f.getCurrentPath();
-                        String fileName = ff.getPath();
-                        //byte[] buf = Libtorrent.CreateTorrent(fileName);
+                        File p = f.getCurrentPath();
+                        File pp = p.getParentFile();
+                        long t = Libtorrent.CreateTorrent(p.getPath());
+                        if (t == -1) {
+                            Error(Libtorrent.Error());
+                            return;
+                        }
+                        getStorage().add(new Storage.Torrent(t, pp.getPath()));
+                        torrents.notifyDataSetChanged();
                     }
                 });
                 f.show();
+                fab.collapse();
             }
         });
+
         add = (FloatingActionButton) findViewById(R.id.torrent_add_button);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final OpenFileDialog f = new OpenFileDialog(MainActivity.this);
+
+                String path = "";
+
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                shared.getString(MainApplication.PREFERENCE_STORAGE, "");
+
+                if (path == null || path.isEmpty()) {
+                    path = "/sdcard";
+                }
+
+                f.setCurrentPath(new File(path));
+                f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File p = f.getCurrentPath();
+                        String s = getStorage().getStoragePath().getPath();
+                        long t = Libtorrent.AddTorrent(s, p.getPath());
+                        if (t == -1) {
+                            Error(Libtorrent.Error());
+                            return;
+                        }
+                        getStorage().add(new Storage.Torrent(t, s));
+                        torrents.notifyDataSetChanged();
+                    }
+                });
+                f.show();
+                fab.collapse();
+            }
+        });
+
         FloatingActionButton magnet = (FloatingActionButton) findViewById(R.id.torrent_magnet_button);
         magnet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -544,7 +577,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
                 f.show();
-
                 fab.collapse();
             }
         });
