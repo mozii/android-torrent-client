@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -89,18 +90,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
      */
     private GoogleApiClient client;
 
-    final int[] ALL = {TYPE_COLLAPSED, TYPE_EXPANDED};
-
     int scrollState;
 
     Runnable refresh;
     TorrentDialogFragment dialog;
 
-    SpeedInfo downloaded = new SpeedInfo();
-    SpeedInfo uploaded = new SpeedInfo();
+    Storage storage;
 
     Torrents torrents;
-    Storage storage;
     ListView list;
     Handler handler;
     PopupShareActionProvider shareProvider;
@@ -110,6 +107,34 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     // not delared locally - used from two places
     FloatingActionButton create;
     FloatingActionButton add;
+
+    public static class Tag {
+        public int tag;
+        public int position;
+
+        public Tag(int t, int p) {
+            this.tag = t;
+            this.position = p;
+        }
+
+        public static boolean animate(View v, int s, int p) {
+            if (v.getTag() == null)
+                return true;
+            if (animate(v, s))
+                return true;
+            return ((Tag) v.getTag()).position != p;
+        }
+
+        public static boolean animate(View v, int s) {
+            if (v.getTag() == null)
+                return false;
+            return ((Tag) v.getTag()).tag == s;
+        }
+
+        public static void setTag(View v, int t, int p) {
+            v.setTag(new Tag(t, p));
+        }
+    }
 
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
@@ -128,20 +153,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             this.context = context;
         }
 
-//        public void scan() {
-//            setNotifyOnChange(false);
-//            clear();
-//
-//            notifyDataSetChanged();
-//        }
-
         Context getContext() {
             return context;
         }
 
         public void update() {
             for (int i = 0; i < getCount(); i++) {
-                Storage.Torrent t = (Storage.Torrent)getItem(i);
+                Storage.Torrent t = (Storage.Torrent) getItem(i);
                 if (Libtorrent.TorrentActive(t.t)) {
                     t.update();
                 }
@@ -153,12 +171,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         @Override
         public int getCount() {
-            return storage.count();
+            return getStorage().count();
         }
 
         @Override
         public Object getItem(int i) {
-            return storage.torrent(i);
+            return getStorage().torrent(i);
         }
 
         @Override
@@ -172,12 +190,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.torrent, parent, false);
-                convertView.setTag(-1);
+                convertView.setTag(null);
             }
 
-            if ((int) convertView.getTag() == TYPE_DELETED) {
+            if (Tag.animate(convertView, TYPE_DELETED)) {
                 RemoveItemAnimation.restore(convertView);
-                convertView.setTag(-1);
+                convertView.setTag(null);
             }
 
             final View view = convertView;
@@ -213,14 +231,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                                 @Override
                                 public void run() {
                                     t.stop();
-                                    File f = new File(storage.getStoragePath(), Libtorrent.TorrentName(t.t));
+                                    File f = new File(getStorage().getStoragePath(), Libtorrent.TorrentName(t.t));
                                     try {
                                         FileUtils.deleteDirectory(f);
                                     } catch (IOException e) {
                                     }
-                                    storage.remove(t);
+                                    getStorage().remove(t);
                                     Libtorrent.RemoveTorrent(t.t);
-                                    view.setTag(TYPE_DELETED);
+                                    Tag.setTag(view, TYPE_DELETED, -1);
                                     select(-1);
                                 }
                             });
@@ -234,9 +252,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                                 @Override
                                 public void run() {
                                     t.stop();
-                                    storage.remove(t);
+                                    getStorage().remove(t);
                                     Libtorrent.RemoveTorrent(t.t);
-                                    view.setTag(TYPE_DELETED);
+                                    Tag.setTag(view, TYPE_DELETED, -1);
                                     select(-1);
                                 }
                             });
@@ -305,8 +323,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             ImageView expand = (ImageView) convertView.findViewById(R.id.torrent_expand);
 
             if (selected == position) {
-                RecordingAnimation.apply(list, convertView, true, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_COLLAPSED);
-                convertView.setTag(TYPE_EXPANDED);
+                if (Tag.animate(convertView, TYPE_COLLAPSED, position))
+                    RecordingAnimation.apply(list, convertView, true, scrollState == SCROLL_STATE_IDLE && Tag.animate(convertView, TYPE_COLLAPSED));
+                Tag.setTag(convertView, TYPE_EXPANDED, position);
 
                 final View rename = convertView.findViewById(R.id.recording_player_rename);
                 rename.setOnClickListener(new View.OnClickListener() {
@@ -351,8 +370,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
             } else {
-                RecordingAnimation.apply(list, convertView, false, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_EXPANDED);
-                convertView.setTag(TYPE_COLLAPSED);
+                if (Tag.animate(convertView, TYPE_EXPANDED, position))
+                    RecordingAnimation.apply(list, convertView, false, scrollState == SCROLL_STATE_IDLE && Tag.animate(convertView, TYPE_EXPANDED));
+                Tag.setTag(convertView, TYPE_COLLAPSED, position);
 
                 expand.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_expand_more_black_24dp));
                 expand.setOnClickListener(new View.OnClickListener() {
@@ -423,6 +443,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         e.show();
     }
 
+    public MainApplication getApp() {
+        return (MainApplication) getApplication();
+    }
+
     public void setAppTheme(int id) {
         super.setTheme(id);
 
@@ -449,11 +473,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         toolbar.setBackground(new ColorDrawable(MainApplication.getActionbarColor(this)));
         setSupportActionBar(toolbar);
 
-        storage = new Storage(this);
         handler = new Handler();
-
-        downloaded.start(0);
-        uploaded.start(0);
 
         final FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -502,12 +522,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String ff = f.getText();
-                        String p = storage.getStoragePath().getPath();
+                        String p = getStorage().getStoragePath().getPath();
                         long t = Libtorrent.AddMagnet(p, ff);
                         if (t == -1) {
                             Error(Libtorrent.Error());
                         }
-                        storage.add(new Storage.Torrent(t, p));
+                        getStorage().add(new Storage.Torrent(t, p));
                         torrents.notifyDataSetChanged();
                     }
                 });
@@ -517,6 +537,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         });
 
+        storage = new Storage(this);
         torrents = new Torrents(this);
 
         list = (ListView) findViewById(R.id.list);
@@ -525,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         list.setEmptyView(findViewById(R.id.empty_list));
 
         if (permitted()) {
-            storage.migrateLocalStorage();
+            getStorage().migrateLocalStorage();
         } else {
             // with no permission we can't choise files to 'torrent', or select downloaded torrent
             // file, since we have no persmission to user files.
@@ -533,7 +554,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             add.setVisibility(View.GONE);
         }
 
-        TorrentService.startService(this);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+        TorrentService.startService(this, storage.formatHeader());
     }
 
     // load torrents
@@ -564,8 +590,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             return true;
         }
 
+        if (id == R.id.action_shutdown) {
+            finish();
+            return true;
+        }
+
         if (id == R.id.action_show_folder) {
-            Uri selectedUri = Uri.fromFile(storage.getStoragePath());
+            Uri selectedUri = Uri.fromFile(getStorage().getStoragePath());
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(selectedUri, "resource/folder");
             if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
@@ -594,10 +625,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             public void run() {
                 torrents.notifyDataSetChanged();
 
-                Libtorrent.BytesInfo b = Libtorrent.Stats();
-                downloaded.step(b.getDownloaded());
-                uploaded.step(b.getUploaded());
+                getStorage().update();
+
                 updateHeader();
+
+                TorrentService.updateNotify(MainActivity.this, storage.formatHeader());
 
                 torrents.update();
 
@@ -634,7 +666,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         switch (requestCode) {
             case 1:
                 if (permitted(permissions)) {
-                    storage.migrateLocalStorage();
+                    getStorage().migrateLocalStorage();
                     load();
                     create.setVisibility(View.VISIBLE);
                     add.setVisibility(View.VISIBLE);
@@ -675,6 +707,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -694,6 +731,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             torrents.close();
 
         storage.close();
+
+        TorrentService.stopService(this);
     }
 
     @Override
@@ -779,13 +818,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     void updateHeader() {
-        if (storage == null)
-            return;
-
-        File f = storage.getStoragePath();
-        long free = storage.getFree(f);
         TextView text = (TextView) findViewById(R.id.space_left);
-        text.setText(((MainApplication) getApplication()).formatFree(free, downloaded.getCurrentSpeed(), uploaded.getCurrentSpeed()));
+        text.setText(storage.formatHeader());
+    }
+
+    public Storage getStorage() {
+        return storage;
     }
 
     public interface TorrentFragmentInterface {
@@ -880,6 +918,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         public void update() {
+            // dialog maybe created but onCreateView not yet called
+            if (pager == null)
+                return;
+
             int i = pager.getCurrentItem();
             TorrentPagerAdapter a = (TorrentPagerAdapter) pager.getAdapter();
             TorrentFragmentInterface f = a.getFragment(i);

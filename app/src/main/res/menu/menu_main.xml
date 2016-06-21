@@ -12,4 +12,9 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_shutdown"
+        android:orderInCategory="100"
+        android:title="Shutdown"
+        app:showAsAction="never" />
 </menu>

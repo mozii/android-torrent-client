@@ -26,7 +26,12 @@ public class Storage {
 
     Context context;
 
+    SpeedInfo downloaded = new SpeedInfo();
+    SpeedInfo uploaded = new SpeedInfo();
+
     ArrayList<Torrent> torrents = new ArrayList<>();
+
+    ArrayList<Torrent> pause;
 
     public static class Torrent {
         public long t;
@@ -78,22 +83,22 @@ public class Storage {
                     str += "Paused";
                     break;
                 case Libtorrent.StatusSeeding:
-                    str += "Seeding ";
+                    str += "Seeding";
                     break;
                 case Libtorrent.StatusDownloading:
                     long c = Libtorrent.TorrentBytesCompleted(t);
                     int a = downloaded.getAverageSpeed();
                     if (c > 0 && a > 0) {
                         int diff = (int) (c * 1000 / a);
-                        str += "Left: " + ((MainApplication) context.getApplicationContext()).formatDuration(diff) + " ";
+                        str += "Left: " + ((MainApplication) context.getApplicationContext()).formatDuration(diff);
                     } else {
                         str += "Left: ∞";
                     }
                     break;
             }
 
-            str += "· ↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
-            str += "· ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
+            str += " · ↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
+            str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
             return str;
         }
     }
@@ -104,6 +109,17 @@ public class Storage {
         create();
 
         load();
+    }
+
+    public MainApplication getApp() {
+        return (MainApplication) context.getApplicationContext();
+    }
+
+    public void update() {
+        Libtorrent.BytesInfo b = Libtorrent.Stats();
+
+        downloaded.step(b.getDownloaded());
+        uploaded.step(b.getUploaded());
     }
 
     public void load() {
@@ -141,10 +157,15 @@ public class Storage {
         if (!Libtorrent.Create()) {
             throw new RuntimeException(Libtorrent.Error());
         }
+
+        downloaded.start(0);
+        uploaded.start(0);
     }
 
     public void close() {
         save();
+
+        Libtorrent.Close();
     }
 
     public void add(Torrent t) {
@@ -398,4 +419,30 @@ public class Storage {
         }
     }
 
+    public void pause() {
+        pause = new ArrayList<>();
+
+        for (Torrent t : torrents) {
+            if (Libtorrent.TorrentActive(t.t))
+                pause.add(t);
+            t.stop();
+        }
+    }
+
+    public void resume() {
+        for (Torrent t : pause) {
+            Libtorrent.StartTorrent(t.t);
+        }
+        pause = null;
+    }
+
+    public boolean isPause() {
+        return pause != null;
+    }
+
+    public String formatHeader() {
+        File f = getStoragePath();
+        long free = getFree(f);
+        return getApp().formatFree(free, downloaded.getCurrentSpeed(), uploaded.getCurrentSpeed());
+    }
 }

@@ -15,13 +15,18 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.github.axet.torrentclient.R;
+import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
+import com.github.axet.torrentclient.app.Storage;
 
 public class TorrentService extends Service {
     public static final String TAG = TorrentService.class.getSimpleName();
 
     public static final int NOTIFICATION_TORRENT_ICON = 1;
 
+    public static String TITLE = "TITLE";
+
+    public static String UPDATE_NOTIFY = TorrentService.class.getCanonicalName() + ".UPDATE_NOTIFY";
     public static String SHOW_ACTIVITY = TorrentService.class.getCanonicalName() + ".SHOW_ACTIVITY";
     public static String PAUSE_BUTTON = TorrentService.class.getCanonicalName() + ".PAUSE_BUTTON";
 
@@ -30,6 +35,9 @@ public class TorrentService extends Service {
     public class TorrentReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(UPDATE_NOTIFY)) {
+                showNotificationAlarm(true, intent.getStringExtra(TITLE));
+            }
             if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 // showRecordingActivity();
             }
@@ -39,8 +47,15 @@ public class TorrentService extends Service {
         }
     }
 
-    public static void startService(Context context) {
-        context.startService(new Intent(context, TorrentService.class));
+    public static void startService(Context context, String title) {
+        Intent i = new Intent(context, TorrentService.class).setAction(UPDATE_NOTIFY)
+                .putExtra(TITLE, title);
+        context.startService(i);
+    }
+
+    public static void updateNotify(Context context, String title) {
+        Intent i = new Intent(UPDATE_NOTIFY).putExtra(TITLE, title);
+        context.sendBroadcast(i);
     }
 
     public static void stopService(Context context) {
@@ -57,11 +72,14 @@ public class TorrentService extends Service {
 
         receiver = new TorrentReceiver();
         IntentFilter filter = new IntentFilter();
+        filter.addAction(UPDATE_NOTIFY);
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(receiver, filter);
+    }
 
-        showNotificationAlarm(true);
+    MainApplication getApp() {
+        return ((MainApplication) getApplication());
     }
 
     @Override
@@ -70,6 +88,16 @@ public class TorrentService extends Service {
 
         if (intent != null) {
             String a = intent.getAction();
+            if (a != null) {
+                if (a.equals(PAUSE_BUTTON)) {
+                }
+                if (a.equals(UPDATE_NOTIFY)) {
+                    showNotificationAlarm(true, intent.getStringExtra(TITLE));
+                }
+                if (a.equals(SHOW_ACTIVITY)) {
+                    MainActivity.startActivity(this);
+                }
+            }
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -92,13 +120,12 @@ public class TorrentService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestory");
 
-        showNotificationAlarm(false);
+        showNotificationAlarm(false, null);
 
         unregisterReceiver(receiver);
     }
 
-    // alarm dismiss button
-    public void showNotificationAlarm(boolean show) {
+    public void showNotificationAlarm(boolean show, String title) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (!show) {
@@ -116,12 +143,12 @@ public class TorrentService extends Service {
                     R.layout.notifictaion_recording_light,
                     R.layout.notifictaion_recording_dark));
 
-            boolean downloading = true;
+            boolean pause = false;//getStorage().isPause();
 
             view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
-            view.setTextViewText(R.id.notification_text, "↓ 1.5Mb/s · ↑ 0.6Mb/s");
+            view.setTextViewText(R.id.notification_text, title);
             view.setOnClickPendingIntent(R.id.notification_pause, pe);
-            view.setImageViewResource(R.id.notification_pause, !downloading ? R.drawable.play : R.drawable.pause);
+            view.setImageViewResource(R.id.notification_pause, pause ? R.drawable.play : R.drawable.pause);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)

@@ -8,6 +8,8 @@ import android.preference.PreferenceManager;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
 
+import java.io.File;
+
 public class MainApplication extends Application {
     public static final String PREFERENCE_STORAGE = "storage_path";
     public static final String PREFERENCE_THEME = "theme";
@@ -20,6 +22,11 @@ public class MainApplication extends Application {
 
         Context context = this;
         context.setTheme(getUserTheme());
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
     }
 
     public static int getTheme(Context context, int light, int dark) {
