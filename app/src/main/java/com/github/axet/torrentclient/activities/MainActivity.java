@@ -502,11 +502,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String ff = f.getText();
-                        long t = Libtorrent.AddMagnet(ff);
+                        String p = storage.getStoragePath().getPath();
+                        long t = Libtorrent.AddMagnet(p, ff);
                         if (t == -1) {
                             Error(Libtorrent.Error());
                         }
-                        storage.add(t);
+                        storage.add(new Storage.Torrent(t, p));
                         torrents.notifyDataSetChanged();
                     }
                 });

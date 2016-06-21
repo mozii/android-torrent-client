@@ -25,18 +25,19 @@ public class Storage {
     public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     Context context;
-    File currentStorage;
 
     ArrayList<Torrent> torrents = new ArrayList<>();
 
     public static class Torrent {
         public long t;
+        public String path;
 
         SpeedInfo downloaded = new SpeedInfo();
         SpeedInfo uploaded = new SpeedInfo();
 
-        public Torrent(long t) {
+        public Torrent(long t, String path) {
             this.t = t;
+            this.path = path;
         }
 
         public String name() {
@@ -107,10 +108,16 @@ public class Storage {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         int count = shared.getInt("TORRENT_COUNT", 0);
         for (int i = 0; i < count; i++) {
+            String path = shared.getString("TORRENT_" + i + "_PATH", "");
+
+            if (path.isEmpty())
+                path = getStoragePath().getPath();
+
             String state = shared.getString("TORRENT_" + i + "_STATE", "");
+
             byte[] b = Base64.decode(state, Base64.DEFAULT);
-            long t = Libtorrent.LoadTorrent(b);
-            add(t);
+            long t = Libtorrent.LoadTorrent(path, b);
+            add(new Torrent(t, path));
         }
     }
 
@@ -119,17 +126,17 @@ public class Storage {
         SharedPreferences.Editor edit = shared.edit();
         edit.putInt("TORRENT_COUNT", torrents.size());
         for (int i = 0; i < torrents.size(); i++) {
-            long t = torrents.get(i).t;
-            byte[] b = Libtorrent.SaveTorrent(t);
+            Torrent t = torrents.get(i);
+            byte[] b = Libtorrent.SaveTorrent(t.t);
             String state = Base64.encodeToString(b, Base64.DEFAULT);
             edit.putString("TORRENT_" + i + "_STATE", state);
+            edit.putString("TORRENT_" + i + "_PATH", t.path);
         }
         edit.commit();
     }
 
     void create() {
-        currentStorage = getStoragePath();
-        if (!Libtorrent.Create(currentStorage.getPath())) {
+        if (!Libtorrent.Create()) {
             throw new RuntimeException(Libtorrent.Error());
         }
     }
@@ -138,8 +145,8 @@ public class Storage {
         save();
     }
 
-    public void add(long t) {
-        torrents.add(new Torrent(t));
+    public void add(Torrent t) {
+        torrents.add(t);
 
         save();
     }
@@ -243,9 +250,14 @@ public class Storage {
             }
         }
 
-        // restart libtorrent with new storage path
-        Libtorrent.Close();
-        create();
+        save();
+
+        if (!l.equals(t)) {
+            // restart libtorrent with new storage path
+            Libtorrent.Close();
+            create();
+        }
+
         for (int i = 0; i < active.size(); i++) {
             Libtorrent.StartTorrent(active.get(i).t);
         }
