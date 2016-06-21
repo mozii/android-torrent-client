@@ -46,10 +46,8 @@ public class MainApplication extends Application {
         return String.format("%02d", tt);
     }
 
-    public String formatFree(long free, long left) {
+    public String formatLeft(int diff) {
         String str = "";
-
-        long diff = left;
 
         int diffSeconds = (int) (diff / 1000 % 60);
         int diffMinutes = (int) (diff / (60 * 1000) % 60);
@@ -66,7 +64,11 @@ public class MainApplication extends Application {
             str = getResources().getQuantityString(R.plurals.seconds, diffSeconds, diffSeconds);
         }
 
-        return String.format("%s free · ↓ 0 Mb/s · ↑ 0 Mb/s", MainApplication.formatSize(free), str);
+        return str;
+    }
+
+    public static String formatFree(long free, long d, long u) {
+        return String.format("%s free · ↓ %s · ↑ %s", MainApplication.formatSize(free), MainApplication.formatSize(d) + "/s", MainApplication.formatSize(u) + "/s");
     }
 
     public static String formatSize(long s) {

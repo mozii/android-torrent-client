@@ -15,6 +15,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import go.libtorrent.Libtorrent;
 
 public class Storage {
     public static final String TORRENTS = "torrents";
@@ -26,6 +31,81 @@ public class Storage {
     }
 
     public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    ArrayList<Torrent> torrents = new ArrayList<>();
+
+    public static class Torrent {
+        public long t;
+
+        SpeedInfo downloaded = new SpeedInfo();
+        SpeedInfo uploaded = new SpeedInfo();
+
+        public Torrent(long t) {
+            this.t = t;
+        }
+
+        public void start() {
+            Libtorrent.StartTorrent(t);
+            Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+            downloaded.start(b.getDownloaded());
+            uploaded.start(b.getUploaded());
+        }
+
+        public void update() {
+            Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+            downloaded.step(b.getDownloaded());
+            uploaded.step(b.getUploaded());
+        }
+
+        public void stop() {
+            Libtorrent.StopTorrent(t);
+            Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+            downloaded.end(b.getDownloaded());
+            uploaded.end(b.getUploaded());
+        }
+
+        // "Left: 5m 30s · ↓ 1.5Mb/s · ↑ 0.6Mb/s"
+        public String status(Context context) {
+            String str = "";
+
+            switch (Libtorrent.TorrentStatus(t)) {
+                case Libtorrent.StatusPaused:
+                    str += "Paused";
+                    break;
+                case Libtorrent.StatusSeeding:
+                    str += "Seeding ";
+                    break;
+                case Libtorrent.StatusDownloading:
+                    if (Libtorrent.TorrentBytesCompleted(t) > 0) {
+                        int diff = (int) (Libtorrent.TorrentBytesLength(t) * 1000 / downloaded.getAverageSpeed());
+                        str += "Left: " + ((MainApplication) context.getApplicationContext()).formatDuration(diff) + " ";
+                    } else {
+                        str += "Left: ∞";
+                    }
+                    break;
+            }
+
+            str += "· ↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
+            str += "· ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
+            return str;
+        }
+    }
+
+    public void add(long t) {
+        torrents.add(new Torrent(t));
+    }
+
+    public int count() {
+        return torrents.size();
+    }
+
+    public Torrent torrent(int i) {
+        return torrents.get(i);
+    }
+
+    public void remove(Torrent t) {
+        torrents.remove(t);
+    }
 
     public boolean permitted(String[] ss) {
         for (String s : ss) {
@@ -68,14 +148,49 @@ public class Storage {
 
         File l = getLocalStorage();
         File t = new File(path);
-        File[] ff = l.listFiles();
 
-        if (ff == null)
-            return;
+        ArrayList<Torrent> active = new ArrayList<>();
+        // migrate torrents, then migrate download data
+        for (int i = 0; i < torrents.size(); i++) {
+            Torrent torrent = torrents.get(i);
 
-        for (File f : ff) {
+            // add to active list, so we will restart torrent after migrate
+            if (Libtorrent.TorrentActive(torrent.t))
+                active.add(torrent);
+            Libtorrent.StopTorrent(torrent.t);
+
+            String name = Libtorrent.TorrentName(torrent.t);
+            File f = new File(l, name);
             File tt = getNextFile(t, f);
             move(f, tt);
+
+            // target name changed update torrent meta or pause it
+            if (tt.getName().equals(name)) {
+                // TODO replace with rename when it will be impelemented
+                //Libtorrent.TorrentFileRename(torrent.t, 0, tt.getName());
+
+                // rename not implement so, just pause it
+                active.remove(torrent);
+            }
+        }
+
+        // restart libtorrent with not storage path
+        Libtorrent.Close();
+        if (!Libtorrent.Create(getStoragePath().getPath())) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+        for (int i = 0; i < active.size(); i++) {
+            Libtorrent.StartTorrent(active.get(i).t);
+        }
+
+        // now migrate rest files in local storage
+        File[] ff = l.listFiles();
+
+        if (ff != null) {
+            for (File f : ff) {
+                File tt = getNextFile(t, f);
+                move(f, tt);
+            }
         }
     }
 
@@ -169,6 +284,18 @@ public class Storage {
     }
 
     public void move(File f, File to) {
+        if (f.isDirectory()) {
+            to.mkdirs();
+            String[] files = f.list();
+            if (files != null) {
+                for (String n : files) {
+                    File ff = new File(f, n);
+                    move(ff, new File(to, n));
+                }
+            }
+            f.delete();
+            return;
+        }
         try {
             InputStream in = new FileInputStream(f);
             OutputStream out = new FileOutputStream(to);
