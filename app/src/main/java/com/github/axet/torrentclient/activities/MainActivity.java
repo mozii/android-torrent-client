@@ -107,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     int themeId;
 
+    // not delared locally - used from two places
+    FloatingActionButton create;
+    FloatingActionButton add;
+
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -182,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             final Storage.Torrent t = (Storage.Torrent) getItem(position);
 
             TextView title = (TextView) convertView.findViewById(R.id.torrent_title);
-            title.setText(Libtorrent.TorrentName(t.t));
+            title.setText(t.name());
 
             TextView time = (TextView) convertView.findViewById(R.id.torrent_status);
             time.setText(t.status(getContext()));
@@ -448,10 +452,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         storage = new Storage(this);
         handler = new Handler();
 
-        if (!Libtorrent.Create(storage.getStoragePath().getPath())) {
-            Fatal(Libtorrent.Error());
-            return;
-        }
         downloaded.start(0);
         uploaded.start(0);
 
@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         });
 
-        FloatingActionButton create = (FloatingActionButton) findViewById(R.id.torrent_create_button);
+        create = (FloatingActionButton) findViewById(R.id.torrent_create_button);
         create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -491,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 f.show();
             }
         });
-        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.torrent_add_button);
+        add = (FloatingActionButton) findViewById(R.id.torrent_add_button);
         FloatingActionButton magnet = (FloatingActionButton) findViewById(R.id.torrent_magnet_button);
         magnet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -635,6 +635,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 if (permitted(permissions)) {
                     storage.migrateLocalStorage();
                     load();
+                    create.setVisibility(View.VISIBLE);
+                    add.setVisibility(View.VISIBLE);
                 } else {
                     Toast.makeText(this, "Not permitted", Toast.LENGTH_SHORT).show();
                 }
@@ -690,7 +692,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (torrents != null)
             torrents.close();
 
-        Libtorrent.Close();
+        storage.close();
     }
 
     @Override

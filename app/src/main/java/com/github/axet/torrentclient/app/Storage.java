@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Base64;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,21 +17,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import go.libtorrent.Libtorrent;
 
 public class Storage {
     public static final String TORRENTS = "torrents";
+    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     Context context;
-
-    public Storage(Context context) {
-        this.context = context;
-    }
-
-    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    File currentStorage;
 
     ArrayList<Torrent> torrents = new ArrayList<>();
 
@@ -42,6 +37,15 @@ public class Storage {
 
         public Torrent(long t) {
             this.t = t;
+        }
+
+        public String name() {
+            String name = Libtorrent.TorrentName(t);
+            // can be empy for magnet links, show hash instead
+            if (name.isEmpty()) {
+                name = Libtorrent.TorrentHash(t);
+            }
+            return name;
         }
 
         public void start() {
@@ -91,8 +95,53 @@ public class Storage {
         }
     }
 
+    public Storage(Context context) {
+        this.context = context;
+
+        create();
+
+        load();
+    }
+
+    public void load() {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        int count = shared.getInt("TORRENT_COUNT", 0);
+        for (int i = 0; i < count; i++) {
+            String state = shared.getString("TORRENT_" + i + "_STATE", "");
+            byte[] b = Base64.decode(state, Base64.DEFAULT);
+            long t = Libtorrent.LoadTorrent(b);
+            add(t);
+        }
+    }
+
+    public void save() {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor edit = shared.edit();
+        edit.putInt("TORRENT_COUNT", torrents.size());
+        for (int i = 0; i < torrents.size(); i++) {
+            long t = torrents.get(i).t;
+            byte[] b = Libtorrent.SaveTorrent(t);
+            String state = Base64.encodeToString(b, Base64.DEFAULT);
+            edit.putString("TORRENT_" + i + "_STATE", state);
+        }
+        edit.commit();
+    }
+
+    void create() {
+        currentStorage = getStoragePath();
+        if (!Libtorrent.Create(currentStorage.getPath())) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+    }
+
+    public void close() {
+        save();
+    }
+
     public void add(long t) {
         torrents.add(new Torrent(t));
+
+        save();
     }
 
     public int count() {
@@ -105,6 +154,8 @@ public class Storage {
 
     public void remove(Torrent t) {
         torrents.remove(t);
+
+        save();
     }
 
     public boolean permitted(String[] ss) {
@@ -129,25 +180,38 @@ public class Storage {
     }
 
     public File getStoragePath() {
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        String path = shared.getString(MainApplication.PREFERENCE_STORAGE, "");
         if (permitted(PERMISSIONS)) {
-            return new File(path);
+            return getPrefStorage();
         } else {
             return getLocalStorage();
         }
     }
 
-    public void migrateLocalStorage() {
-        if (!permitted(PERMISSIONS)) {
-            return;
-        }
-
+    File getPrefStorage() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String path = shared.getString(MainApplication.PREFERENCE_STORAGE, "");
+        return new File(path);
+    }
 
+    public void migrateLocalStorage() {
         File l = getLocalStorage();
-        File t = new File(path);
+        File t = getStoragePath();
+
+        // if we are local return
+        if (l.equals(t))
+            return;
+
+        // we are not local
+
+        if (l.listFiles() != null) {
+            migrateTorrents();
+            migrateFiles();
+        }
+    }
+
+    void migrateTorrents() {
+        File l = getLocalStorage();
+        File t = getStoragePath();
 
         ArrayList<Torrent> active = new ArrayList<>();
         // migrate torrents, then migrate download data
@@ -162,28 +226,35 @@ public class Storage {
             String name = Libtorrent.TorrentName(torrent.t);
             File f = new File(l, name);
             File tt = getNextFile(t, f);
-            move(f, tt);
 
-            // target name changed update torrent meta or pause it
-            if (tt.getName().equals(name)) {
-                // TODO replace with rename when it will be impelemented
-                //Libtorrent.TorrentFileRename(torrent.t, 0, tt.getName());
+            // if file does not exist, maybe it already been migrated.
+            // skip it.
+            if (f.exists()) {
+                move(f, tt);
 
-                // rename not implement so, just pause it
-                active.remove(torrent);
+                // target name changed update torrent meta or pause it
+                if (tt.getName().equals(name)) {
+                    // TODO replace with rename when it will be impelemented
+                    //Libtorrent.TorrentFileRename(torrent.t, 0, tt.getName());
+
+                    // rename not implement so, just pause it
+                    active.remove(torrent);
+                }
             }
         }
 
-        // restart libtorrent with not storage path
+        // restart libtorrent with new storage path
         Libtorrent.Close();
-        if (!Libtorrent.Create(getStoragePath().getPath())) {
-            throw new RuntimeException(Libtorrent.Error());
-        }
+        create();
         for (int i = 0; i < active.size(); i++) {
             Libtorrent.StartTorrent(active.get(i).t);
         }
+    }
 
-        // now migrate rest files in local storage
+    void migrateFiles() {
+        File l = getLocalStorage();
+        File t = getStoragePath();
+
         File[] ff = l.listFiles();
 
         if (ff != null) {
