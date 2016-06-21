@@ -38,7 +38,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
 
         SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        return s.format(new Date(d));
+        return s.format(new Date(d * 1000));
     }
 
     public void update() {

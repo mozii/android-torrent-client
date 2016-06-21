@@ -537,6 +537,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         long t = Libtorrent.AddMagnet(p, ff);
                         if (t == -1) {
                             Error(Libtorrent.Error());
+                            return;
                         }
                         getStorage().add(new Storage.Torrent(t, p));
                         torrents.notifyDataSetChanged();
@@ -795,7 +796,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 .setMessage(err)
                 .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)

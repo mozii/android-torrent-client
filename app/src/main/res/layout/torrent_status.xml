@@ -63,21 +63,30 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:text="Hash:" />
-
-                <TextView
-                    android:id="@+id/torrent_hash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:layout_marginLeft="5dp"
-                    android:text="1gf1f3f3f3f3f3f3f3fff1f1" />
             </TableRow>
+        </TableLayout>
+
+        <TextView
+            android:id="@+id/torrent_hash"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="?attr/secondBackground"
+            android:padding="5dp"
+            android:text="1gf1f3f3f3f3f3f3f3fff1f1" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
 
 
             <TableRow>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:text="Creator:" />
@@ -116,15 +125,24 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:text="Comment:" />
-
-                <TextView
-                    android:id="@+id/torrent_comment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:layout_marginLeft="5dp"
-                    android:text="lalala" />
             </TableRow>
+        </TableLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
+
+            <TextView
+                android:id="@+id/torrent_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="?attr/secondBackground"
+                android:padding="5dp"
+                android:text="lalala" />
         </TableLayout>
 
         <View
