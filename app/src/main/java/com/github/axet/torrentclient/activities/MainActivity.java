@@ -925,6 +925,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             int i = pager.getCurrentItem();
             TorrentPagerAdapter a = (TorrentPagerAdapter) pager.getAdapter();
             TorrentFragmentInterface f = a.getFragment(i);
+            if (f == null)
+                return;
             f.update();
         }
 

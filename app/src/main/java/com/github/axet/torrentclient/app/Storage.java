@@ -9,6 +9,7 @@ import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import go.libtorrent.Libtorrent;
 
 public class Storage {
+    public static final String TAG = Storage.class.getSimpleName();
+
     public static final String TORRENTS = "torrents";
     public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
@@ -80,10 +83,10 @@ public class Storage {
 
             switch (Libtorrent.TorrentStatus(t)) {
                 case Libtorrent.StatusPaused:
-                    str += "Paused";
+//                    str += "Paused";
                     break;
                 case Libtorrent.StatusSeeding:
-                    str += "Seeding";
+//                    str += "Seeding";
                     break;
                 case Libtorrent.StatusDownloading:
                     long c = Libtorrent.TorrentBytesCompleted(t);
@@ -97,13 +100,19 @@ public class Storage {
                     break;
             }
 
+            if (Libtorrent.TorrentBytesCompleted(t) > 0)
+                str += " " + MainApplication.formatSize(Libtorrent.TorrentBytesLength(t));
+
             str += " · ↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
             str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
-            return str;
+
+            return str.trim();
         }
     }
 
     public Storage(Context context) {
+        Log.d(TAG, "Storage.Close");
+
         this.context = context;
 
         create();
@@ -163,6 +172,8 @@ public class Storage {
     }
 
     public void close() {
+        Log.d(TAG, "Storage.Close");
+
         save();
 
         Libtorrent.Close();

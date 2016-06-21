@@ -9,145 +9,244 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Torrent"
+            android:textStyle="bold" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="Size:" />
+
+                <TextView
+                    android:id="@+id/torrent_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="5dp"
+                    android:text="11 gb" />
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="Pieces:" />
+
+                <TextView
+                    android:id="@+id/torrent_pieces"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="5dp"
+                    android:text="12323, Length: 11 kb" />
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="Hash:" />
+
+                <TextView
+                    android:id="@+id/torrent_hash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="5dp"
+                    android:text="1gf1f3f3f3f3f3f3f3fff1f1" />
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="Creator:" />
+
+                <TextView
+                    android:id="@+id/torrent_creator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="5dp"
+                    android:text="name" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="Created On:" />
+
+                <TextView
+                    android:id="@+id/torrent_created_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="5dp"
+                    android:text="17 jun 2011" />
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="Comment:" />
+
+                <TextView
+                    android:id="@+id/torrent_comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginLeft="5dp"
+                    android:text="lalala" />
+            </TableRow>
+        </TableLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="5dp"
+            android:background="@color/colorPrimary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="Transfering"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <TextView
+            <TableLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:text="Transfering"
-                android:textStyle="bold" />
+                android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                <TableRow>
 
-                <LinearLayout
-                    android:layout_width="170dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="90dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_gravity="right"
+                        android:text="Status:" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:text="Status:" />
-
-                        <TextView
-                            android:id="@+id/torrent_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="left"
-                            android:layout_marginLeft="5dp"
-                            android:text="seeding" />
-                    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-
-                    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:text="Progress:" />
-
-                        <TextView
-                            android:id="@+id/torrent_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="left"
-                            android:layout_marginLeft="5dp"
-                            android:text="100%" />
-
-                    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-
-                    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:text="Downloaded:" />
-
-                        <TextView
-                            android:id="@+id/torrent_downloaded"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="left"
-                            android:layout_marginLeft="5dp"
-                            android:text="500Mb" />
-
-                    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-
-                    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:text="Uploaded:" />
-
-                        <TextView
-                            android:id="@+id/torrent_uploaded"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="left"
-                            android:layout_marginLeft="5dp"
-                            android:text="500Mb" />
-
-                    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-
-                    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:text="Ratio:" />
-
-                        <TextView
-                            android:id="@+id/torrent_ratio"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="left"
-                            android:layout_marginLeft="5dp"
-                            android:text="1.0" />
-
-                    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-                </LinearLayout>
-
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-                    <com.github.axet.torrentclient.widgets.Peices
+                    <TextView
+                        android:id="@+id/torrent_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center" />
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="5dp"
+                        android:text="seeding" />
+                </TableRow>
 
-                </FrameLayout>
-            </LinearLayout>
+                <TableRow>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="Progress:" />
+
+                    <TextView
+                        android:id="@+id/torrent_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="5dp"
+                        android:text="100%" />
+
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="Downloaded:" />
+
+                    <TextView
+                        android:id="@+id/torrent_downloaded"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="5dp"
+                        android:text="500Mb" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="Uploaded:" />
+
+                    <TextView
+                        android:id="@+id/torrent_uploaded"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="5dp"
+                        android:text="500Mb" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="Ratio:" />
+
+                    <TextView
+                        android:id="@+id/torrent_ratio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="5dp"
+                        android:text="1.0" />
+                </TableRow>
+            </TableLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <com.github.axet.torrentclient.widgets.Peices
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+            </FrameLayout>
         </LinearLayout>
 
         <View
@@ -156,41 +255,36 @@
             android:layout_margin="5dp"
             android:background="@color/colorPrimary" />
 
-        <LinearLayout
-            android:layout_width="170dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="Dates"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dates"
-                android:textStyle="bold" />
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
 
-            <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <TableRow>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:text="Added:" />
 
                 <TextView
+                    android:id="@+id/torrent_added"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
                     android:text="2015/01/01 11:11" />
+            </TableRow>
 
-            </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
 
-            <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <TableRow>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -199,14 +293,14 @@
                     android:text="Completed:" />
 
                 <TextView
+                    android:id="@+id/torrent_completed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
                     android:text="2015/01/01 11:11" />
-
-            </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-        </LinearLayout>
+            </TableRow>
+        </TableLayout>
 
         <View
             android:layout_width="match_parent"
@@ -214,24 +308,22 @@
             android:layout_margin="5dp"
             android:background="@color/colorPrimary" />
 
-        <LinearLayout
-            android:layout_width="170dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="Time Elapsed"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Time Elapsed"
-                android:textStyle="bold" />
 
-            <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
+
+            <TableRow>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="90dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:text="Downloading:" />
@@ -242,12 +334,9 @@
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
                     android:text="4h" />
-            </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
+            </TableRow>
 
-            <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <TableRow>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -261,7 +350,7 @@
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
                     android:text="4h" />
-            </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
-        </LinearLayout>
+            </TableRow>
+        </TableLayout>
     </LinearLayout>
 </ScrollView>
