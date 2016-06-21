@@ -81,8 +81,10 @@ public class Storage {
                     str += "Seeding ";
                     break;
                 case Libtorrent.StatusDownloading:
-                    if (Libtorrent.TorrentBytesCompleted(t) > 0) {
-                        int diff = (int) (Libtorrent.TorrentBytesLength(t) * 1000 / downloaded.getAverageSpeed());
+                    long c = Libtorrent.TorrentBytesCompleted(t);
+                    int a = downloaded.getAverageSpeed();
+                    if (c > 0 && a > 0) {
+                        int diff = (int) (c * 1000 / a);
                         str += "Left: " + ((MainApplication) context.getApplicationContext()).formatDuration(diff) + " ";
                     } else {
                         str += "Left: ∞";
