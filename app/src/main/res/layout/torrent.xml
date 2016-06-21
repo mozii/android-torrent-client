@@ -124,10 +124,10 @@
                         android:src="@drawable/ic_create_black_24dp"
                         android:tint="@android:color/darker_gray" />
 
-                    <Space
+                    <View
                         android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1"></Space>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"></View>
 
                     <ImageView
                         android:id="@+id/recording_player_check"
@@ -137,10 +137,10 @@
                         android:src="@drawable/ic_done_all_black_24dp"
                         android:tint="@android:color/darker_gray" />
 
-                    <Space
+                    <View
                         android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1"></Space>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"></View>
 
                     <ImageView
                         android:id="@+id/recording_player_share"
@@ -150,10 +150,10 @@
                         android:src="@drawable/share"
                         android:tint="?attr/colorAccent" />
 
-                    <Space
+                    <View
                         android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1"></Space>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"></View>
 
                     <ImageView
                         android:id="@+id/recording_player_trash"

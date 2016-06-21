@@ -30,6 +30,9 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
     }
 
     String formatDate(long d) {
+        if (d == 0)
+            return "N/A";
+
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(d);
         return c.getTime().toString();

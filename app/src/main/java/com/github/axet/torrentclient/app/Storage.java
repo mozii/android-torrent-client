@@ -142,9 +142,15 @@ public class Storage {
 
             String state = shared.getString("TORRENT_" + i + "_STATE", "");
 
+            int status = shared.getInt("TORRENT_" + i + "_STATUS", 0);
+
             byte[] b = Base64.decode(state, Base64.DEFAULT);
             long t = Libtorrent.LoadTorrent(path, b);
             add(new Torrent(t, path));
+
+            if(status != Libtorrent.StatusPaused) {
+                Libtorrent.StartTorrent(t);
+            }
         }
     }
 
@@ -156,6 +162,7 @@ public class Storage {
             Torrent t = torrents.get(i);
             byte[] b = Libtorrent.SaveTorrent(t.t);
             String state = Base64.encodeToString(b, Base64.DEFAULT);
+            edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
             edit.putString("TORRENT_" + i + "_STATE", state);
             edit.putString("TORRENT_" + i + "_PATH", t.path);
         }

@@ -153,13 +153,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             this.context = context;
         }
 
-        Context getContext() {
+        public Context getContext() {
             return context;
         }
 
         public void update() {
             for (int i = 0; i < getCount(); i++) {
-                Storage.Torrent t = (Storage.Torrent) getItem(i);
+                Storage.Torrent t = getItem(i);
                 if (Libtorrent.TorrentActive(t.t)) {
                     t.update();
                 }
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         @Override
-        public Object getItem(int i) {
+        public Storage.Torrent getItem(int i) {
             return getStorage().torrent(i);
         }
 
@@ -210,9 +210,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             time.setText(t.status(getContext()));
 
             final View playerBase = convertView.findViewById(R.id.recording_player);
+            // cover area, prevent click over to convertView
             playerBase.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d(TAG, "ignored");
                 }
             });
 
@@ -274,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.d(TAG, "Click Play");
                     if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusPaused)
                         t.start();
                     else
@@ -331,6 +334,16 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 rename.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d(TAG, "Click Rename");
+                        //renameDialog(t);
+                    }
+                });
+
+                final View check = convertView.findViewById(R.id.recording_player_check);
+                check.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "Click Check");
                         //renameDialog(t);
                     }
                 });
@@ -339,6 +352,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 share.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d(TAG, "Click Share");
                         shareProvider = new PopupShareActionProvider(getContext(), share);
 
                         Intent emailIntent = new Intent(Intent.ACTION_SEND);
@@ -358,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 trash.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d(TAG, "Click Trash");
                         delete.run();
                     }
                 });
@@ -366,6 +381,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d(TAG, "Click Collapse");
                         select(-1);
                     }
                 });
@@ -378,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d(TAG, "Click Expand");
                         select(position);
                     }
                 });
@@ -386,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.d(TAG, "Click Details");
                     showDetails(t.t);
                 }
             });
@@ -476,13 +494,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         handler = new Handler();
 
         final FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-            }
-        });
 
         create = (FloatingActionButton) findViewById(R.id.torrent_create_button);
         create.setOnClickListener(new View.OnClickListener() {
