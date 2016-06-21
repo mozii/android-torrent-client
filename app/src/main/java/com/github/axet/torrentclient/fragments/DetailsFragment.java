@@ -11,6 +11,7 @@ import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,6 +19,8 @@ import go.libtorrent.Libtorrent;
 
 public class DetailsFragment extends Fragment implements MainActivity.TorrentFragmentInterface {
     View v;
+
+    final static String NA = "N/A";
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -31,21 +34,21 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
 
     String formatDate(long d) {
         if (d == 0)
-            return "N/A";
+            return NA;
 
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(d);
-        return c.getTime().toString();
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        return s.format(new Date(d));
     }
 
     public void update() {
         long t = getArguments().getLong("torrent");
 
         TextView size = (TextView) v.findViewById(R.id.torrent_size);
-        size.setText(MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
+        size.setText(Libtorrent.TorrentBytesCompleted(t) == 0 ? NA : MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
 
         TextView pieces = (TextView) v.findViewById(R.id.torrent_pieces);
-        pieces.setText("" + Libtorrent.TorrentPiecesCount(t) + ", Length: " + MainApplication.formatSize(Libtorrent.TorrentPiecesLength(t)));
+        pieces.setText(Libtorrent.TorrentBytesCompleted(t) == 0 ? NA : Libtorrent.TorrentPiecesCount(t) + ", Length: " + MainApplication.formatSize(Libtorrent.TorrentPiecesLength(t)));
 
         TextView hash = (TextView) v.findViewById(R.id.torrent_hash);
         hash.setText(Libtorrent.TorrentHash(t));
