@@ -111,7 +111,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
                 } else {
                     File p1 = new File(makePath(ss)).getParentFile();
                     File p2 = new File(makePath(splitPathFilter(getItem(i - 1).getPath()))).getParentFile();
-                    if (p1.equals(p2)) {
+                    if (p1 == null || p1.equals(p2)) {
                         folder.setVisibility(View.GONE);
                     } else {
                         folder.setText("./" + p1.getPath());

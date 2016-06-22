@@ -1,11 +1,16 @@
 package com.github.axet.torrentclient.fragments;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
@@ -50,8 +55,20 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         TextView pieces = (TextView) v.findViewById(R.id.torrent_pieces);
         pieces.setText(Libtorrent.TorrentBytesCompleted(t) == 0 ? NA : Libtorrent.TorrentPiecesCount(t) + ", Length: " + MainApplication.formatSize(Libtorrent.TorrentPiecesLength(t)));
 
-        TextView hash = (TextView) v.findViewById(R.id.torrent_hash);
-        hash.setText(Libtorrent.TorrentHash(t));
+        final String h = Libtorrent.TorrentHash(t);
+        final TextView hash = (TextView) v.findViewById(R.id.torrent_hash);
+        hash.setText(h);
+
+        View hashCopy = v.findViewById(R.id.torrent_hash_copy);
+        hashCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("hash", h);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getContext(), "Hash copied!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         TextView creator = (TextView) v.findViewById(R.id.torrent_creator);
         creator.setText(Libtorrent.TorrentCreator(t));

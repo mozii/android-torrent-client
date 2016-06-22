@@ -66,16 +66,30 @@
             </TableRow>
         </TableLayout>
 
-        <TextView
-            android:id="@+id/torrent_hash"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:background="?attr/secondBackground"
-            android:padding="5dp"
-            android:text="1gf1f3f3f3f3f3f3f3fff1f1" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/torrent_hash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:background="?attr/secondBackground"
+                android:padding="5dp"
+                android:text="1gf1f3f3f3f3f3f3f3fff1f1" />
+
+            <Button
+                android:id="@+id/torrent_hash_copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Copy" />
+        </LinearLayout>
+
 
         <TableLayout
             android:layout_width="match_parent"
