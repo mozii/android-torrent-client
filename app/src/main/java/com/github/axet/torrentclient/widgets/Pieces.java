@@ -130,15 +130,19 @@ public class Pieces extends View {
         canvas.drawColor(empty.getColor());
 
         Paint p = new Paint();
-        p.setColor(Color.GRAY);
+        p.setColor(Color.LTGRAY);
+        p.setStrokeWidth(borderSize);
 
         int pos = 0;
 
         for (int i = 0; i < CELLS; i++) {
-            // vertical
-            canvas.drawLine(i * stepSize, 0, i * stepSize, getHeight(), p);
-            // horizontal
-            canvas.drawLine(0, i * stepSize, getWidth(), i * stepSize, p);
+            {
+                // vertical
+                int s = i * stepSize;
+                canvas.drawLine(s, 0, s, getHeight(), p);
+                // horizontal
+                canvas.drawLine(0, s, getWidth(), s, p);
+            }
 
             if (pieces != null) {
                 for (int x = 0; x < CELLS; x++) {
@@ -163,10 +167,11 @@ public class Pieces extends View {
                             break;
                     }
 
-                    int left = x * stepSize;
-                    int top = i * stepSize;
-                    int right = left + stepSize;
-                    int bottom = top + stepSize;
+                    int left = x * stepSize + borderSize;
+                    int top = i * stepSize + borderSize;
+                    int right = left + stepSize - borderSize;
+                    int bottom = top + stepSize - borderSize;
+
                     canvas.drawRect(left, top, right, bottom, paint);
 
                     pos++;

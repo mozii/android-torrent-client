@@ -17,6 +17,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 
 import go.libtorrent.Libtorrent;
@@ -58,7 +61,8 @@ public class Storage {
         }
 
         public void start() {
-            Libtorrent.StartTorrent(t);
+            if(!Libtorrent.StartTorrent(t))
+                throw new RuntimeException(Libtorrent.Error());
             Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
             downloaded.start(b.getDownloaded());
             uploaded.start(b.getUploaded());
@@ -165,13 +169,12 @@ public class Storage {
 
             byte[] b = Base64.decode(state, Base64.DEFAULT);
 
-            Log.d(TAG, "Load torrent state: " + b.length);
-
             long t = Libtorrent.LoadTorrent(path, b);
-            add(new Torrent(t, path));
+            Torrent tt= new Torrent(t, path);
+            add(tt);
 
             if (status != Libtorrent.StatusPaused) {
-                Libtorrent.StartTorrent(t);
+                tt.start();
             }
         }
     }
@@ -183,7 +186,6 @@ public class Storage {
         for (int i = 0; i < torrents.size(); i++) {
             Torrent t = torrents.get(i);
             byte[] b = Libtorrent.SaveTorrent(t.t);
-            Log.d(TAG, "Save torrent " + t.t + "state: " + b.length);
             String state = Base64.encodeToString(b, Base64.DEFAULT);
             edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
             edit.putString("TORRENT_" + i + "_STATE", state);
@@ -323,7 +325,7 @@ public class Storage {
         }
 
         for (int i = 0; i < active.size(); i++) {
-            Libtorrent.StartTorrent(active.get(i).t);
+            active.get(i).start();
         }
     }
 
@@ -472,7 +474,7 @@ public class Storage {
 
     public void resume() {
         for (Torrent t : pause) {
-            Libtorrent.StartTorrent(t.t);
+            t.start();
         }
         pause = null;
     }

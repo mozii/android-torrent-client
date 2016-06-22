@@ -14,9 +14,17 @@ public class MainApplication extends Application {
     public static final String PREFERENCE_STORAGE = "storage_path";
     public static final String PREFERENCE_THEME = "theme";
 
+    Storage storage;
+
+    public Storage getStorage() {
+        return storage;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        storage = new Storage(this);
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 

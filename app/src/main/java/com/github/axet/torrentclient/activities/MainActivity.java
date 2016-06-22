@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     Runnable refresh;
     TorrentDialogFragment dialog;
 
-    Storage storage;
-
     Torrents torrents;
     ListView list;
     Handler handler;
@@ -581,7 +579,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         });
 
-        storage = new Storage(this);
         torrents = new Torrents(this);
 
         list = (ListView) findViewById(R.id.list);
@@ -603,7 +600,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
-        TorrentService.startService(this, storage.formatHeader());
+        TorrentService.startService(this, getStorage().formatHeader());
     }
 
     // load torrents
@@ -674,10 +671,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 updateHeader();
 
                 {
-                    String header = storage.formatHeader();
+                    String header = getStorage().formatHeader();
                     header += "\n";
-                    for (int i = 0; i < storage.count(); i++) {
-                        Storage.Torrent t = storage.torrent(i);
+                    for (int i = 0; i < getStorage().count(); i++) {
+                        Storage.Torrent t = getStorage().torrent(i);
                         if (Libtorrent.TorrentActive(t.t)) {
                             header += "(" + t.getProgress() + "%) ";
                         }
@@ -784,8 +781,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (torrents != null)
             torrents.close();
 
-        storage.close();
-
         TorrentService.stopService(this);
     }
 
@@ -872,11 +867,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     void updateHeader() {
         TextView text = (TextView) findViewById(R.id.space_left);
-        text.setText(storage.formatHeader());
+        text.setText(getStorage().formatHeader());
     }
 
     public Storage getStorage() {
-        return storage;
+        return getApp().getStorage();
     }
 
     public interface TorrentFragmentInterface {
