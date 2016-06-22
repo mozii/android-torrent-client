@@ -26,6 +26,7 @@ public class Pieces extends View {
         EMPTY,
         CHECKING,
         PARTIAL,
+        WRITING,
         COMPLETE
     }
 
@@ -33,15 +34,17 @@ public class Pieces extends View {
     Paint checking = new Paint();
     Paint partial = new Paint();
     Paint complete = new Paint();
+    Paint writing = new Paint();
 
     {
         empty.setColor(Color.GRAY);
         checking.setColor(Color.YELLOW);
         partial.setColor(Color.GREEN);
+        writing.setColor(Color.RED);
         complete.setColor(Color.BLUE);
     }
 
-    ArrayList<Status> pieces ;
+    ArrayList<Status> pieces;
 
     public Pieces(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -75,18 +78,26 @@ public class Pieces extends View {
             boolean checking = false;
             boolean empty = false;
             boolean complete = false;
+            boolean partial = false;
             for (int s = 0; s < step && pos < l; s++) {
                 Libtorrent.PieceStatus a = Libtorrent.TorrentPieces(t, pos);
+                if (a.getPartial()) {
+                    partial = true;
+                }
+
                 if (!a.getComplete())
                     empty = true;
                 else
                     complete = true;
+
                 if (a.getChecking())
                     checking = true;
                 pos++;
             }
             if (checking) {
                 pieces.add(Status.CHECKING);
+            } else if (partial) {
+                pieces.add(Status.WRITING);
             } else if (empty && complete) {
                 pieces.add(Status.PARTIAL);
             } else if (complete) {
@@ -135,6 +146,9 @@ public class Pieces extends View {
 
                     Status s = pieces.get(pos);
                     switch (s) {
+                        case WRITING:
+                            paint = writing;
+                            break;
                         case PARTIAL:
                             paint = partial;
                             break;
