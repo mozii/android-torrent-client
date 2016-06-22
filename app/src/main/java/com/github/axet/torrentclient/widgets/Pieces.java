@@ -68,13 +68,13 @@ public class Pieces extends View {
             len = CELLS * CELLS;
         }
 
-        long step = l / len;
+        long step = l / len + 1;
 
         long pos = 0;
 
         pieces = new ArrayList<>();
 
-        for (long i = 0; i < len; i++) {
+        for (long i = 0; i < len && pos < l; i++) {
             boolean checking = false;
             boolean empty = false;
             boolean complete = false;
@@ -127,7 +127,15 @@ public class Pieces extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawColor(empty.getColor());
+        if(isInEditMode()) {
+            pieces = new ArrayList<>();
+            for (int i = 0; i < CELLS * CELLS - 10; i++) {
+                Status s = Status.values()[(int)(Math.random()*Status.values().length)];
+                pieces.add(s);
+            }
+        }
+
+        canvas.drawColor(0);
 
         Paint p = new Paint();
         p.setColor(Color.LTGRAY);
@@ -136,16 +144,16 @@ public class Pieces extends View {
         int pos = 0;
 
         for (int i = 0; i < CELLS; i++) {
-            {
-                // vertical
-                int s = i * stepSize;
-                canvas.drawLine(s, 0, s, getHeight(), p);
-                // horizontal
-                canvas.drawLine(0, s, getWidth(), s, p);
-            }
+//            {
+//                // vertical
+//                int s = i * stepSize;
+//                canvas.drawLine(s, 0, s, getHeight(), p);
+//                // horizontal
+//                canvas.drawLine(0, s, getWidth(), s, p);
+//            }
 
             if (pieces != null) {
-                for (int x = 0; x < CELLS; x++) {
+                for (int x = 0; x < CELLS && pos < pieces.size(); x++) {
                     Paint paint = null;
 
                     Status s = pieces.get(pos);

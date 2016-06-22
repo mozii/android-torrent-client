@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -273,6 +274,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusChecking) {
+                        Libtorrent.StopTorrent(t.t);
+                        return;
+                    }
+
                     if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusPaused)
                         t.start();
                     else
@@ -292,6 +298,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 Drawable d = null;
                 switch (Libtorrent.TorrentStatus(t.t)) {
+                    case Libtorrent.StatusChecking:
+                        d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
+                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground));
+                        stateImage.setAlpha(1f);
+                        bar.getProgressDrawable().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
+                        tt.setText(p + "%");
+                        break;
                     case Libtorrent.StatusPaused:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
                         stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground));
@@ -334,13 +347,37 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
 
-                final View check = convertView.findViewById(R.id.recording_player_check);
+                final ImageView check = (ImageView) convertView.findViewById(R.id.recording_player_check);
+
+                final Runnable checkUpdate = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusChecking) {
+                            check.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_stop_black_24dp));
+                        } else {
+                            check.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_done_all_black_24dp));
+                        }
+                    }
+                };
+
+                checkUpdate.run();
+
                 check.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //renameDialog(t);
+                        if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusChecking) {
+                            Libtorrent.StopTorrent(t.t);
+                            Toast.makeText(MainActivity.this, "Stop Checking", Toast.LENGTH_SHORT).show();
+                            checkUpdate.run();
+                            return;
+                        }
+
+                        Libtorrent.CheckTorrent(t.t);
+                        Toast.makeText(MainActivity.this, "Start Checking", Toast.LENGTH_SHORT).show();
+                        checkUpdate.run();
                     }
                 });
+
 
                 final View share = convertView.findViewById(R.id.recording_player_share);
                 share.setOnClickListener(new View.OnClickListener() {
@@ -774,12 +811,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         });
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
         if (torrents != null)
             torrents.close();
+
+        getStorage().save();
 
         TorrentService.stopService(this);
     }

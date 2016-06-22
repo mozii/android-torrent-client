@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
@@ -11,6 +12,8 @@ import com.github.axet.torrentclient.R;
 import java.io.File;
 
 public class MainApplication extends Application {
+    final String TAG = MainApplication.class.getSimpleName();
+
     public static final String PREFERENCE_STORAGE = "storage_path";
     public static final String PREFERENCE_THEME = "theme";
 
@@ -23,6 +26,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate");
 
         storage = new Storage(this);
 
@@ -35,6 +39,9 @@ public class MainApplication extends Application {
     @Override
     public void onTerminate() {
         super.onTerminate();
+        Log.d(TAG, "onTerminate");
+
+        storage.close();
     }
 
     public static int getTheme(Context context, int light, int dark) {

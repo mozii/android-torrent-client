@@ -102,9 +102,9 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
             lastAnnounce.setText("Last Announce: " + formatDate(f.getLastAnnounce()));
             nextAnnounce.setText("Next Announce: " + formatDate(f.getNextAnnounce()));
             lastScrape.setText("Last Scrape: " + formatDate(f.getLastScrape()));
-            seed.setText("" + f.getSeeders());
-            leech.setText("" + f.getLeechers());
-            down.setText("" + f.getDownloaded());
+            seed.setText("Seeders: " + f.getSeeders());
+            leech.setText("Leechers: " + f.getLeechers());
+            down.setText("Downloaded: " + f.getDownloaded());
 
             return view;
         }

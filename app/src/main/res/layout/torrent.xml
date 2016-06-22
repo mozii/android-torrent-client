@@ -70,7 +70,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="5dp"
-                            android:text="https://www.youtube.com/watch?v=c0E_bhaE3T0"
+                            android:text="2015.10.11 4:11:11.wav"
                             android:textColor="?attr/colorPrimary"
                             android:textSize="20dp" />
                     </com.github.axet.androidlibrary.widgets.PathMax>
@@ -135,7 +135,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_done_all_black_24dp"
-                        android:tint="@android:color/darker_gray" />
+                        android:tint="?attr/colorAccent" />
 
                     <View
                         android:layout_width="0dp"

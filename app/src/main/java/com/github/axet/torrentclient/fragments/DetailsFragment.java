@@ -48,7 +48,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
     public void update() {
         long t = getArguments().getLong("torrent");
 
-        Pieces pview = (Pieces)v.findViewById(R.id.torrent_status_pieces);
+        Pieces pview = (Pieces) v.findViewById(R.id.torrent_status_pieces);
         pview.setTorrent(t);
 
         TextView size = (TextView) v.findViewById(R.id.torrent_size);
@@ -91,6 +91,9 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
                 break;
             case Libtorrent.StatusSeeding:
                 status.setText("Seeding");
+                break;
+            case Libtorrent.StatusChecking:
+                status.setText("Checking");
                 break;
         }
 
