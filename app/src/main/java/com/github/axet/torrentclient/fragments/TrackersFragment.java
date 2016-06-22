@@ -86,23 +86,6 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
                 }
             });
 
-            View add = view.findViewById(R.id.torrent_trackers_add);
-            add.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final OpenFileDialog.EditTextDialog e = new OpenFileDialog.EditTextDialog(getContext());
-                    e.setTitle("Add Tracker");
-                    e.setText(Libtorrent.TorrentName(t));
-                    e.setPositiveButton(new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Libtorrent.TorrentTrackerAdd(t, e.getText());
-                        }
-                    });
-                    e.show();
-                }
-            });
-
             TextView url = (TextView) view.findViewById(R.id.torrent_trackers_url);
             TextView lastAnnounce = (TextView) view.findViewById(R.id.torrent_trackers_lastannounce);
             TextView nextAnnounce = (TextView) view.findViewById(R.id.torrent_trackers_nextannounce);
@@ -155,7 +138,24 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
 
     @Override
     public void update() {
-        long t = getArguments().getLong("torrent");
+        final long t = getArguments().getLong("torrent");
+
+        View add = v.findViewById(R.id.torrent_trackers_add);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final OpenFileDialog.EditTextDialog e = new OpenFileDialog.EditTextDialog(getContext());
+                e.setTitle("Add Tracker");
+                e.setText("");
+                e.setPositiveButton(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Libtorrent.TorrentTrackerAdd(t, e.getText());
+                    }
+                });
+                e.show();
+            }
+        });
 
         TextView dht = (TextView) v.findViewById(R.id.torrent_trackers_dht);
 
