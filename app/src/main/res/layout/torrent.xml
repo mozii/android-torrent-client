@@ -70,7 +70,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="5dp"
-                            android:text="2016-02-01.wav2016-02-01.wav"
+                            android:text="https://www.youtube.com/watch?v=c0E_bhaE3T0"
                             android:textColor="?attr/colorPrimary"
                             android:textSize="20dp" />
                     </com.github.axet.androidlibrary.widgets.PathMax>

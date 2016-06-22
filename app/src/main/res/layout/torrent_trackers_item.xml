@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.github.axet.androidlibrary.widgets.PathMax
+            android:layout_width="0dp"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/torrent_trackers_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="udp://tracker.openbittracker.bt:80"
+                android:textStyle="bold" />
+
+        </com.github.axet.androidlibrary.widgets.PathMax>
+
+        <ImageView
+            android:id="@+id/torrent_trackers_trash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/trash"
+            android:tint="?attr/colorAccent" />
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1">
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/torrent_trackers_lastannounce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingLeft="10dp"
+                android:text="LastAnnounce: 2015/03/12 12:11 " />
+
+            <TextView
+                android:id="@+id/torrent_trackers_seeders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:paddingLeft="10dp"
+                android:text="Seeders: 0" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/torrent_trackers_nextannounce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingLeft="10dp"
+                android:text="NextAnnounce: 2015/03/12 12:11 " />
+
+            <TextView
+                android:id="@+id/torrent_trackers_leechers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:paddingLeft="10dp"
+                android:text="Leechers: 0" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/torrent_trackers_lastscrape"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingLeft="10dp"
+                android:text="LastScrape: 2015/03/12 12:11 " />
+
+            <TextView
+                android:id="@+id/torrent_trackers_downloaded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:paddingLeft="10dp"
+                android:text="Downloaded: 0" />
+
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>
