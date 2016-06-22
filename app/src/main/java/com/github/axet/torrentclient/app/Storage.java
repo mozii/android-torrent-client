@@ -108,6 +108,25 @@ public class Storage {
 
             return str.trim();
         }
+
+        public int getProgress() {
+            if (Libtorrent.TorrentBytesCompleted(t) > 0) {
+                return (int) (Libtorrent.TorrentBytesCompleted(t) * 100 / Libtorrent.TorrentBytesLength(t));
+            }
+
+            return 0;
+        }
+
+        public boolean isDownloading() {
+            if (Libtorrent.TorrentActive(t)) {
+                if (Libtorrent.TorrentBytesCompleted(t) > 0) {
+                    return Libtorrent.TorrentBytesCompleted(t) < Libtorrent.TorrentBytesLength(t);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public Storage(Context context) {
@@ -145,10 +164,13 @@ public class Storage {
             int status = shared.getInt("TORRENT_" + i + "_STATUS", 0);
 
             byte[] b = Base64.decode(state, Base64.DEFAULT);
+
+            Log.d(TAG, "Load torrent state: " + b.length);
+
             long t = Libtorrent.LoadTorrent(path, b);
             add(new Torrent(t, path));
 
-            if(status != Libtorrent.StatusPaused) {
+            if (status != Libtorrent.StatusPaused) {
                 Libtorrent.StartTorrent(t);
             }
         }
@@ -161,6 +183,7 @@ public class Storage {
         for (int i = 0; i < torrents.size(); i++) {
             Torrent t = torrents.get(i);
             byte[] b = Libtorrent.SaveTorrent(t.t);
+            Log.d(TAG, "Save torrent " + t.t + "state: " + b.length);
             String state = Base64.encodeToString(b, Base64.DEFAULT);
             edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
             edit.putString("TORRENT_" + i + "_STATE", state);

@@ -635,7 +635,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         if (id == R.id.action_shutdown) {
-            finish();
+            finishAffinity();
             return true;
         }
 
@@ -673,7 +673,17 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 updateHeader();
 
-                TorrentService.updateNotify(MainActivity.this, storage.formatHeader());
+                {
+                    String header = storage.formatHeader();
+                    header += "\n";
+                    for (int i = 0; i < storage.count(); i++) {
+                        Storage.Torrent t = storage.torrent(i);
+                        if (Libtorrent.TorrentActive(t.t)) {
+                            header += "(" + t.getProgress() + "%) ";
+                        }
+                    }
+                    TorrentService.updateNotify(MainActivity.this, header);
+                }
 
                 torrents.update();
 
