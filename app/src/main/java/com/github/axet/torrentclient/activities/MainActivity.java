@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                                 @Override
                                 public void run() {
                                     t.stop();
-                                    File f = new File(getStorage().getStoragePath(), Libtorrent.TorrentName(t.t));
+                                    File f = new File(getStorage().getStoragePath(), t.name());
                                     try {
                                         FileUtils.deleteDirectory(f);
                                     } catch (IOException e) {

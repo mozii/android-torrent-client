@@ -2,26 +2,22 @@ package com.github.axet.torrentclient.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
+import com.github.axet.torrentclient.app.SpeedInfo;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.util.HashMap;
 
 import go.libtorrent.Libtorrent;
 
@@ -30,6 +26,9 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
     ListView list;
 
     ArrayList<Libtorrent.Peer> ff = new ArrayList<>();
+    HashMap<String, SpeedInfo> dinfo = new HashMap<>();
+    HashMap<String, SpeedInfo> uinfo = new HashMap<>();
+
     Files files;
 
     class Files extends BaseAdapter {
@@ -58,7 +57,7 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
             LayoutInflater inflater = LayoutInflater.from(getContext());
 
             if (view == null) {
-                view = inflater.inflate(R.layout.torrent_files_item, viewGroup, false);
+                view = inflater.inflate(R.layout.torrent_peers_item, viewGroup, false);
             }
 
             TextView addr = (TextView) view.findViewById(R.id.torrent_peer_addr);
@@ -68,11 +67,30 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
 
             Libtorrent.Peer f = getItem(i);
 
+            String a = f.getAddr();
+
+            SpeedInfo di = dinfo.get(a);
+            if (di == null) {
+                di = new SpeedInfo();
+                di.start(f.getDownloaded());
+                dinfo.put(a, di);
+            } else {
+                di.step(f.getDownloaded());
+            }
+
+            SpeedInfo ui = uinfo.get(a);
+            if (ui == null) {
+                ui = new SpeedInfo();
+                ui.start(f.getUploaded());
+                uinfo.put(a, ui);
+            } else {
+                ui.step(f.getUploaded());
+            }
+
             addr.setText(f.getAddr());
             name.setText(f.getName());
-            d.setText(MainApplication.formatSize(f.getDownloaded()));
-            u.setText(MainApplication.formatSize(f.getUploaded()));
-
+            d.setText(MainApplication.formatSize(di.getCurrentSpeed()) + "/s");
+            u.setText(MainApplication.formatSize(ui.getCurrentSpeed()) + "/s");
 
             return view;
         }
@@ -102,9 +120,25 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
 
         long l = Libtorrent.TorrentPeersCount(t);
 
+        ArrayList<String> addrs = new ArrayList<>();
+
         ff.clear();
         for (long i = 0; i < l; i++) {
-            ff.add(Libtorrent.TorrentPeers(t, i));
+            Libtorrent.Peer p = Libtorrent.TorrentPeers(t, i);
+            ff.add(p);
+            addrs.add(p.getAddr());
+        }
+
+        ArrayList<String> remove = new ArrayList<>();
+
+        for (String k : uinfo.keySet()) {
+            if (!addrs.contains(k))
+                remove.add(k);
+        }
+
+        for (String k : remove) {
+            dinfo.remove(k);
+            uinfo.remove(k);
         }
 
         files.notifyDataSetChanged();

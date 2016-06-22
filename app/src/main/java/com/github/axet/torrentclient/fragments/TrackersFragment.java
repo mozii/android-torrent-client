@@ -74,6 +74,7 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
                             Libtorrent.TorrentTrackerRemove(t, ff.get(i).getAddr());
+                            update();
                         }
                     });
                     builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -151,6 +152,7 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Libtorrent.TorrentTrackerAdd(t, e.getText());
+                        update();
                     }
                 });
                 e.show();

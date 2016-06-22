@@ -8,16 +8,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
+import com.github.axet.torrentclient.widgets.Pieces;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import go.libtorrent.Libtorrent;
@@ -49,11 +48,14 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
     public void update() {
         long t = getArguments().getLong("torrent");
 
+        Pieces pview = (Pieces)v.findViewById(R.id.torrent_status_pieces);
+        pview.setTorrent(t);
+
         TextView size = (TextView) v.findViewById(R.id.torrent_size);
         size.setText(Libtorrent.TorrentBytesCompleted(t) == 0 ? NA : MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
 
         TextView pieces = (TextView) v.findViewById(R.id.torrent_pieces);
-        pieces.setText(Libtorrent.TorrentBytesCompleted(t) == 0 ? NA : Libtorrent.TorrentPiecesCount(t) + ", Length: " + MainApplication.formatSize(Libtorrent.TorrentPiecesLength(t)));
+        pieces.setText(Libtorrent.TorrentBytesCompleted(t) == 0 ? NA : Libtorrent.TorrentPiecesCount(t) + ", Length: " + MainApplication.formatSize(Libtorrent.TorrentPieceLength(t)));
 
         final String h = Libtorrent.TorrentHash(t);
         final TextView hash = (TextView) v.findViewById(R.id.torrent_hash);

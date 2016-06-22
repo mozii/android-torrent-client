@@ -43,5 +43,5 @@
         android:layout_height="match_parent"
         android:layout_below="@id/space"
         android:clipToPadding="false"
-        android:paddingBottom="61dp" />
+        android:paddingBottom="72dp" />
 </RelativeLayout>
