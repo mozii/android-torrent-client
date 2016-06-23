@@ -38,10 +38,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,7 +52,6 @@ import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.PopupShareActionProvider;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
-import com.github.axet.torrentclient.app.SpeedInfo;
 import com.github.axet.torrentclient.fragments.DetailsFragment;
 import com.github.axet.torrentclient.fragments.FilesFragment;
 import com.github.axet.torrentclient.fragments.PeersFragment;
@@ -71,14 +68,12 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 import go.libtorrent.Libtorrent;
 
-public class MainActivity extends AppCompatActivity implements AbsListView.OnScrollListener, DialogInterface.OnDismissListener {
+public class MainActivity extends AppCompatActivity implements AbsListView.OnScrollListener, DialogInterface.OnDismissListener, SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String TAG = MainActivity.class.getSimpleName();
 
     static final int TYPE_COLLAPSED = 0;
@@ -94,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     int scrollState;
 
     Runnable refresh;
+    Runnable refreshUI;
     TorrentDialogFragment dialog;
 
     Torrents torrents;
@@ -163,9 +159,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     t.update();
                 }
             }
+
+            notifyDataSetInvalidated();
         }
 
         public void close() {
+        }
+
+        public void changed() {
+            super.notifyDataSetChanged();
         }
 
         @Override
@@ -192,13 +194,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 convertView.setTag(null);
             }
 
-            if (Tag.animate(convertView, TYPE_DELETED)) {
-                RemoveItemAnimation.restore(convertView);
-                convertView.setTag(null);
-            }
-
             final View view = convertView;
             final View base = convertView.findViewById(R.id.recording_base);
+
+            if (Tag.animate(convertView, TYPE_DELETED)) {
+                RemoveItemAnimation.restore(base);
+                convertView.setTag(null);
+            }
 
             final Storage.Torrent t = (Storage.Torrent) getItem(position);
 
@@ -362,6 +364,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 checkUpdate.run();
 
+                if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused) {
+                    check.setColorFilter(Color.GRAY);
+                    check.setEnabled(false);
+                } else {
+                    check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                    check.setEnabled(true);
+                }
+
                 check.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -388,9 +398,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         Intent emailIntent = new Intent(Intent.ACTION_SEND);
                         emailIntent.setType("text/plain");
                         emailIntent.putExtra(Intent.EXTRA_EMAIL, "");
-                        emailIntent.putExtra(Intent.EXTRA_STREAM, Libtorrent.TorrentMagnet(t.t));
                         emailIntent.putExtra(Intent.EXTRA_SUBJECT, Libtorrent.TorrentName(t.t));
-                        emailIntent.putExtra(Intent.EXTRA_TEXT, "Shared via " + getString(R.string.app_name));
+                        emailIntent.putExtra(Intent.EXTRA_TEXT, Libtorrent.TorrentMagnet(t.t));
 
                         shareProvider.setShareIntent(emailIntent);
 
@@ -616,6 +625,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         });
 
+        getApp().create();
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        shared.registerOnSharedPreferenceChangeListener(this);
+
         torrents = new Torrents(this);
 
         list = (ListView) findViewById(R.id.list);
@@ -640,6 +654,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         TorrentService.startService(this, getStorage().formatHeader());
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(MainApplication.PREFERENCE_ANNOUNCE)) {
+            Libtorrent.SetDefaultAnnouncesList(sharedPreferences.getString(MainApplication.PREFERENCE_ANNOUNCE, ""));
+        }
+    }
+
     // load torrents
     void load() {
 //        if (torrents != null)
@@ -653,6 +674,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         return true;
+    }
+
+    public void shutdown() {
+        if (refresh != null) {
+            handler.removeCallbacks(refresh);
+            refresh = null;
+        }
+        getApp().close();
+        finishAffinity();
     }
 
     @Override
@@ -669,7 +699,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         if (id == R.id.action_shutdown) {
-            finishAffinity();
+            shutdown();
             return true;
         }
 
@@ -698,11 +728,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             return;
         }
 
-        refresh = new Runnable() {
+        refreshUI = new Runnable() {
             @Override
             public void run() {
                 torrents.notifyDataSetChanged();
 
+                if (dialog != null)
+                    dialog.update();
+            }
+        };
+
+        refresh = new Runnable() {
+            @Override
+            public void run() {
                 getStorage().update();
 
                 updateHeader();
@@ -721,8 +759,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 torrents.update();
 
-                if (dialog != null)
-                    dialog.update();
+                if (refreshUI != null)
+                    refreshUI.run();
 
                 handler.removeCallbacks(refresh);
                 handler.postDelayed(refresh, 1000);
@@ -742,10 +780,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onPause() {
         super.onPause();
 
-        if (refresh != null) {
-            handler.removeCallbacks(refresh);
-            refresh = null;
-        }
+        refreshUI = null;
     }
 
     @Override
@@ -819,7 +854,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (torrents != null)
             torrents.close();
 
-        getStorage().save();
+        Storage s = getStorage();
+        if (s != null)
+            s.save();
 
         TorrentService.stopService(this);
     }
@@ -887,13 +924,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 .setMessage(err)
                 .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        finish();
+                        shutdown();
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-                        finish();
+                        shutdown();
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)

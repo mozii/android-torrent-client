@@ -6,6 +6,12 @@
         android:summary="/sdcard/[path]/"
         android:title="Storage Path" />
 
+    <com.github.axet.torrentclient.widgets.MultiEditListPreference
+        android:defaultValue="udp://tracker.openbittorrent.com:80\nudp://tracker.kicks-ass.net:80/announce"
+        android:key="announces_list"
+        android:summary="Initial announce trackers list for newly created torrents"
+        android:title="Announces List" />
+
     <ListPreference
         android:defaultValue="Theme_White"
         android:entries="@array/themes"

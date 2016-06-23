@@ -17,9 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 
 import go.libtorrent.Libtorrent;
@@ -61,7 +58,7 @@ public class Storage {
         }
 
         public void start() {
-            if(!Libtorrent.StartTorrent(t))
+            if (!Libtorrent.StartTorrent(t))
                 throw new RuntimeException(Libtorrent.Error());
             Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
             downloaded.start(b.getDownloaded());
@@ -170,7 +167,7 @@ public class Storage {
             byte[] b = Base64.decode(state, Base64.DEFAULT);
 
             long t = Libtorrent.LoadTorrent(path, b);
-            Torrent tt= new Torrent(t, path);
+            Torrent tt = new Torrent(t, path);
             add(tt);
 
             if (status != Libtorrent.StatusPaused) {
@@ -198,6 +195,9 @@ public class Storage {
         if (!Libtorrent.Create()) {
             throw new RuntimeException(Libtorrent.Error());
         }
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        Libtorrent.SetDefaultAnnouncesList(shared.getString(MainApplication.PREFERENCE_ANNOUNCE, ""));
 
         downloaded.start(0);
         uploaded.start(0);

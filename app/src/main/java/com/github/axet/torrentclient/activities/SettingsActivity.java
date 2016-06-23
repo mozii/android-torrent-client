@@ -246,6 +246,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             }
 
             bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_THEME));
+            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_ANNOUNCE));
         }
 
         @Override

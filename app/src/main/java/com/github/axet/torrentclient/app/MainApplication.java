@@ -11,11 +11,14 @@ import com.github.axet.torrentclient.R;
 
 import java.io.File;
 
+import go.libtorrent.Libtorrent;
+
 public class MainApplication extends Application {
     final String TAG = MainApplication.class.getSimpleName();
 
     public static final String PREFERENCE_STORAGE = "storage_path";
     public static final String PREFERENCE_THEME = "theme";
+    public static final String PREFERENCE_ANNOUNCE = "announces_list";
 
     Storage storage;
 
@@ -28,7 +31,7 @@ public class MainApplication extends Application {
         super.onCreate();
         Log.d(TAG, "onCreate");
 
-        storage = new Storage(this);
+        Log.d(TAG, "PortInfo: " + Libtorrent.PortMapping().getTCP() + " " + Libtorrent.PortMapping().getUDP());
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 
@@ -36,12 +39,22 @@ public class MainApplication extends Application {
         context.setTheme(getUserTheme());
     }
 
+    public void create() {
+        if (storage == null)
+            storage = new Storage(this);
+    }
+
+    public void close() {
+        if (storage != null) {
+            storage.close();
+            storage = null;
+        }
+    }
+
     @Override
     public void onTerminate() {
         super.onTerminate();
         Log.d(TAG, "onTerminate");
-
-        storage.close();
     }
 
     public static int getTheme(Context context, int light, int dark) {
