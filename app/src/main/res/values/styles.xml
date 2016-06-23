@@ -30,7 +30,7 @@
 
     <style name="menu_labels_style">
         <item name="android:padding">5dp</item>
-        <item name="android:background">?attr/secondBackground</item>
+        <item name="android:background">@drawable/round_background</item>
     </style>
 
 </resources>

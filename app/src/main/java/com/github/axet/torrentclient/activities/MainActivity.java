@@ -364,14 +364,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 checkUpdate.run();
 
-                if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused) {
-                    check.setColorFilter(Color.GRAY);
-                    check.setEnabled(false);
-                } else {
-                    check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
-                    check.setEnabled(true);
-                }
-
                 check.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -388,6 +380,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
 
+                if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused) {
+                    check.setColorFilter(Color.GRAY);
+                    check.setOnClickListener(null);
+                } else {
+                    check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                }
 
                 final View share = convertView.findViewById(R.id.recording_player_share);
                 share.setOnClickListener(new View.OnClickListener() {
