@@ -587,14 +587,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File p = f.getCurrentPath();
-                        String s = getStorage().getStoragePath().getPath();
-                        long t = Libtorrent.AddTorrent(s, p.getPath());
-                        if (t == -1) {
-                            Error(Libtorrent.Error());
-                            return;
-                        }
-                        getStorage().add(new Storage.Torrent(t, s));
-                        torrents.notifyDataSetChanged();
+                        addTorent(p.getPath());
                     }
                 });
                 f.show();
@@ -612,14 +605,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String ff = f.getText();
-                        String p = getStorage().getStoragePath().getPath();
-                        long t = Libtorrent.AddMagnet(p, ff);
-                        if (t == -1) {
-                            Error(Libtorrent.Error());
-                            return;
-                        }
-                        getStorage().add(new Storage.Torrent(t, p));
-                        torrents.notifyDataSetChanged();
+                        addMagnet(ff);
                     }
                 });
                 f.show();
@@ -654,6 +640,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         TorrentService.startService(this, getStorage().formatHeader());
+
+        openFile(getIntent());
     }
 
     @Override
@@ -971,6 +959,47 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     public Storage getStorage() {
         return getApp().getStorage();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        openFile(intent);
+    }
+
+    void openFile(Intent intent) {
+        Uri openUri = intent.getData();
+        if (openUri == null)
+            return;
+
+        if (openUri.toString().startsWith("magnet"))
+            addMagnet(openUri.toString());
+
+        if (openUri.toString().endsWith("torrent"))
+            addTorent(openUri.toString());
+    }
+
+    void addMagnet(String ff) {
+        String p = getStorage().getStoragePath().getPath();
+        long t = Libtorrent.AddMagnet(p, ff);
+        if (t == -1) {
+            Error(Libtorrent.Error());
+            return;
+        }
+        getStorage().add(new Storage.Torrent(t, p));
+        torrents.notifyDataSetChanged();
+    }
+
+    void addTorent(String p) {
+        String s = getStorage().getStoragePath().getPath();
+        long t = Libtorrent.AddTorrent(s, p);
+        if (t == -1) {
+            Error(Libtorrent.Error());
+            return;
+        }
+        getStorage().add(new Storage.Torrent(t, s));
+        torrents.notifyDataSetChanged();
     }
 
     public interface TorrentFragmentInterface {

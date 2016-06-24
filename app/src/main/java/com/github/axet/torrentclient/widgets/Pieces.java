@@ -30,6 +30,8 @@ public class Pieces extends View {
         COMPLETE
     }
 
+    Paint border = new Paint();
+
     Paint empty = new Paint();
     Paint checking = new Paint();
     Paint partial = new Paint();
@@ -37,6 +39,9 @@ public class Pieces extends View {
     Paint writing = new Paint();
 
     {
+        border.setStrokeWidth(borderSize);
+        border.setColor(Color.LTGRAY);
+
         empty.setColor(Color.GRAY);
         checking.setColor(Color.YELLOW);
         partial.setColor(Color.GREEN);
@@ -118,7 +123,7 @@ public class Pieces extends View {
         borderSize = ThemeUtils.dp2px(getContext(), 1);
         stepSize = cellSize + borderSize;
 
-        int w = CELLS * stepSize;
+        int w = CELLS * stepSize + borderSize * 2;
         int h = w;
         setMeasuredDimension(w, h);
     }
@@ -127,19 +132,17 @@ public class Pieces extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(isInEditMode()) {
+        if (isInEditMode()) {
             pieces = new ArrayList<>();
             for (int i = 0; i < CELLS * CELLS - 10; i++) {
-                Status s = Status.values()[(int)(Math.random()*Status.values().length)];
+                Status s = Status.values()[(int) (Math.random() * Status.values().length)];
                 pieces.add(s);
             }
         }
 
         canvas.drawColor(0);
 
-        Paint p = new Paint();
-        p.setColor(Color.LTGRAY);
-        p.setStrokeWidth(borderSize);
+        canvas.drawRect(0, 0, getWidth(), getBottom(), border);
 
         int pos = 0;
 
@@ -180,7 +183,7 @@ public class Pieces extends View {
                     int right = left + stepSize - borderSize;
                     int bottom = top + stepSize - borderSize;
 
-                    canvas.drawRect(left, top, right, bottom, paint);
+                    canvas.drawRect(borderSize + left, borderSize + top, right - borderSize, bottom - borderSize, paint);
 
                     pos++;
                 }

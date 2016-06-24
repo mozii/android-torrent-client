@@ -46,15 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:paddingLeft="10dp"
-                android:text="LastAnnounce: 2015/03/12 12:11 " />
+                android:text="Last Announce: 23 June 2016 at 15:12 (P:123)" />
 
-            <TextView
-                android:id="@+id/torrent_trackers_seeders"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:paddingLeft="10dp"
-                android:text="Seeders: 0" />
 
         </TableRow>
 
@@ -66,15 +59,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:paddingLeft="10dp"
-                android:text="NextAnnounce: 2015/03/12 12:11 " />
+                android:text="Next Announce: 23 June 2016 at 15:12" />
 
-            <TextView
-                android:id="@+id/torrent_trackers_leechers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:paddingLeft="10dp"
-                android:text="Leechers: 0" />
 
         </TableRow>
 
@@ -86,15 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:paddingLeft="10dp"
-                android:text="LastScrape: 2015/03/12 12:11 " />
-
-            <TextView
-                android:id="@+id/torrent_trackers_downloaded"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:paddingLeft="10dp"
-                android:text="Downloaded: 0" />
+                android:text="Last Scrape: 23 June 2016 at 15:12 (S:1 L:323 D:111)" />
 
         </TableRow>
     </TableLayout>
