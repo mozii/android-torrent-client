@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
+import com.github.axet.torrentclient.app.MainApplication;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import go.libtorrent.Libtorrent;
 public class FilesFragment extends Fragment implements MainActivity.TorrentFragmentInterface {
     View v;
     ListView list;
+    View download;
 
     Files files;
 
@@ -147,6 +149,19 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
                              ViewGroup container, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.torrent_files, container, false);
 
+        final long t = getArguments().getLong("torrent");
+
+        download = v.findViewById(R.id.torrent_files_metadata);
+        download.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Libtorrent.DownloadMetadata(t)) {
+                    ((MainApplication) getContext().getApplicationContext()).Error(Libtorrent.Error());
+                    return;
+                }
+            }
+        });
+
         list = (ListView) v.findViewById(R.id.list);
 
         files = new Files();
@@ -161,6 +176,8 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
     @Override
     public void update() {
         long t = getArguments().getLong("torrent");
+
+        download.setVisibility(Libtorrent.InfoTorrent(t) ? View.GONE : View.VISIBLE);
 
         torrentName = Libtorrent.TorrentName(t);
 

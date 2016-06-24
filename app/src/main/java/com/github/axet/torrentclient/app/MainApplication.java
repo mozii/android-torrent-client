@@ -1,13 +1,16 @@
 package com.github.axet.torrentclient.app;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
+import com.github.axet.torrentclient.activities.ExitActivity;
 
 import java.io.File;
 
@@ -24,6 +27,41 @@ public class MainApplication extends Application {
 
     public Storage getStorage() {
         return storage;
+    }
+
+    public void Error(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    public void Fatal(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(this)
+                .setTitle("Fatal")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        close();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        close();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     @Override
@@ -49,6 +87,7 @@ public class MainApplication extends Application {
             storage.close();
             storage = null;
         }
+        ExitActivity.exitApplication(this);
     }
 
     @Override

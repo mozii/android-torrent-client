@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 TextView tt = (TextView) convertView.findViewById(R.id.torrent_process_text);
 
-                long p = Libtorrent.TorrentBytesCompleted(t.t) == 0 ? 0 : Libtorrent.TorrentBytesCompleted(t.t) * 100 / Libtorrent.TorrentBytesLength(t.t);
+                long p = !Libtorrent.InfoTorrent(t.t) ? 0 : Libtorrent.TorrentBytesCompleted(t.t) * 100 / Libtorrent.TorrentBytesLength(t.t);
 
                 Drawable d = null;
                 switch (Libtorrent.TorrentStatus(t.t)) {
@@ -555,7 +555,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         File pp = p.getParentFile();
                         long t = Libtorrent.CreateTorrent(p.getPath());
                         if (t == -1) {
-                            Error(Libtorrent.Error());
+                            getApp().Error(Libtorrent.Error());
                             return;
                         }
                         getStorage().add(new Storage.Torrent(t, pp.getPath()));
@@ -672,16 +672,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         return true;
     }
 
-    public void shutdown() {
-        if (refresh != null) {
-            handler.removeCallbacks(refresh);
-            refresh = null;
-        }
-        getApp().close();
-        finishAffinity();
-        ExitActivity.exitApplication(this);
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar base clicks here. The action bar will
@@ -696,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         if (id == R.id.action_shutdown) {
-            shutdown();
+            getApp().close();
             return true;
         }
 
@@ -912,41 +902,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         client.disconnect();
     }
 
-    void Error(String err) {
-        Log.e(TAG, Libtorrent.Error());
-
-        new AlertDialog.Builder(this)
-                .setTitle("Error")
-                .setMessage(err)
-                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
-    void Fatal(String err) {
-        Log.e(TAG, Libtorrent.Error());
-
-        new AlertDialog.Builder(this)
-                .setTitle("Fatal")
-                .setMessage(err)
-                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        shutdown();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        shutdown();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
     @Override
     public void onDismiss(DialogInterface dialogInterface) {
         dialog = null;
@@ -995,7 +950,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         String p = getStorage().getStoragePath().getPath();
         long t = Libtorrent.AddMagnet(p, ff);
         if (t == -1) {
-            Error(Libtorrent.Error());
+            getApp().Error(Libtorrent.Error());
             return;
         }
         getStorage().add(new Storage.Torrent(t, p));
@@ -1006,7 +961,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         String s = getStorage().getStoragePath().getPath();
         long t = Libtorrent.AddTorrent(s, p);
         if (t == -1) {
-            Error(Libtorrent.Error());
+            getApp().Error(Libtorrent.Error());
             return;
         }
         getStorage().add(new Storage.Torrent(t, s));

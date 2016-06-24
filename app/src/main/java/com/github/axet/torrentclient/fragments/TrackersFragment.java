@@ -167,7 +167,6 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
         });
 
         TextView dhtLast = (TextView) v.findViewById(R.id.torrent_trackers_dht_last);
-        TextView dht = (TextView) v.findViewById(R.id.torrent_trackers_dht);
 
         TextView pex = (TextView) v.findViewById(R.id.torrent_trackers_pex);
 
@@ -181,11 +180,14 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
                 continue;
             }
             if (url.equals("DHT")) {
-                dhtLast.setText("Last Announce: " + formatDate(tt.getLastAnnounce()));
-                if (tt.getLastAnnounce() != 0)
-                    dht.setText("Peers: " + tt.getPeers());
-                else
-                    dht.setText("");
+                String str = "Last Announce: " + formatDate(tt.getLastAnnounce());
+                if (tt.getError() != null && !tt.getError().isEmpty())
+                    str += " (" + tt.getError() + ")";
+                else {
+                    if (tt.getLastAnnounce() != 0)
+                        str += " (P: " + tt.getPeers() + ")";
+                }
+                dhtLast.setText(str);
                 continue;
             }
             ff.add(tt);
