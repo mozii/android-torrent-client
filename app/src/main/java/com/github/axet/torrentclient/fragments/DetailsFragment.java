@@ -102,7 +102,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         progress.setText(String.format("%d%%", p));
 
         TextView downloaded = (TextView) v.findViewById(R.id.torrent_downloaded);
-        Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+        Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
         downloaded.setText(MainApplication.formatSize(b.getDownloaded()));
 
         TextView uploaded = (TextView) v.findViewById(R.id.torrent_uploaded);
@@ -117,5 +117,12 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
 
         TextView completed = (TextView) v.findViewById(R.id.torrent_completed);
         completed.setText(formatDate(Libtorrent.TorrentDateCompleted(t)));
+
+
+        TextView downloading = (TextView) v.findViewById(R.id.torrent_downloading);
+        downloading.setText(MainApplication.formatDuration(b.getDownloading() * 1000));
+
+        TextView seeding = (TextView) v.findViewById(R.id.torrent_seeding);
+        seeding.setText(MainApplication.formatDuration(b.getSeeding() * 1000));
     }
 }

@@ -3,6 +3,7 @@ package com.github.axet.torrentclient.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -380,11 +381,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
 
-                if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused) {
-                    check.setColorFilter(Color.GRAY);
-                    check.setOnClickListener(null);
-                } else {
-                    check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                switch (Libtorrent.TorrentStatus(t.t)) {
+                    case Libtorrent.StatusPaused:
+                    case Libtorrent.StatusChecking:
+                        check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                        break;
+                    default:
+                        check.setColorFilter(Color.GRAY);
+                        check.setOnClickListener(null);
                 }
 
                 final View share = convertView.findViewById(R.id.recording_player_share);
@@ -671,6 +675,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            menu.removeItem(R.id.action_settings);
+            menu.removeItem(R.id.action_show_folder);
+        }
+
         return true;
     }
 
@@ -719,6 +729,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
+
+        invalidateOptionsMenu();
+
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            add.setVisibility(View.GONE);
+            create.setVisibility(View.GONE);
+        } else {
+            if (permitted(PERMISSIONS)) {
+                add.setVisibility(View.VISIBLE);
+                create.setVisibility(View.VISIBLE);
+            }
+        }
 
         if (themeId != getAppTheme()) {
             finish();

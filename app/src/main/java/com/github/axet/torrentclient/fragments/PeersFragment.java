@@ -87,8 +87,22 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
                 ui.step(f.getUploaded());
             }
 
+            long t = getArguments().getLong("torrent");
+
+            String str = "";
+
+            if (Libtorrent.TorrentBytesCompleted(t) > 0)
+                str += "(" + f.getPiecesCompleted() * 100 / Libtorrent.TorrentPiecesCount(t) + "%)";
+
+            if (f.getSupportsEncryption())
+                str += "(E)";
+
+            str += "(" + f.getSource().substring(0, 1) + ")";
+
+            str += " " + f.getName();
+
             addr.setText(f.getAddr());
-            name.setText(f.getName());
+            name.setText(str);
             d.setText(MainApplication.formatSize(di.getCurrentSpeed()) + "/s");
             u.setText(MainApplication.formatSize(ui.getCurrentSpeed()) + "/s");
 

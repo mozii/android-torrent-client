@@ -387,6 +387,7 @@
                     android:text="Downloading:" />
 
                 <TextView
+                    android:id="@+id/torrent_downloading"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
@@ -403,6 +404,7 @@
                     android:text="Seeding:" />
 
                 <TextView
+                    android:id="@+id/torrent_seeding"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
