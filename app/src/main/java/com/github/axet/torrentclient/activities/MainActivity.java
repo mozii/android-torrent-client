@@ -822,11 +822,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         TorrentService.stopService(this);
 
-        getApp().close();
+        // do not close storage when mainactivity closes. only close it on shutdown()
+        // getApp().close();
     }
 
     public void shutdown() {
         close();
+        getApp().close();
         finishAffinity();
         ExitActivity.exitApplication(this);
     }
