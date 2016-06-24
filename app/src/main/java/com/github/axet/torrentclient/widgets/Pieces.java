@@ -38,7 +38,25 @@ public class Pieces extends View {
     Paint complete = new Paint();
     Paint writing = new Paint();
 
-    {
+    ArrayList<Status> pieces;
+
+    public Pieces(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        init();
+    }
+
+    public Pieces(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        init();
+    }
+
+    void init() {
+        cellSize = ThemeUtils.dp2px(getContext(), 4);
+        borderSize = ThemeUtils.dp2px(getContext(), 0.5f);
+        stepSize = cellSize + borderSize;
+
         border.setStrokeWidth(borderSize);
         border.setColor(Color.LTGRAY);
 
@@ -47,16 +65,6 @@ public class Pieces extends View {
         partial.setColor(Color.GREEN);
         writing.setColor(Color.RED);
         complete.setColor(Color.BLUE);
-    }
-
-    ArrayList<Status> pieces;
-
-    public Pieces(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public Pieces(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
     }
 
     public void setTorrent(long t) {
@@ -119,10 +127,6 @@ public class Pieces extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        cellSize = ThemeUtils.dp2px(getContext(), 4);
-        borderSize = ThemeUtils.dp2px(getContext(), 1);
-        stepSize = cellSize + borderSize;
-
         int w = CELLS * stepSize + borderSize * 2;
         int h = w;
         setMeasuredDimension(w, h);
@@ -180,10 +184,10 @@ public class Pieces extends View {
 
                     int left = x * stepSize + borderSize;
                     int top = i * stepSize + borderSize;
-                    int right = left + stepSize - borderSize;
-                    int bottom = top + stepSize - borderSize;
+                    int right = left + stepSize - 2*borderSize;
+                    int bottom = top + stepSize - 2*borderSize;
 
-                    canvas.drawRect(borderSize + left, borderSize + top, right - borderSize, bottom - borderSize, paint);
+                    canvas.drawRect(left+borderSize, top+borderSize, right+borderSize, bottom+borderSize, paint);
 
                     pos++;
                 }

@@ -973,11 +973,22 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (openUri == null)
             return;
 
-        if (openUri.toString().startsWith("magnet"))
+        if (openUri.toString().startsWith("magnet")) {
             addMagnet(openUri.toString());
+            return;
+        }
 
-        if (openUri.toString().endsWith("torrent"))
+        if (openUri.toString().endsWith(".torrent")) {
             addTorent(openUri.toString());
+            return;
+        }
+
+        // .torrent?
+        String path = openUri.getEncodedPath();
+        if (path.endsWith(".torrent")) {
+            addTorent(openUri.toString());
+            return;
+        }
     }
 
     void addMagnet(String ff) {

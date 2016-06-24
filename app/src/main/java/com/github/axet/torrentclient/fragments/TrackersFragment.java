@@ -98,14 +98,16 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
 
             String scrape = "Last Scrape: " + formatDate(f.getLastScrape());
 
-            scrape += " (S:" + f.getSeeders() + " L:" + f.getLeechers() + " D:" + f.getDownloaded() + ")";
+            if (f.getLastScrape() != 0)
+                scrape += " (S:" + f.getSeeders() + " L:" + f.getLeechers() + " D:" + f.getDownloaded() + ")";
 
             String ann = "Last Announce: " + formatDate(f.getLastAnnounce());
 
             if (f.getError() != null && !f.getError().isEmpty()) {
                 ann += " (" + f.getError() + ")";
             } else {
-                ann += " (P:" + f.getPeers() + ")";
+                if (f.getLastAnnounce() != 0)
+                    ann += " (P:" + f.getPeers() + ")";
             }
             lastAnnounce.setText(ann);
             nextAnnounce.setText("Next Announce: " + formatDate(f.getNextAnnounce()));
@@ -180,7 +182,10 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
             }
             if (url.equals("DHT")) {
                 dhtLast.setText("Last Announce: " + formatDate(tt.getLastAnnounce()));
-                dht.setText("Peers: " + tt.getPeers());
+                if (tt.getLastAnnounce() != 0)
+                    dht.setText("Peers: " + tt.getPeers());
+                else
+                    dht.setText("");
                 continue;
             }
             ff.add(tt);
