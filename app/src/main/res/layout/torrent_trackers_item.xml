@@ -20,7 +20,7 @@
                 android:id="@+id/torrent_trackers_url"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="udp://tracker.openbittracker.bt:80"
+                android:text="udp://tracker.openbittracker.bt:80/abc/22222/sss/asdasdasd/asdasdsd"
                 android:textStyle="bold" />
 
         </com.github.axet.androidlibrary.widgets.PathMax>
