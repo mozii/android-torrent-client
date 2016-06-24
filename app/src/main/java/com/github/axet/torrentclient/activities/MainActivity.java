@@ -687,6 +687,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         if (id == R.id.action_shutdown) {
             getApp().close();
+            finish();
             return true;
         }
 
@@ -850,6 +851,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        refreshUI = null;
+
+        if (refresh != null) {
+            handler.removeCallbacks(refresh);
+            refresh = null;
+        }
 
         if (torrents != null)
             torrents.close();
