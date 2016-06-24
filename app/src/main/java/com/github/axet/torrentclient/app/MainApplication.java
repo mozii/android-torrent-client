@@ -11,6 +11,7 @@ import android.util.Log;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.ExitActivity;
+import com.github.axet.torrentclient.activities.MainActivity;
 
 import java.io.File;
 
@@ -139,20 +140,6 @@ public class MainApplication extends Application {
 
     public Storage getStorage() {
         return storage;
-    }
-
-    public void Error(String err) {
-        Log.e(TAG, Libtorrent.Error());
-
-        new AlertDialog.Builder(this)
-                .setTitle("Error")
-                .setMessage(err)
-                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
     }
 
 }

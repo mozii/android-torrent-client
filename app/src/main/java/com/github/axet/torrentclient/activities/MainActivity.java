@@ -688,7 +688,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         File pp = p.getParentFile();
                         long t = Libtorrent.CreateTorrent(p.getPath());
                         if (t == -1) {
-                            getApp().Error(Libtorrent.Error());
+                            Error(Libtorrent.Error());
                             return;
                         }
                         getStorage().add(new Storage.Torrent(t, pp.getPath()));
@@ -829,6 +829,20 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         close();
         finishAffinity();
         ExitActivity.exitApplication(this);
+    }
+
+    public void Error(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Error")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     public void Fatal(String err) {
@@ -1097,6 +1111,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     void openFile(Intent intent) {
+        if (intent == null)
+            return;
+
         Uri openUri = intent.getData();
         if (openUri == null)
             return;
@@ -1123,7 +1140,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         String p = getStorage().getStoragePath().getPath();
         long t = Libtorrent.AddMagnet(p, ff);
         if (t == -1) {
-            getApp().Error(Libtorrent.Error());
+            Error(Libtorrent.Error());
             return;
         }
         getStorage().add(new Storage.Torrent(t, p));
@@ -1134,7 +1151,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         String s = getStorage().getStoragePath().getPath();
         long t = Libtorrent.AddTorrent(s, p);
         if (t == -1) {
-            getApp().Error(Libtorrent.Error());
+            Error(Libtorrent.Error());
             return;
         }
         getStorage().add(new Storage.Torrent(t, s));

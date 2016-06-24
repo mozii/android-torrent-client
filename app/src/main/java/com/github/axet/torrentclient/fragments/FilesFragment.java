@@ -151,12 +151,13 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
 
         final long t = getArguments().getLong("torrent");
 
+
         download = v.findViewById(R.id.torrent_files_metadata);
         download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!Libtorrent.DownloadMetadata(t)) {
-                    ((MainApplication) getContext().getApplicationContext()).Error(Libtorrent.Error());
+                    ((MainActivity) getActivity().getApplicationContext()).Error(Libtorrent.Error());
                     return;
                 }
             }
