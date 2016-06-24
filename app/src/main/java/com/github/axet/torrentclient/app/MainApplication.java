@@ -25,45 +25,6 @@ public class MainApplication extends Application {
 
     Storage storage;
 
-    public Storage getStorage() {
-        return storage;
-    }
-
-    public void Error(String err) {
-        Log.e(TAG, Libtorrent.Error());
-
-        new AlertDialog.Builder(this)
-                .setTitle("Error")
-                .setMessage(err)
-                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
-    public void Fatal(String err) {
-        Log.e(TAG, Libtorrent.Error());
-
-        new AlertDialog.Builder(this)
-                .setTitle("Fatal")
-                .setMessage(err)
-                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        close();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        close();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -87,7 +48,6 @@ public class MainApplication extends Application {
             storage.close();
             storage = null;
         }
-        ExitActivity.exitApplication(this);
     }
 
     @Override
@@ -175,6 +135,24 @@ public class MainApplication extends Application {
             str = formatTime(diffMinutes) + ":" + formatTime(diffSeconds);
 
         return str;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public void Error(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
 }

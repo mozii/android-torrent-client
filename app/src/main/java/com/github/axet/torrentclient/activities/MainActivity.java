@@ -104,6 +104,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     FloatingActionButton create;
     FloatingActionButton add;
 
+
+    public static void startActivity(Context context) {
+        Intent i = new Intent(context, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(i);
+    }
+
     public static class Tag {
         public int tag;
         public int position;
@@ -132,11 +140,136 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
     }
 
-    public static void startActivity(Context context) {
-        Intent i = new Intent(context, MainActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        context.startActivity(i);
+    public interface TorrentFragmentInterface {
+        void update();
+    }
+
+    public static class TorrentPagerAdapter extends FragmentPagerAdapter {
+        long t;
+
+        Map<Integer, Fragment> map = new HashMap<>();
+
+        public TorrentPagerAdapter(FragmentManager fm, long t) {
+            super(fm);
+
+            this.t = t;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Fragment f;
+
+            switch (i) {
+                case 0:
+                    f = new DetailsFragment();
+                    break;
+                case 1:
+                    f = new FilesFragment();
+                    break;
+                case 2:
+                    f = new PeersFragment();
+                    break;
+                case 3:
+                    f = new TrackersFragment();
+                    break;
+                default:
+                    return null;
+            }
+
+            map.put(i, f);
+
+            Bundle args = new Bundle();
+            args.putLong("torrent", t);
+            f.setArguments(args);
+
+            return f;
+        }
+
+        public TorrentFragmentInterface getFragment(int i) {
+            return (TorrentFragmentInterface) map.get(i);
+        }
+
+        @Override
+        public int getCount() {
+            return 4;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "DETAILS";
+                case 1:
+                    return "FILES";
+                case 2:
+                    return "PEERS";
+                case 3:
+                    return "TRACKERS";
+                default:
+                    return "EMPTY";
+            }
+        }
+    }
+
+    public static class TorrentDialogFragment extends DialogFragment {
+        ViewPager pager;
+
+        public static TorrentDialogFragment create(Long t) {
+            TorrentDialogFragment f = new TorrentDialogFragment();
+            Bundle args = new Bundle();
+            args.putLong("torrent", t);
+            f.setArguments(args);
+            return f;
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            super.onDismiss(dialog);
+            final Activity activity = getActivity();
+            if (activity instanceof DialogInterface.OnDismissListener) {
+                ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+            }
+        }
+
+        public void update() {
+            // dialog maybe created but onCreateView not yet called
+            if (pager == null)
+                return;
+
+            int i = pager.getCurrentItem();
+            TorrentPagerAdapter a = (TorrentPagerAdapter) pager.getAdapter();
+            TorrentFragmentInterface f = a.getFragment(i);
+            if (f == null)
+                return;
+            f.update();
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.torrent_details, container);
+
+            View v = view.findViewById(R.id.torrent_close);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getDialog().dismiss();
+                }
+            });
+
+            long t = getArguments().getLong("torrent");
+
+            pager = (ViewPager) view.findViewById(R.id.pager);
+            TorrentPagerAdapter adapter = new TorrentPagerAdapter(getChildFragmentManager(), t);
+            pager.setAdapter(adapter);
+
+            TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+            tabLayout.setupWithViewPager(pager);
+
+            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            return view;
+        }
     }
 
     public class Torrents extends BaseAdapter {
@@ -672,6 +805,53 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         return true;
     }
 
+    public void close() {
+        refreshUI = null;
+
+        if (refresh != null) {
+            handler.removeCallbacks(refresh);
+            refresh = null;
+        }
+
+        if (torrents != null)
+            torrents.close();
+
+        Storage s = getStorage();
+        if (s != null)
+            s.save();
+
+        TorrentService.stopService(this);
+
+        getApp().close();
+    }
+
+    public void shutdown() {
+        close();
+        finishAffinity();
+        ExitActivity.exitApplication(this);
+    }
+
+    public void Fatal(String err) {
+        Log.e(TAG, Libtorrent.Error());
+
+        new AlertDialog.Builder(this)
+                .setTitle("Fatal")
+                .setMessage(err)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        shutdown();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        shutdown();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar base clicks here. The action bar will
@@ -686,8 +866,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         if (id == R.id.action_shutdown) {
-            getApp().close();
-            finish();
+            shutdown();
             return true;
         }
 
@@ -852,21 +1031,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onDestroy() {
         super.onDestroy();
 
-        refreshUI = null;
-
-        if (refresh != null) {
-            handler.removeCallbacks(refresh);
-            refresh = null;
-        }
-
-        if (torrents != null)
-            torrents.close();
-
-        Storage s = getStorage();
-        if (s != null)
-            s.save();
-
-        TorrentService.stopService(this);
+        close();
     }
 
     @Override
@@ -976,135 +1141,4 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
-    public interface TorrentFragmentInterface {
-        void update();
-    }
-
-    public static class TorrentPagerAdapter extends FragmentPagerAdapter {
-        long t;
-
-        Map<Integer, Fragment> map = new HashMap<>();
-
-        public TorrentPagerAdapter(FragmentManager fm, long t) {
-            super(fm);
-
-            this.t = t;
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            Fragment f;
-
-            switch (i) {
-                case 0:
-                    f = new DetailsFragment();
-                    break;
-                case 1:
-                    f = new FilesFragment();
-                    break;
-                case 2:
-                    f = new PeersFragment();
-                    break;
-                case 3:
-                    f = new TrackersFragment();
-                    break;
-                default:
-                    return null;
-            }
-
-            map.put(i, f);
-
-            Bundle args = new Bundle();
-            args.putLong("torrent", t);
-            f.setArguments(args);
-
-            return f;
-        }
-
-        public TorrentFragmentInterface getFragment(int i) {
-            return (TorrentFragmentInterface) map.get(i);
-        }
-
-        @Override
-        public int getCount() {
-            return 4;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "DETAILS";
-                case 1:
-                    return "FILES";
-                case 2:
-                    return "PEERS";
-                case 3:
-                    return "TRACKERS";
-                default:
-                    return "EMPTY";
-            }
-        }
-    }
-
-    public static class TorrentDialogFragment extends DialogFragment {
-        ViewPager pager;
-
-        public static TorrentDialogFragment create(Long t) {
-            TorrentDialogFragment f = new TorrentDialogFragment();
-            Bundle args = new Bundle();
-            args.putLong("torrent", t);
-            f.setArguments(args);
-            return f;
-        }
-
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            super.onDismiss(dialog);
-            final Activity activity = getActivity();
-            if (activity instanceof DialogInterface.OnDismissListener) {
-                ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
-            }
-        }
-
-        public void update() {
-            // dialog maybe created but onCreateView not yet called
-            if (pager == null)
-                return;
-
-            int i = pager.getCurrentItem();
-            TorrentPagerAdapter a = (TorrentPagerAdapter) pager.getAdapter();
-            TorrentFragmentInterface f = a.getFragment(i);
-            if (f == null)
-                return;
-            f.update();
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.torrent_details, container);
-
-            View v = view.findViewById(R.id.torrent_close);
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    getDialog().dismiss();
-                }
-            });
-
-            long t = getArguments().getLong("torrent");
-
-            pager = (ViewPager) view.findViewById(R.id.pager);
-            TorrentPagerAdapter adapter = new TorrentPagerAdapter(getChildFragmentManager(), t);
-            pager.setAdapter(adapter);
-
-            TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-            tabLayout.setupWithViewPager(pager);
-
-            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-            return view;
-        }
-    }
 }
