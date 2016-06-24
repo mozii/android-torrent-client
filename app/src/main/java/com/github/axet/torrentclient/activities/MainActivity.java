@@ -691,6 +691,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
         getApp().close();
         finishAffinity();
+        ExitActivity.exitApplication(this);
     }
 
     @Override
