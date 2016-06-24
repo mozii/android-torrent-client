@@ -27,6 +27,7 @@
             android:name="com.github.axet.torrentclient.activities.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_main"
+            android:launchMode="singleInstance"
             android:theme="@style/AppThemeLight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
