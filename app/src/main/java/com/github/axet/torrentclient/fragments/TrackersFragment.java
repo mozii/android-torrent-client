@@ -91,20 +91,27 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
             TextView lastAnnounce = (TextView) view.findViewById(R.id.torrent_trackers_lastannounce);
             TextView nextAnnounce = (TextView) view.findViewById(R.id.torrent_trackers_nextannounce);
             TextView lastScrape = (TextView) view.findViewById(R.id.torrent_trackers_lastscrape);
-            TextView seed = (TextView) view.findViewById(R.id.torrent_trackers_seeders);
-            TextView leech = (TextView) view.findViewById(R.id.torrent_trackers_leechers);
-            TextView down = (TextView) view.findViewById(R.id.torrent_trackers_downloaded);
 
             Libtorrent.Tracker f = getItem(i);
 
             url.setText(f.getAddr());
 
-            lastAnnounce.setText("Last Announce: " + formatDate(f.getLastAnnounce()));
+            String scrape = "Last Scrape: " + formatDate(f.getLastScrape());
+
+            if (f.getLastScrape() != 0)
+                scrape += " (S:" + f.getSeeders() + " L:" + f.getLeechers() + " D:" + f.getDownloaded() + ")";
+
+            String ann = "Last Announce: " + formatDate(f.getLastAnnounce());
+
+            if (f.getError() != null && !f.getError().isEmpty()) {
+                ann += " (" + f.getError() + ")";
+            } else {
+                if (f.getLastAnnounce() != 0)
+                    ann += " (P:" + f.getPeers() + ")";
+            }
+            lastAnnounce.setText(ann);
             nextAnnounce.setText("Next Announce: " + formatDate(f.getNextAnnounce()));
-            lastScrape.setText("Last Scrape: " + formatDate(f.getLastScrape()));
-            seed.setText("Seeders: " + f.getSeeders());
-            leech.setText("Leechers: " + f.getLeechers());
-            down.setText("Downloaded: " + f.getDownloaded());
+            lastScrape.setText(scrape);
 
             return view;
         }
@@ -159,6 +166,7 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
             }
         });
 
+        TextView dhtLast = (TextView) v.findViewById(R.id.torrent_trackers_dht_last);
         TextView dht = (TextView) v.findViewById(R.id.torrent_trackers_dht);
 
         TextView pex = (TextView) v.findViewById(R.id.torrent_trackers_pex);
@@ -169,11 +177,15 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
             Libtorrent.Tracker tt = Libtorrent.TorrentTrackers(t, i);
             String url = tt.getAddr();
             if (url.equals("PEX")) {
-                pex.setText("Peers " + tt.getPeers());
+                pex.setText("Peers: " + tt.getPeers());
                 continue;
             }
             if (url.equals("DHT")) {
-                dht.setText("Peers " + tt.getPeers());
+                dhtLast.setText("Last Announce: " + formatDate(tt.getLastAnnounce()));
+                if (tt.getLastAnnounce() != 0)
+                    dht.setText("Peers: " + tt.getPeers());
+                else
+                    dht.setText("");
                 continue;
             }
             ff.add(tt);

@@ -2,9 +2,9 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:padding="5dp"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="5dp">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -13,18 +13,23 @@
         android:orientation="vertical">
 
 
-        <TextView
-            android:id="@+id/torrent_peer_addr"
+        <com.github.axet.androidlibrary.widgets.PathMax
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="11.111.11.11"
-            android:textStyle="bold" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/torrent_peer_addr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="191.111.111.131:56732"
+                android:textStyle="bold" />
+        </com.github.axet.androidlibrary.widgets.PathMax>
 
         <TextView
             android:id="@+id/torrent_peer_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="muTorren 0.1.3" />
+            android:text="(89%)(E)(I) muTorren 0.1.3" />
     </LinearLayout>
 
     <LinearLayout

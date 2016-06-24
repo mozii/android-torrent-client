@@ -30,28 +30,41 @@ public class Pieces extends View {
         COMPLETE
     }
 
+    Paint border = new Paint();
+
     Paint empty = new Paint();
     Paint checking = new Paint();
     Paint partial = new Paint();
     Paint complete = new Paint();
     Paint writing = new Paint();
 
-    {
+    ArrayList<Status> pieces;
+
+    public Pieces(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        init();
+    }
+
+    public Pieces(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        init();
+    }
+
+    void init() {
+        cellSize = ThemeUtils.dp2px(getContext(), 4);
+        borderSize = ThemeUtils.dp2px(getContext(), 0.5f);
+        stepSize = cellSize + borderSize;
+
+        border.setStrokeWidth(borderSize);
+        border.setColor(Color.LTGRAY);
+
         empty.setColor(Color.GRAY);
         checking.setColor(Color.YELLOW);
         partial.setColor(Color.GREEN);
         writing.setColor(Color.RED);
         complete.setColor(Color.BLUE);
-    }
-
-    ArrayList<Status> pieces;
-
-    public Pieces(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public Pieces(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
     }
 
     public void setTorrent(long t) {
@@ -114,11 +127,7 @@ public class Pieces extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        cellSize = ThemeUtils.dp2px(getContext(), 4);
-        borderSize = ThemeUtils.dp2px(getContext(), 1);
-        stepSize = cellSize + borderSize;
-
-        int w = CELLS * stepSize;
+        int w = CELLS * stepSize + borderSize * 2;
         int h = w;
         setMeasuredDimension(w, h);
     }
@@ -127,19 +136,17 @@ public class Pieces extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(isInEditMode()) {
+        if (isInEditMode()) {
             pieces = new ArrayList<>();
             for (int i = 0; i < CELLS * CELLS - 10; i++) {
-                Status s = Status.values()[(int)(Math.random()*Status.values().length)];
+                Status s = Status.values()[(int) (Math.random() * Status.values().length)];
                 pieces.add(s);
             }
         }
 
         canvas.drawColor(0);
 
-        Paint p = new Paint();
-        p.setColor(Color.LTGRAY);
-        p.setStrokeWidth(borderSize);
+        canvas.drawRect(0, 0, getWidth(), getBottom(), border);
 
         int pos = 0;
 
@@ -177,10 +184,10 @@ public class Pieces extends View {
 
                     int left = x * stepSize + borderSize;
                     int top = i * stepSize + borderSize;
-                    int right = left + stepSize - borderSize;
-                    int bottom = top + stepSize - borderSize;
+                    int right = left + stepSize - 2*borderSize;
+                    int bottom = top + stepSize - 2*borderSize;
 
-                    canvas.drawRect(left, top, right, bottom, paint);
+                    canvas.drawRect(left+borderSize, top+borderSize, right+borderSize, bottom+borderSize, paint);
 
                     pos++;
                 }

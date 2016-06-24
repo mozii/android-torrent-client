@@ -3,6 +3,7 @@ package com.github.axet.torrentclient.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -364,14 +365,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 checkUpdate.run();
 
-                if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused) {
-                    check.setColorFilter(Color.GRAY);
-                    check.setEnabled(false);
-                } else {
-                    check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
-                    check.setEnabled(true);
-                }
-
                 check.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -388,6 +381,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
 
+                switch (Libtorrent.TorrentStatus(t.t)) {
+                    case Libtorrent.StatusPaused:
+                    case Libtorrent.StatusChecking:
+                        check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                        break;
+                    default:
+                        check.setColorFilter(Color.GRAY);
+                        check.setOnClickListener(null);
+                }
 
                 final View share = convertView.findViewById(R.id.recording_player_share);
                 share.setOnClickListener(new View.OnClickListener() {
@@ -585,14 +587,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File p = f.getCurrentPath();
-                        String s = getStorage().getStoragePath().getPath();
-                        long t = Libtorrent.AddTorrent(s, p.getPath());
-                        if (t == -1) {
-                            Error(Libtorrent.Error());
-                            return;
-                        }
-                        getStorage().add(new Storage.Torrent(t, s));
-                        torrents.notifyDataSetChanged();
+                        addTorent(p.getPath());
                     }
                 });
                 f.show();
@@ -610,14 +605,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String ff = f.getText();
-                        String p = getStorage().getStoragePath().getPath();
-                        long t = Libtorrent.AddMagnet(p, ff);
-                        if (t == -1) {
-                            Error(Libtorrent.Error());
-                            return;
-                        }
-                        getStorage().add(new Storage.Torrent(t, p));
-                        torrents.notifyDataSetChanged();
+                        addMagnet(ff);
                     }
                 });
                 f.show();
@@ -652,6 +640,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         TorrentService.startService(this, getStorage().formatHeader());
+
+        openFile(getIntent());
     }
 
     @Override
@@ -673,6 +663,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            menu.removeItem(R.id.action_settings);
+            menu.removeItem(R.id.action_show_folder);
+        }
+
         return true;
     }
 
@@ -683,6 +679,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
         getApp().close();
         finishAffinity();
+        ExitActivity.exitApplication(this);
     }
 
     @Override
@@ -721,6 +718,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
+
+        invalidateOptionsMenu();
+
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            add.setVisibility(View.GONE);
+            create.setVisibility(View.GONE);
+        } else {
+            if (permitted(PERMISSIONS)) {
+                add.setVisibility(View.VISIBLE);
+                create.setVisibility(View.VISIBLE);
+            }
+        }
 
         if (themeId != getAppTheme()) {
             finish();
@@ -949,6 +959,58 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     public Storage getStorage() {
         return getApp().getStorage();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        openFile(intent);
+    }
+
+    void openFile(Intent intent) {
+        Uri openUri = intent.getData();
+        if (openUri == null)
+            return;
+
+        if (openUri.toString().startsWith("magnet")) {
+            addMagnet(openUri.toString());
+            return;
+        }
+
+        if (openUri.toString().endsWith(".torrent")) {
+            addTorent(openUri.toString());
+            return;
+        }
+
+        // .torrent?
+        String path = openUri.getEncodedPath();
+        if (path.endsWith(".torrent")) {
+            addTorent(openUri.toString());
+            return;
+        }
+    }
+
+    void addMagnet(String ff) {
+        String p = getStorage().getStoragePath().getPath();
+        long t = Libtorrent.AddMagnet(p, ff);
+        if (t == -1) {
+            Error(Libtorrent.Error());
+            return;
+        }
+        getStorage().add(new Storage.Torrent(t, p));
+        torrents.notifyDataSetChanged();
+    }
+
+    void addTorent(String p) {
+        String s = getStorage().getStoragePath().getPath();
+        long t = Libtorrent.AddTorrent(s, p);
+        if (t == -1) {
+            Error(Libtorrent.Error());
+            return;
+        }
+        getStorage().add(new Storage.Torrent(t, s));
+        torrents.notifyDataSetChanged();
     }
 
     public interface TorrentFragmentInterface {

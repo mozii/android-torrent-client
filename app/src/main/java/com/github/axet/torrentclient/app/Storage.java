@@ -60,20 +60,20 @@ public class Storage {
         public void start() {
             if (!Libtorrent.StartTorrent(t))
                 throw new RuntimeException(Libtorrent.Error());
-            Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+            Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
             downloaded.start(b.getDownloaded());
             uploaded.start(b.getUploaded());
         }
 
         public void update() {
-            Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+            Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
             downloaded.step(b.getDownloaded());
             uploaded.step(b.getUploaded());
         }
 
         public void stop() {
             Libtorrent.StopTorrent(t);
-            Libtorrent.BytesInfo b = Libtorrent.TorrentStats(t);
+            Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
             downloaded.end(b.getDownloaded());
             uploaded.end(b.getUploaded());
         }
