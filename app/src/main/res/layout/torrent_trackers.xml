@@ -17,27 +17,12 @@
             android:text="DHT Exchange"
             android:textStyle="bold" />
 
-        <com.github.axet.androidlibrary.widgets.EqualLinearLayout
-            android:layout_width="match_parent"
-            android:padding="5dp"
+        <TextView
+            android:id="@+id/torrent_trackers_dht_last"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="Last Announce: 23 June 2016 at 15:12" />
 
-
-            <TextView
-                android:id="@+id/torrent_trackers_dht_last"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Last Announce: 23 June 2016 at 15:12" />
-
-            <TextView
-
-                android:id="@+id/torrent_trackers_dht"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Peers 64" />
-
-        </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </LinearLayout>
 
 

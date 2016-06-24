@@ -111,7 +111,7 @@ public class Storage {
         }
 
         public int getProgress() {
-            if (Libtorrent.TorrentBytesCompleted(t) > 0) {
+            if (Libtorrent.InfoTorrent(t)) {
                 return (int) (Libtorrent.TorrentBytesCompleted(t) * 100 / Libtorrent.TorrentBytesLength(t));
             }
 
@@ -120,7 +120,7 @@ public class Storage {
 
         public boolean isDownloading() {
             if (Libtorrent.TorrentActive(t)) {
-                if (Libtorrent.TorrentBytesCompleted(t) > 0) {
+                if (Libtorrent.InfoTorrent(t)) {
                     return Libtorrent.TorrentBytesCompleted(t) < Libtorrent.TorrentBytesLength(t);
                 }
                 return true;
