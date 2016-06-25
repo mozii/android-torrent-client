@@ -34,6 +34,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!--Broswer magnet handler-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -42,6 +43,7 @@
 
                 <data android:scheme="magnet" />
             </intent-filter>
+            <!--Browser URL open-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -64,6 +66,31 @@
                     android:host="*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
+            </intent-filter>
+            <!--gmail / downloader handler-->
+            <intent-filter>
+                <!-- needed for properly formatted email messages -->
+                <data
+                    android:scheme="content"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.torrent" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <!-- file handler opening -->
+            <intent-filter>
+                <data android:scheme="file"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.torrent"
+                    android:host="*"/>
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
     </application>
