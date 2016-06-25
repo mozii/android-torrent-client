@@ -42,17 +42,13 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
             this.file = f;
             this.index = i;
         }
-
-        public String getPath() {
-            return file.getPath();
-        }
     }
 
     static class SortFiles implements Comparator<TorFile> {
         @Override
         public int compare(TorFile file, TorFile file2) {
-            List<String> s1 = splitPath(file.getPath());
-            List<String> s2 = splitPath(file2.getPath());
+            List<String> s1 = splitPath(file.file.getPath());
+            List<String> s2 = splitPath(file2.file.getPath());
 
             int c = new Integer(s1.size()).compareTo(s2.size());
             if (c != 0)
@@ -124,7 +120,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
             TextView folder = (TextView) view.findViewById(R.id.torrent_files_folder);
             TextView file = (TextView) view.findViewById(R.id.torrent_files_name);
 
-            String s = f.getPath();
+            String s = f.file.getPath();
 
             List<String> ss = splitPathFilter(s);
 
@@ -136,7 +132,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
                     folder.setVisibility(View.GONE);
                 } else {
                     File p1 = new File(makePath(ss)).getParentFile();
-                    File p2 = new File(makePath(splitPathFilter(getItem(i - 1).getPath()))).getParentFile();
+                    File p2 = new File(makePath(splitPathFilter(getItem(i - 1).file.getPath()))).getParentFile();
                     if (p1 == null || p1.equals(p2)) {
                         folder.setVisibility(View.GONE);
                     } else {

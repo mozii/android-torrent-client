@@ -40,8 +40,9 @@ public class MainApplication extends Application {
     }
 
     public void create() {
-        if (storage == null)
+        if (storage == null) {
             storage = new Storage(this);
+        }
     }
 
     public void close() {

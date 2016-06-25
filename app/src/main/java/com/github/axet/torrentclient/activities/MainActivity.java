@@ -806,10 +806,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         };
 
+        getApp().create();
+
+        updateHeader();
+
         initThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                getApp().create();
+                getStorage().create();
 
                 handler.post(new Runnable() {
                     @Override
