@@ -732,7 +732,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File p = f.getCurrentPath();
-                        addTorent(p.getPath());
+                        addTorentFromFile(p.getPath());
                     }
                 });
                 f.show();
@@ -1196,15 +1196,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             return;
         }
 
-        if (str.endsWith(".torrent")) {
-            addTorent(openUri.toString());
+        if (str.startsWith("http")) {
+            addTorentFromURL(str);
             return;
         }
 
         // .torrent?
         String path = openUri.getEncodedPath();
         if (path.endsWith(".torrent")) {
-            addTorent(openUri.toString());
+            addTorentFromFile(str);
             return;
         }
     }
@@ -1220,9 +1220,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
-    void addTorent(String p) {
+    void addTorentFromFile(String p) {
         String s = getStorage().getStoragePath().getPath();
-        long t = Libtorrent.AddTorrent(s, p);
+        long t = Libtorrent.AddTorrentFromFile(s, p);
         if (t == -1) {
             Error(Libtorrent.Error());
             return;
@@ -1231,6 +1231,16 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
+    void addTorentFromURL(String p) {
+        String s = getStorage().getStoragePath().getPath();
+        long t = Libtorrent.AddTorrentFromURL(s, p);
+        if (t == -1) {
+            Error(Libtorrent.Error());
+            return;
+        }
+        getStorage().add(new Storage.Torrent(t, s));
+        torrents.notifyDataSetChanged();
+    }
 
     void addTorent(byte[] buf) {
         String s = getStorage().getStoragePath().getPath();
