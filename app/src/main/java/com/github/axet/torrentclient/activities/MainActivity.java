@@ -632,7 +632,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Libtorrent.TorrentFileRename(f, 0, e.getText());
-                load();
             }
         });
         e.show();
@@ -834,12 +833,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
     }
 
-    // load torrents
-    void load() {
-//        if (torrents != null)
-//            torrents.scan();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -859,7 +852,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (initThread != null) {
             try {
                 initThread.join();
-            }catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
             // prevent delayed init
@@ -994,44 +987,38 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         };
 
-        if (init == null) {
-            refresh = new Runnable() {
-                @Override
-                public void run() {
-                    getStorage().update();
+        refresh = new Runnable() {
+            @Override
+            public void run() {
+                handler.removeCallbacks(refresh);
+                handler.postDelayed(refresh, 1000);
 
-                    updateHeader();
+                if (init != null)
+                    return;
 
-                    {
-                        String header = getStorage().formatHeader();
-                        header += "\n";
-                        for (int i = 0; i < getStorage().count(); i++) {
-                            Storage.Torrent t = getStorage().torrent(i);
-                            if (Libtorrent.TorrentActive(t.t)) {
-                                header += "(" + t.getProgress() + "%) ";
-                            }
+                getStorage().update();
+
+                updateHeader();
+
+                {
+                    String header = getStorage().formatHeader();
+                    header += "\n";
+                    for (int i = 0; i < getStorage().count(); i++) {
+                        Storage.Torrent t = getStorage().torrent(i);
+                        if (Libtorrent.TorrentActive(t.t)) {
+                            header += "(" + t.getProgress() + "%) ";
                         }
-                        TorrentService.updateNotify(MainActivity.this, header);
                     }
-
-                    torrents.update();
-
-                    if (refreshUI != null)
-                        refreshUI.run();
-
-                    handler.removeCallbacks(refresh);
-                    handler.postDelayed(refresh, 1000);
+                    TorrentService.updateNotify(MainActivity.this, header);
                 }
-            };
-            refresh.run();
 
-            if (permitted(PERMISSIONS))
-                load();
-            else
-                load();
+                torrents.update();
 
-            updateHeader();
-        }
+                if (refreshUI != null)
+                    refreshUI.run();
+            }
+        };
+        refresh.run();
     }
 
     @Override
@@ -1048,7 +1035,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             case 1:
                 if (permitted(permissions)) {
                     getStorage().migrateLocalStorage();
-                    load();
                     create.setVisibility(View.VISIBLE);
                     add.setVisibility(View.VISIBLE);
                 } else {

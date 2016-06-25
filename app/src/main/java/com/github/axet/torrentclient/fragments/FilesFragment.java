@@ -87,8 +87,10 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
                 view = inflater.inflate(R.layout.torrent_files_item, viewGroup, false);
             }
 
+            Libtorrent.File f = getItem(i);
+
             CheckBox check = (CheckBox) view.findViewById(R.id.torrent_files_check);
-            check.setChecked(true);
+            check.setChecked(f.getCheck());
             check.setEnabled(false);
 
             TextView percent = (TextView) view.findViewById(R.id.torrent_files_percent);
@@ -97,8 +99,6 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
 
             TextView folder = (TextView) view.findViewById(R.id.torrent_files_folder);
             TextView file = (TextView) view.findViewById(R.id.torrent_files_name);
-
-            Libtorrent.File f = getItem(i);
 
             String s = f.getPath();
 
