@@ -847,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (myKM.inKeyguardRestrictedInputMode() && init != null) {
+        if (myKM.inKeyguardRestrictedInputMode() || init != null) {
             menu.removeItem(R.id.action_settings);
             menu.removeItem(R.id.action_show_folder);
         }
