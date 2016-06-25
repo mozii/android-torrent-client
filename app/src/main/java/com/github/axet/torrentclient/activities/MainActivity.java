@@ -379,10 +379,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                                     public void run() {
                                         t.stop();
                                         File f = new File(getStorage().getStoragePath(), t.name());
-                                        try {
-                                            FileUtils.deleteDirectory(f);
-                                        } catch (IOException e) {
-                                        }
+                                        FileUtils.deleteQuietly(f);
                                         getStorage().remove(t);
                                         Libtorrent.RemoveTorrent(t.t);
                                         Tag.setTag(view, TYPE_DELETED, -1);
