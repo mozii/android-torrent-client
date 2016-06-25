@@ -43,7 +43,7 @@
 
                 <data android:scheme="magnet" />
             </intent-filter>
-            <!--Browser URL open-->
+            <!--seems like order is important!!!! crazy! following 'http' filter should come before other schemas-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -54,155 +54,153 @@
                     android:host="*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="http" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="http" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="http" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="*"
+                    android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
-                    android:scheme="https" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="file" />
+                    android:scheme="http" />
             </intent-filter>
             <!--gmail / downloader / broswers have different hooks, we need to show individual handlers for each theme type-->
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:host="*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:host="*"
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <!-- file handler opening -->
-            <intent-filter>
+
                 <data
                     android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:host="*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:host="*"
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
-
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:pathPattern=".*\\.torrent"
-                    android:scheme="http" />
-
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
+
                 <data
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
-                    android:scheme="http" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+                    android:scheme="https" />
             </intent-filter>
             <intent-filter>
                 <data
                     android:host="*"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="http" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
-                <data
-                    android:host="*"
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="http" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
-                <data
                     android:pathPattern=".*\\.torrent"
                     android:scheme="https" />
 
@@ -212,38 +210,16 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
             <intent-filter>
-                <data
-                    android:mimeType="*/*"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="https" />
-
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
-                <data
-                    android:host="*/*"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="https" />
 
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-            <intent-filter>
                 <data
                     android:host="*"
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="https" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
     </application>

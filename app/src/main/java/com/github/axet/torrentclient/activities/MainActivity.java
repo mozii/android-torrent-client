@@ -1201,6 +1201,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             return;
         }
 
+        if (str.startsWith("file")) {
+            String path = openUri.getEncodedPath();
+            addTorentFromFile(path);
+            return;
+        }
+
         // .torrent?
         String path = openUri.getEncodedPath();
         if (path.endsWith(".torrent")) {
