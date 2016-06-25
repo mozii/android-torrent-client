@@ -121,6 +121,14 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
             TextView folder = (TextView) view.findViewById(R.id.torrent_files_folder);
             TextView file = (TextView) view.findViewById(R.id.torrent_files_name);
 
+            View fc = view.findViewById(R.id.torrent_files_file);
+            fc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Libtorrent.TorrentFilesCheck(t, f.index, check.isChecked());
+                }
+            });
+
             String s = f.file.getPath();
 
             List<String> ss = splitPathFilter(s);

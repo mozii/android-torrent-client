@@ -84,28 +84,36 @@ public class Storage {
 
             switch (Libtorrent.TorrentStatus(t)) {
                 case Libtorrent.StatusPaused:
-//                    str += "Paused";
+                    // str += "Paused";
+                    if (Libtorrent.InfoTorrent(t))
+                        str += " · " + MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
+
+                    str += "↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
+                    str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
                     break;
                 case Libtorrent.StatusSeeding:
-//                    str += "Seeding";
+                    // str += "Seeding";
+                    if (Libtorrent.InfoTorrent(t))
+                        str += MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
+
+                    str += "↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
+                    str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
                     break;
                 case Libtorrent.StatusDownloading:
-                    long c = Libtorrent.TorrentPendingBytesLength(t) - Libtorrent.TorrentPendingBytesCompleted(t);
+                    long c = 0;
+                    if (Libtorrent.InfoTorrent(t))
+                        c = Libtorrent.TorrentPendingBytesLength(t) - Libtorrent.TorrentPendingBytesCompleted(t);
                     int a = downloaded.getAverageSpeed();
-                    if (c > 0 && a > 0 && c > 0) {
+                    if (c > 0 && a > 0) {
                         int diff = (int) (c * 1000 / a);
-                        str += "(" + ((MainApplication) context.getApplicationContext()).formatDuration(diff)+")";
+                        str += "" + ((MainApplication) context.getApplicationContext()).formatDuration(diff) + "";
                     } else {
-                        str += "(∞)";
+                        str += "∞";
                     }
+                    str += " · ↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
+                    str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
                     break;
             }
-
-            if (Libtorrent.TorrentBytesCompleted(t) > 0)
-                str += " " + MainApplication.formatSize(Libtorrent.TorrentBytesLength(t));
-
-            str += " · ↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
-            str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
 
             return str.trim();
         }
