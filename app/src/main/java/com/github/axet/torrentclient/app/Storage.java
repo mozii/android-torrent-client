@@ -86,10 +86,10 @@ public class Storage {
                 case Libtorrent.StatusPaused:
                     // str += "Paused";
                     if (Libtorrent.InfoTorrent(t))
-                        str += " · " + MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
+                        str += MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
 
-                    str += "↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
-                    str += " · ↑ " + MainApplication.formatSize(uploaded.getCurrentSpeed()) + "/s";
+                    str += "↓ " + MainApplication.formatSize(0) + "/s";
+                    str += " · ↑ " + MainApplication.formatSize(0) + "/s";
                     break;
                 case Libtorrent.StatusSeeding:
                     // str += "Seeding";
