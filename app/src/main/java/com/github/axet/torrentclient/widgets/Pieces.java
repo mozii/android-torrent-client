@@ -25,6 +25,7 @@ public class Pieces extends View {
 
     Paint border = new Paint();
 
+    Paint unpended = new Paint();
     Paint empty = new Paint();
     Paint checking = new Paint();
     Paint partial = new Paint();
@@ -53,6 +54,7 @@ public class Pieces extends View {
         border.setStrokeWidth(borderSize);
         border.setColor(Color.LTGRAY);
 
+        unpended.setColor(0xFFAAAAAA); // mid between LTGRAY - GRAY
         empty.setColor(Color.GRAY);
         checking.setColor(Color.YELLOW);
         partial.setColor(Color.GREEN);
@@ -152,6 +154,9 @@ public class Pieces extends View {
                             break;
                         case Libtorrent.PieceComplete:
                             paint = complete;
+                            break;
+                        case Libtorrent.PieceUnpended:
+                            paint = unpended;
                             break;
                         case Libtorrent.PieceEmpty:
                             paint = empty;

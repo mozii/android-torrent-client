@@ -49,6 +49,7 @@
                     android:text="Pieces:" />
 
                 <TextView
+                    android:layout_span="2"
                     android:id="@+id/torrent_pieces"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
