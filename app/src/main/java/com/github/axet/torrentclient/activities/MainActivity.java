@@ -811,14 +811,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         };
 
-        getApp().create();
-
-        updateHeader();
+        updateHeader(new Storage(this));
 
         initThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                getStorage().create();
+                getApp().create();
 
                 handler.post(new Runnable() {
                     @Override
@@ -1007,7 +1005,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 getStorage().update();
 
-                updateHeader();
+                updateHeader(getStorage());
 
                 {
                     String header = getStorage().formatHeader();
@@ -1154,9 +1152,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         dialog = null;
     }
 
-    void updateHeader() {
+    void updateHeader(Storage s) {
         TextView text = (TextView) findViewById(R.id.space_left);
-        text.setText(getStorage().formatHeader());
+        text.setText(s.formatHeader());
     }
 
     public Storage getStorage() {
