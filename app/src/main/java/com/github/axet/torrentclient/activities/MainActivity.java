@@ -66,9 +66,13 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1176,12 +1180,23 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (openUri == null)
             return;
 
-        if (openUri.toString().startsWith("magnet")) {
-            addMagnet(openUri.toString());
+        String str = openUri.toString();
+
+        if (str.startsWith("magnet")) {
+            addMagnet(str);
             return;
         }
 
-        if (openUri.toString().endsWith(".torrent")) {
+        if (str.startsWith("content")) {
+            try {
+                addTorent(IOUtils.toByteArray(getContentResolver().openInputStream(openUri)));
+            } catch (IOException e) {
+                Error(e.toString());
+            }
+            return;
+        }
+
+        if (str.endsWith(".torrent")) {
             addTorent(openUri.toString());
             return;
         }
@@ -1216,4 +1231,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
+
+    void addTorent(byte[] buf) {
+        String s = getStorage().getStoragePath().getPath();
+        long t = Libtorrent.AddTorrentFromBytes(s, buf);
+        if (t == -1) {
+            Error(Libtorrent.Error());
+            return;
+        }
+        getStorage().add(new Storage.Torrent(t, s));
+        torrents.notifyDataSetChanged();
+    }
 }
