@@ -42,6 +42,7 @@ public class MainApplication extends Application {
     public void create() {
         if (storage == null) {
             storage = new Storage(this);
+            storage.create();
         }
     }
 
