@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
+import com.github.axet.torrentclient.app.Storage;
 import com.github.axet.torrentclient.widgets.Pieces;
 
 import java.text.SimpleDateFormat;
@@ -98,8 +99,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         }
 
         TextView progress = (TextView) v.findViewById(R.id.torrent_progress);
-        long p = !Libtorrent.InfoTorrent(t) ? 0 : Libtorrent.TorrentBytesCompleted(t) * 100 / Libtorrent.TorrentBytesLength(t);
-        progress.setText(String.format("%d%%", p));
+        progress.setText(String.format("%d%%", Storage.Torrent.getProgress(t)));
 
         TextView downloaded = (TextView) v.findViewById(R.id.torrent_downloaded);
         Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);

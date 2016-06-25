@@ -28,6 +28,7 @@ import go.libtorrent.Libtorrent;
 public class FilesFragment extends Fragment implements MainActivity.TorrentFragmentInterface {
     View v;
     ListView list;
+    View toolbar;
     View download;
 
     Files files;
@@ -120,6 +121,14 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
             TextView folder = (TextView) view.findViewById(R.id.torrent_files_folder);
             TextView file = (TextView) view.findViewById(R.id.torrent_files_name);
 
+            View fc = view.findViewById(R.id.torrent_files_file);
+            fc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Libtorrent.TorrentFilesCheck(t, f.index, check.isChecked());
+                }
+            });
+
             String s = f.file.getPath();
 
             List<String> ss = splitPathFilter(s);
@@ -184,10 +193,33 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
 
         list = (ListView) v.findViewById(R.id.list);
 
+        toolbar = v.findViewById(R.id.torrent_files_toolbar);
+
         files = new Files();
 
         list.setAdapter(files);
 
+        View none = v.findViewById(R.id.torrent_files_none);
+        none.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (TorFile f : ff) {
+                    Libtorrent.TorrentFilesCheck(t, f.index, false);
+                }
+                files.notifyDataSetChanged();
+            }
+        });
+
+        View all = v.findViewById(R.id.torrent_files_all);
+        all.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (TorFile f : ff) {
+                    Libtorrent.TorrentFilesCheck(t, f.index, true);
+                }
+                files.notifyDataSetChanged();
+            }
+        });
         update();
 
         return v;
@@ -198,6 +230,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
         long t = getArguments().getLong("torrent");
 
         download.setVisibility(Libtorrent.InfoTorrent(t) ? View.GONE : View.VISIBLE);
+        toolbar.setVisibility(Libtorrent.InfoTorrent(t) ? View.VISIBLE : View.GONE);
 
         torrentName = Libtorrent.TorrentName(t);
 
