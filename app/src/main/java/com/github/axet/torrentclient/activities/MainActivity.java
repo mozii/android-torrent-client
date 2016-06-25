@@ -365,28 +365,33 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle("Delete Torrent");
-                    builder.setMessage(".../" + Libtorrent.TorrentName(t.t) + "\n\n" + "Are you sure ? ");
-                    builder.setNeutralButton("Delete With Data", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            RemoveItemAnimation.apply(list, base, new Runnable() {
-                                @Override
-                                public void run() {
-                                    t.stop();
-                                    File f = new File(getStorage().getStoragePath(), t.name());
-                                    try {
-                                        FileUtils.deleteDirectory(f);
-                                    } catch (IOException e) {
+
+                    String name = Libtorrent.InfoTorrent(t.t) ? ".../" + t.name() : t.name();
+
+                    builder.setMessage(name + "\n\n" + "Are you sure ? ");
+                    if (Libtorrent.InfoTorrent(t.t)) {
+                        builder.setNeutralButton("Delete With Data", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                                RemoveItemAnimation.apply(list, base, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        t.stop();
+                                        File f = new File(getStorage().getStoragePath(), t.name());
+                                        try {
+                                            FileUtils.deleteDirectory(f);
+                                        } catch (IOException e) {
+                                        }
+                                        getStorage().remove(t);
+                                        Libtorrent.RemoveTorrent(t.t);
+                                        Tag.setTag(view, TYPE_DELETED, -1);
+                                        select(-1);
                                     }
-                                    getStorage().remove(t);
-                                    Libtorrent.RemoveTorrent(t.t);
-                                    Tag.setTag(view, TYPE_DELETED, -1);
-                                    select(-1);
-                                }
-                            });
-                        }
-                    });
+                                });
+                            }
+                        });
+                    }
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -437,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 TextView tt = (TextView) convertView.findViewById(R.id.torrent_process_text);
 
-                long p = !Libtorrent.InfoTorrent(t.t) ? 0 : Libtorrent.TorrentBytesCompleted(t.t) * 100 / Libtorrent.TorrentBytesLength(t.t);
+                long p = t.getProgress();
 
                 Drawable d = null;
                 switch (Libtorrent.TorrentStatus(t.t)) {

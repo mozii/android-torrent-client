@@ -90,13 +90,13 @@ public class Storage {
 //                    str += "Seeding";
                     break;
                 case Libtorrent.StatusDownloading:
-                    long c = Libtorrent.TorrentBytesCompleted(t);
+                    long c = Libtorrent.TorrentPendingBytesLength(t) - Libtorrent.TorrentPendingBytesCompleted(t);
                     int a = downloaded.getAverageSpeed();
-                    if (c > 0 && a > 0) {
+                    if (c > 0 && a > 0 && c > 0) {
                         int diff = (int) (c * 1000 / a);
-                        str += "Left: " + ((MainApplication) context.getApplicationContext()).formatDuration(diff);
+                        str += "(" + ((MainApplication) context.getApplicationContext()).formatDuration(diff)+")";
                     } else {
-                        str += "Left: ∞";
+                        str += "(∞)";
                     }
                     break;
             }
@@ -110,12 +110,15 @@ public class Storage {
             return str.trim();
         }
 
-        public int getProgress() {
-            if (Libtorrent.InfoTorrent(t)) {
-                return (int) (Libtorrent.TorrentBytesCompleted(t) * 100 / Libtorrent.TorrentBytesLength(t));
+        public static int getProgress(long t) {
+            if (Libtorrent.InfoTorrent(t) && Libtorrent.TorrentPendingBytesLength(t) != 0) {
+                return (int) (Libtorrent.TorrentPendingBytesCompleted(t) * 100 / Libtorrent.TorrentPendingBytesLength(t));
             }
-
             return 0;
+        }
+
+        public int getProgress() {
+            return getProgress(t);
         }
 
         public boolean isDownloading() {
