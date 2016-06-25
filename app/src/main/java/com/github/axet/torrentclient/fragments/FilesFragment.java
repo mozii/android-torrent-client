@@ -34,11 +34,21 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
 
     String torrentName;
 
-    static class SortFiles implements Comparator<Libtorrent.File> {
+    static class TorFile {
+        public long index;
+        public Libtorrent.File file;
+
+        public TorFile(long i, Libtorrent.File f) {
+            this.file = f;
+            this.index = i;
+        }
+    }
+
+    static class SortFiles implements Comparator<TorFile> {
         @Override
-        public int compare(Libtorrent.File file, Libtorrent.File file2) {
-            List<String> s1 = splitPath(file.getPath());
-            List<String> s2 = splitPath(file2.getPath());
+        public int compare(TorFile file, TorFile file2) {
+            List<String> s1 = splitPath(file.file.getPath());
+            List<String> s2 = splitPath(file2.file.getPath());
 
             int c = new Integer(s1.size()).compareTo(s2.size());
             if (c != 0)
@@ -56,7 +66,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
         }
     }
 
-    ArrayList<Libtorrent.File> ff = new ArrayList<>();
+    ArrayList<TorFile> ff = new ArrayList<>();
 
     class Files extends BaseAdapter {
 
@@ -66,7 +76,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
         }
 
         @Override
-        public Libtorrent.File getItem(int i) {
+        public TorFile getItem(int i) {
             return ff.get(i);
         }
 
@@ -87,20 +97,30 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
                 view = inflater.inflate(R.layout.torrent_files_item, viewGroup, false);
             }
 
-            CheckBox check = (CheckBox) view.findViewById(R.id.torrent_files_check);
-            check.setChecked(true);
-            check.setEnabled(false);
+            final long t = getArguments().getLong("torrent");
+
+            final TorFile f = getItem(i);
+
+            final CheckBox check = (CheckBox) view.findViewById(R.id.torrent_files_check);
+            check.setChecked(f.file.getCheck());
+            check.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Libtorrent.TorrentFilesCheck(t, f.index, check.isChecked());
+                }
+            });
 
             TextView percent = (TextView) view.findViewById(R.id.torrent_files_percent);
             percent.setEnabled(false);
             percent.setText("N/A");
 
+            TextView size = (TextView) view.findViewById(R.id.torrent_files_size);
+            size.setText("Size: " + MainApplication.formatSize(f.file.getLength()));
+
             TextView folder = (TextView) view.findViewById(R.id.torrent_files_folder);
             TextView file = (TextView) view.findViewById(R.id.torrent_files_name);
 
-            Libtorrent.File f = getItem(i);
-
-            String s = f.getPath();
+            String s = f.file.getPath();
 
             List<String> ss = splitPathFilter(s);
 
@@ -112,7 +132,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
                     folder.setVisibility(View.GONE);
                 } else {
                     File p1 = new File(makePath(ss)).getParentFile();
-                    File p2 = new File(makePath(splitPathFilter(getItem(i - 1).getPath()))).getParentFile();
+                    File p2 = new File(makePath(splitPathFilter(getItem(i - 1).file.getPath()))).getParentFile();
                     if (p1 == null || p1.equals(p2)) {
                         folder.setVisibility(View.GONE);
                     } else {
@@ -151,7 +171,6 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
 
         final long t = getArguments().getLong("torrent");
 
-
         download = v.findViewById(R.id.torrent_files_metadata);
         download.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,7 +205,7 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
 
         ff.clear();
         for (long i = 0; i < l; i++) {
-            ff.add(Libtorrent.TorrentFiles(t, i));
+            ff.add(new TorFile(i, Libtorrent.TorrentFiles(t, i)));
         }
 
         Collections.sort(ff, new SortFiles());

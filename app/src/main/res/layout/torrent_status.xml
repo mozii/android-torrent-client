@@ -54,6 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
+                    android:layout_span="2"
                     android:text="12323, Length: 11 kb" />
             </TableRow>
 
@@ -117,6 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
+                    android:layout_span="2"
                     android:text="name" />
             </TableRow>
 
@@ -134,6 +136,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginLeft="5dp"
+                    android:layout_span="2"
                     android:text="23 June 2016 at 15:12" />
             </TableRow>
 

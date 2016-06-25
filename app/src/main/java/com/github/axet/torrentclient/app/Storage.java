@@ -134,10 +134,6 @@ public class Storage {
         Log.d(TAG, "Storage.Close");
 
         this.context = context;
-
-        create();
-
-        load();
     }
 
     public MainApplication getApp() {
@@ -191,7 +187,7 @@ public class Storage {
         edit.commit();
     }
 
-    void create() {
+    public void create() {
         if (!Libtorrent.Create()) {
             throw new RuntimeException(Libtorrent.Error());
         }
@@ -201,6 +197,8 @@ public class Storage {
 
         downloaded.start(0);
         uploaded.start(0);
+
+        load();
     }
 
     public void close() {

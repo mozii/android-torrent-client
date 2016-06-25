@@ -16,29 +16,23 @@ import go.libtorrent.Libtorrent;
 
 public class Pieces extends View {
 
-    public static int CELLS = 18;
+    public final static int CELLS = 18;
 
+    int cells = CELLS;
     int cellSize = 0;
     int borderSize = 0;
     int stepSize;
 
-    enum Status {
-        EMPTY,
-        CHECKING,
-        PARTIAL,
-        WRITING,
-        COMPLETE
-    }
-
     Paint border = new Paint();
 
+    Paint unpended = new Paint();
     Paint empty = new Paint();
     Paint checking = new Paint();
     Paint partial = new Paint();
     Paint complete = new Paint();
     Paint writing = new Paint();
 
-    ArrayList<Status> pieces;
+    ArrayList<Integer> pieces;
 
     public Pieces(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -60,6 +54,7 @@ public class Pieces extends View {
         border.setStrokeWidth(borderSize);
         border.setColor(Color.LTGRAY);
 
+        unpended.setColor(0xFFAAAAAA); // mid between LTGRAY - GRAY
         empty.setColor(Color.GRAY);
         checking.setColor(Color.YELLOW);
         partial.setColor(Color.GREEN);
@@ -68,7 +63,12 @@ public class Pieces extends View {
     }
 
     public void setTorrent(long t) {
-        int len = CELLS * CELLS;
+        if(!Libtorrent.InfoTorrent(t))
+            return;
+
+        cells = CELLS;
+
+        int len = cells * cells;
 
         long l = Libtorrent.TorrentPiecesCount(t);
 
@@ -76,48 +76,19 @@ public class Pieces extends View {
             int c = (int) Math.pow(l, 0.5);
             if (c == 0)
                 return;
-            CELLS = c;
+            cells = c;
 
-            len = CELLS * CELLS;
+            len = cells * cells;
         }
 
         long step = l / len + 1;
 
-        long pos = 0;
-
         pieces = new ArrayList<>();
 
-        for (long i = 0; i < len && pos < l; i++) {
-            boolean checking = false;
-            boolean empty = false;
-            boolean complete = false;
-            boolean partial = false;
-            for (int s = 0; s < step && pos < l; s++) {
-                Libtorrent.PieceStatus a = Libtorrent.TorrentPieces(t, pos);
-                if (a.getPartial()) {
-                    partial = true;
-                }
+        l = Libtorrent.TorrentPiecesCompactCount(t, step);
 
-                if (!a.getComplete())
-                    empty = true;
-                else
-                    complete = true;
-
-                if (a.getChecking())
-                    checking = true;
-                pos++;
-            }
-            if (checking) {
-                pieces.add(Status.CHECKING);
-            } else if (partial) {
-                pieces.add(Status.WRITING);
-            } else if (empty && complete) {
-                pieces.add(Status.PARTIAL);
-            } else if (complete) {
-                pieces.add(Status.COMPLETE);
-            } else {
-                pieces.add(Status.EMPTY);
-            }
+        for (long i = 0; i < l; i++) {
+            pieces.add(Libtorrent.TorrentPiecesCompact(t, i));
         }
 
         invalidate();
@@ -127,7 +98,7 @@ public class Pieces extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int w = CELLS * stepSize + borderSize * 2;
+        int w = cells * stepSize + borderSize * 2;
         int h = w;
         setMeasuredDimension(w, h);
     }
@@ -138,8 +109,15 @@ public class Pieces extends View {
 
         if (isInEditMode()) {
             pieces = new ArrayList<>();
-            for (int i = 0; i < CELLS * CELLS - 10; i++) {
-                Status s = Status.values()[(int) (Math.random() * Status.values().length)];
+            int[] status = new int[]{
+                    Libtorrent.PieceEmpty,
+                    Libtorrent.PieceComplete,
+                    Libtorrent.PieceChecking,
+                    Libtorrent.PiecePartial,
+                    Libtorrent.PieceWriting,
+            };
+            for (int i = 0; i < cells * cells - 10; i++) {
+                int s = status[(int) (Math.random() * status.length)];
                 pieces.add(s);
             }
         }
@@ -150,7 +128,7 @@ public class Pieces extends View {
 
         int pos = 0;
 
-        for (int i = 0; i < CELLS; i++) {
+        for (int i = 0; i < cells; i++) {
 //            {
 //                // vertical
 //                int s = i * stepSize;
@@ -160,34 +138,37 @@ public class Pieces extends View {
 //            }
 
             if (pieces != null) {
-                for (int x = 0; x < CELLS && pos < pieces.size(); x++) {
+                for (int x = 0; x < cells && pos < pieces.size(); x++) {
                     Paint paint = null;
 
-                    Status s = pieces.get(pos);
+                    int s = pieces.get(pos);
                     switch (s) {
-                        case WRITING:
+                        case Libtorrent.PieceWriting:
                             paint = writing;
                             break;
-                        case PARTIAL:
+                        case Libtorrent.PiecePartial:
                             paint = partial;
                             break;
-                        case CHECKING:
+                        case Libtorrent.PieceChecking:
                             paint = checking;
                             break;
-                        case COMPLETE:
+                        case Libtorrent.PieceComplete:
                             paint = complete;
                             break;
-                        case EMPTY:
+                        case Libtorrent.PieceUnpended:
+                            paint = unpended;
+                            break;
+                        case Libtorrent.PieceEmpty:
                             paint = empty;
                             break;
                     }
 
                     int left = x * stepSize + borderSize;
                     int top = i * stepSize + borderSize;
-                    int right = left + stepSize - 2*borderSize;
-                    int bottom = top + stepSize - 2*borderSize;
+                    int right = left + stepSize - 2 * borderSize;
+                    int bottom = top + stepSize - 2 * borderSize;
 
-                    canvas.drawRect(left+borderSize, top+borderSize, right+borderSize, bottom+borderSize, paint);
+                    canvas.drawRect(left + borderSize, top + borderSize, right + borderSize, bottom + borderSize, paint);
 
                     pos++;
                 }
