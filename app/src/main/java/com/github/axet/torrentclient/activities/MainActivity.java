@@ -94,16 +94,23 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     TorrentDialogFragment dialog;
 
     Torrents torrents;
+    ProgressBar progress;
     ListView list;
+    View empty;
     Handler handler;
     PopupShareActionProvider shareProvider;
 
     int themeId;
 
     // not delared locally - used from two places
+    FloatingActionsMenu fab;
     FloatingActionButton create;
     FloatingActionButton add;
 
+    // delayedIntent delayedIntent
+    Intent delayedIntent;
+    Thread initThread;
+    Runnable init;
 
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
@@ -663,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         handler = new Handler();
 
-        final FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab);
+        fab = (FloatingActionsMenu) findViewById(R.id.fab);
 
         create = (FloatingActionButton) findViewById(R.id.torrent_create_button);
         create.setOnClickListener(new View.OnClickListener() {
@@ -746,35 +753,78 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         });
 
-        getApp().create();
-
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        shared.registerOnSharedPreferenceChangeListener(this);
-
-        torrents = new Torrents(this);
-
-        list = (ListView) findViewById(R.id.list);
-        list.setOnScrollListener(this);
-        list.setAdapter(torrents);
-        list.setEmptyView(findViewById(R.id.empty_list));
-
-        if (permitted()) {
-            getStorage().migrateLocalStorage();
-        } else {
-            // with no permission we can't choise files to 'torrent', or select downloaded torrent
-            // file, since we have no persmission to user files.
-            create.setVisibility(View.GONE);
-            add.setVisibility(View.GONE);
-        }
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
-        TorrentService.startService(this, getStorage().formatHeader());
+        progress = (ProgressBar) findViewById(R.id.progress);
 
-        openFile(getIntent());
+        list = (ListView) findViewById(R.id.list);
+        empty = findViewById(R.id.empty_list);
+
+        fab.setVisibility(View.GONE);
+        empty.setVisibility(View.GONE);
+        list.setVisibility(View.GONE);
+        fab.setVisibility(View.GONE);
+
+        delayedIntent = getIntent();
+
+        init = new Runnable() {
+            @Override
+            public void run() {
+                TorrentService.startService(MainActivity.this, getStorage().formatHeader());
+
+                progress.setVisibility(View.GONE);
+                list.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.VISIBLE);
+
+                invalidateOptionsMenu();
+
+                list.setOnScrollListener(MainActivity.this);
+                list.setEmptyView(findViewById(R.id.empty_list));
+
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                shared.registerOnSharedPreferenceChangeListener(MainActivity.this);
+
+                torrents = new Torrents(MainActivity.this);
+
+                list.setAdapter(torrents);
+
+                if (permitted()) {
+                    getStorage().migrateLocalStorage();
+                } else {
+                    // with no permission we can't choise files to 'torrent', or select downloaded torrent
+                    // file, since we have no persmission to user files.
+                    create.setVisibility(View.GONE);
+                    add.setVisibility(View.GONE);
+                }
+
+                if (delayedIntent != null) {
+                    openFile(delayedIntent);
+                    delayedIntent = null;
+                }
+            }
+        };
+
+        initThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getApp().create();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // acctivity can be destoryed already do not init
+                        if (init != null) {
+                            init.run();
+                            init = null;
+                        }
+                    }
+                });
+            }
+        });
+        initThread.start();
     }
 
     @Override
@@ -797,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (myKM.inKeyguardRestrictedInputMode()) {
+        if (myKM.inKeyguardRestrictedInputMode() && init != null) {
             menu.removeItem(R.id.action_settings);
             menu.removeItem(R.id.action_show_folder);
         }
@@ -806,6 +856,16 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     public void close() {
+        if (initThread != null) {
+            try {
+                initThread.join();
+            }catch(InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // prevent delayed init
+            init = null;
+        }
+
         refreshUI = null;
 
         if (refresh != null) {
@@ -934,42 +994,44 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
         };
 
-        refresh = new Runnable() {
-            @Override
-            public void run() {
-                getStorage().update();
+        if (init == null) {
+            refresh = new Runnable() {
+                @Override
+                public void run() {
+                    getStorage().update();
 
-                updateHeader();
+                    updateHeader();
 
-                {
-                    String header = getStorage().formatHeader();
-                    header += "\n";
-                    for (int i = 0; i < getStorage().count(); i++) {
-                        Storage.Torrent t = getStorage().torrent(i);
-                        if (Libtorrent.TorrentActive(t.t)) {
-                            header += "(" + t.getProgress() + "%) ";
+                    {
+                        String header = getStorage().formatHeader();
+                        header += "\n";
+                        for (int i = 0; i < getStorage().count(); i++) {
+                            Storage.Torrent t = getStorage().torrent(i);
+                            if (Libtorrent.TorrentActive(t.t)) {
+                                header += "(" + t.getProgress() + "%) ";
+                            }
                         }
+                        TorrentService.updateNotify(MainActivity.this, header);
                     }
-                    TorrentService.updateNotify(MainActivity.this, header);
+
+                    torrents.update();
+
+                    if (refreshUI != null)
+                        refreshUI.run();
+
+                    handler.removeCallbacks(refresh);
+                    handler.postDelayed(refresh, 1000);
                 }
+            };
+            refresh.run();
 
-                torrents.update();
+            if (permitted(PERMISSIONS))
+                load();
+            else
+                load();
 
-                if (refreshUI != null)
-                    refreshUI.run();
-
-                handler.removeCallbacks(refresh);
-                handler.postDelayed(refresh, 1000);
-            }
-        };
-        refresh.run();
-
-        if (permitted(PERMISSIONS))
-            load();
-        else
-            load();
-
-        updateHeader();
+            updateHeader();
+        }
     }
 
     @Override
@@ -1037,7 +1099,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         handler.post(new Runnable() {
             @Override
             public void run() {
-                list.smoothScrollToPosition(torrents.selected);
+                if (init == null)
+                    list.smoothScrollToPosition(torrents.selected);
             }
         });
     }
@@ -1109,7 +1172,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        openFile(intent);
+        if (init == null)
+            openFile(intent);
+        else
+            this.delayedIntent = intent;
     }
 
     void openFile(Intent intent) {

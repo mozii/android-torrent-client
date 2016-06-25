@@ -1,0 +1,20 @@
+plugins {
+    id "org.golang.mobile.bind" version "0.2.6"
+}
+gobind {
+    /* required: the Go package path; must be under one of the GOPATH elements
+     or a relative to the current directory (e.g. ../../hello) */
+    pkg = "github.com/axet/libtorrent"
+
+    /* required: where the Go package is; check `go env` */
+    GOPATH = "$projectDir"
+
+    /* optional: absolute path to the go binary (it defaults to /usr/local/go/bin on Linux/MaxOS and to C:\Go\bin on Windows ) */
+    GO = "$projectDir/go.sh"
+
+    /* optional: absolute path to the gomobile binary (it default to GOPATH/bin) */
+    GOMOBILE = "$projectDir/gomobile.sh"
+
+    /* optional: extra flags to be passed to gomobile command. */
+    //GOMOBILEFLAGS = ""
+}
