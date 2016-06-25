@@ -43,10 +43,55 @@
 
                 <data android:scheme="magnet" />
             </intent-filter>
-            <!--gmail / downloader handler-->
+            <!--Browser URL open-->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="http" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="https" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="content" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="file" />
+            </intent-filter>
+            <!--gmail / downloader / broswers have different hooks, we need to show individual handlers for each theme type-->
+            <intent-filter>
+                <data
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="content" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
             <intent-filter>
                 <data
                     android:mimeType="*/*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="content" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <data
+                    android:host="*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
 
@@ -70,8 +115,6 @@
             <!-- file handler opening -->
             <intent-filter>
                 <data
-                    android:host="*"
-                    android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
 
@@ -91,11 +134,31 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-            <!--http handler-->
+            <intent-filter>
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="file" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
             <intent-filter>
                 <data
                     android:host="*"
                     android:mimeType="*/*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="file" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <data
                     android:pathPattern=".*\\.torrent"
                     android:scheme="http" />
 
@@ -118,6 +181,38 @@
             <intent-filter>
                 <data
                     android:host="*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="http" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="http" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <data
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="https" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <data
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="https" />
@@ -129,6 +224,18 @@
             </intent-filter>
             <intent-filter>
                 <data
+                    android:host="*/*"
+                    android:pathPattern=".*\\.torrent"
+                    android:scheme="https" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <data
+                    android:host="*"
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.torrent"
                     android:scheme="https" />
