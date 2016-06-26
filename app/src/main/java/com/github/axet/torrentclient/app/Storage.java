@@ -177,6 +177,10 @@ public class Storage {
             byte[] b = Base64.decode(state, Base64.DEFAULT);
 
             long t = Libtorrent.LoadTorrent(path, b);
+            if (t == -1) {
+                Log.d(TAG, Libtorrent.Error());
+                continue;
+            }
             Torrent tt = new Torrent(t, path);
             add(tt);
 
@@ -219,6 +223,8 @@ public class Storage {
         Log.d(TAG, "Storage.Close");
 
         save();
+
+        torrents.clear();
 
         Libtorrent.Close();
     }
@@ -288,7 +294,8 @@ public class Storage {
 
         // we are not local
 
-        if (l.listFiles() != null) {
+        File[] ff = l.listFiles();
+        if (ff != null && ff.length > 0) {
             migrateTorrents();
             migrateFiles();
         }
@@ -298,46 +305,32 @@ public class Storage {
         File l = getLocalStorage();
         File t = getStoragePath();
 
-        ArrayList<Torrent> active = new ArrayList<>();
+        boolean touch = false;
         // migrate torrents, then migrate download data
         for (int i = 0; i < torrents.size(); i++) {
             Torrent torrent = torrents.get(i);
 
-            // add to active list, so we will restart torrent after migrate
-            if (Libtorrent.TorrentActive(torrent.t))
-                active.add(torrent);
-            Libtorrent.StopTorrent(torrent.t);
-
-            String name = Libtorrent.TorrentName(torrent.t);
-            File f = new File(l, name);
-            File tt = getNextFile(t, f);
-
-            // if file does not exist, maybe it already been migrated.
-            // skip it.
-            if (f.exists()) {
-                move(f, tt);
-
-                // target name changed update torrent meta or pause it
-                if (tt.getName().equals(name)) {
-                    // TODO replace with rename when it will be impelemented
-                    //Libtorrent.TorrentFileRename(torrent.t, 0, tt.getName());
-
-                    // rename not implement so, just pause it
-                    active.remove(torrent);
+            if (torrent.path.startsWith(l.getPath())) {
+                Libtorrent.StopTorrent(torrent.t);
+                String name = Libtorrent.TorrentName(torrent.t);
+                File f = new File(torrent.path, name);
+                File tt = getNextFile(t, f);
+                if (f.exists()) {
+                    touch = true;
+                    move(f, tt);
+                    // target name changed update torrent meta or pause it
+                    if (!tt.getName().equals(name)) {
+                        // TODO replace with rename when it will be impelemented
+                        //Libtorrent.TorrentFileRename(torrent.t, 0, tt.getName());
+                    }
+                    torrent.path = t.getPath();
                 }
             }
         }
 
-        save();
-
-        if (!l.equals(t)) {
-            // restart libtorrent with new storage path
-            Libtorrent.Close();
+        if(touch) {
+            close();
             create();
-        }
-
-        for (int i = 0; i < active.size(); i++) {
-            active.get(i).start();
         }
     }
 
