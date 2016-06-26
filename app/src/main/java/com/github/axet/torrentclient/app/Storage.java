@@ -328,9 +328,16 @@ public class Storage {
             }
         }
 
-        if(touch) {
-            close();
-            create();
+        if (touch) {
+            save();
+
+            for (Torrent torrent : torrents) {
+                Libtorrent.RemoveTorrent(torrent.t);
+            }
+            
+            torrents.clear();
+
+            load();
         }
     }
 
