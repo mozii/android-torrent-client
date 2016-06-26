@@ -167,7 +167,7 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
             Libtorrent.Tracker tt = Libtorrent.TorrentTrackers(t, i);
             String url = tt.getAddr();
             if (url.equals("PEX")) {
-                pex.setText("Peers: " + tt.getPeers());
+                MainApplication.setText(pex, Libtorrent.TorrentActive(t) ? tt.getPeers() + "" : "");
                 continue;
             }
             if (url.equals("DHT")) {

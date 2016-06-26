@@ -61,6 +61,7 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
             }
 
             TextView addr = (TextView) view.findViewById(R.id.torrent_peer_addr);
+            TextView stats = (TextView) view.findViewById(R.id.torrent_peer_stats);
             TextView name = (TextView) view.findViewById(R.id.torrent_peer_name);
             TextView d = (TextView) view.findViewById(R.id.torrent_peer_downloaded);
             TextView u = (TextView) view.findViewById(R.id.torrent_peer_uploaded);
@@ -92,17 +93,16 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
             String str = "";
 
             if (Libtorrent.InfoTorrent(t))
-                str += "(" + f.getPiecesCompleted() * 100 / Libtorrent.TorrentPiecesCount(t) + "%)";
+                str += f.getPiecesCompleted() * 100 / Libtorrent.TorrentPiecesCount(t) + "% ";
 
             if (f.getSupportsEncryption())
                 str += "(E)";
 
             str += "(" + f.getSource().substring(0, 1) + ")";
 
-            str += " " + f.getName();
-
             addr.setText(f.getAddr());
-            name.setText(str);
+            stats.setText(str);
+            name.setText(f.getName());
             d.setText(MainApplication.formatSize(di.getCurrentSpeed()) + "/s");
             u.setText(MainApplication.formatSize(ui.getCurrentSpeed()) + "/s");
 

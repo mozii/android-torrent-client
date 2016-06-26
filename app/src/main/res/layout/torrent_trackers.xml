@@ -56,19 +56,26 @@
             android:text="Peer Exchange"
             android:textStyle="bold" />
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Peers: " />
 
             <TextView
                 android:id="@+id/torrent_trackers_pex"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Peers 64" />
+                android:text="64" />
 
-        </FrameLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <View
