@@ -3,59 +3,64 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="5dp">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
 
-
-        <com.github.axet.androidlibrary.widgets.PathMax
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/torrent_peer_addr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="191.111.111.131:56732"
-                android:textStyle="bold" />
-        </com.github.axet.androidlibrary.widgets.PathMax>
+    <com.github.axet.androidlibrary.widgets.PathMax
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/torrent_peer_name"
+            android:id="@+id/torrent_peer_addr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(89%)(E)(I) muTorren 0.1.3" />
-    </LinearLayout>
+            android:text="191.111.111.131:56732"
+            android:textStyle="bold" />
+    </com.github.axet.androidlibrary.widgets.PathMax>
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="1"
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/torrent_peer_downloaded"
-            android:layout_width="0dp"
+            android:id="@+id/torrent_peer_stats"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
-            android:text="↓ 1.6 Mb/s" />
+            android:text="89% (E)(I)" />
 
-        <TextView
-            android:id="@+id/torrent_peer_uploaded"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
-            android:text="↑ 0.6 Mb/s" />
-    </LinearLayout>
+            android:layout_gravity="right"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/torrent_peer_downloaded"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:text="↓ 1.6 Mb/s" />
+
+            <TextView
+                android:id="@+id/torrent_peer_uploaded"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:text="↑ 0.6 Mb/s" />
+        </LinearLayout>
+
+    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
+
+    <TextView
+        android:id="@+id/torrent_peer_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="muTorren 0.1.3" />
 
 </LinearLayout>
