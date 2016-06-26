@@ -1,8 +1,12 @@
 package com.github.axet.torrentclient.fragments;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,12 +15,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
 import com.github.axet.torrentclient.app.Storage;
 import com.github.axet.torrentclient.widgets.Pieces;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -68,8 +76,36 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         TextView createdon = (TextView) v.findViewById(R.id.torrent_created_on);
         MainApplication.setDate(createdon, Libtorrent.TorrentCreateOn(t));
 
-        TextView comment = (TextView) v.findViewById(R.id.torrent_comment);
-        MainApplication.setText(comment, Libtorrent.TorrentComment(t));
+        final String c = Libtorrent.TorrentComment(t).trim();
+        final TextView comment = (TextView) v.findViewById(R.id.torrent_comment);
+        MainApplication.setText(comment, c);
+        comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!c.startsWith("http"))
+                    return;
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Open URL Browser");
+
+                builder.setMessage(c + "\n\n" + "Are you sure ? ");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(c));
+                        startActivity(browserIntent);
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.show();
+            }
+        });
 
         TextView status = (TextView) v.findViewById(R.id.torrent_status);
         switch (Libtorrent.TorrentStatus(t)) {
