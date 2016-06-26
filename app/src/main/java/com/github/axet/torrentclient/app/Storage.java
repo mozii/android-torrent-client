@@ -105,7 +105,7 @@ public class Storage {
                         c = Libtorrent.TorrentPendingBytesLength(t) - Libtorrent.TorrentPendingBytesCompleted(t);
                     int a = downloaded.getAverageSpeed();
                     if (c > 0 && a > 0) {
-                        int diff = (int) (c * 1000 / a);
+                        long diff = c * 1000 / a;
                         str += "" + ((MainApplication) context.getApplicationContext()).formatDuration(diff) + "";
                     } else {
                         str += "∞";
