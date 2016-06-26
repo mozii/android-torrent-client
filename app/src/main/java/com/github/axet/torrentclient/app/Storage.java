@@ -119,8 +119,11 @@ public class Storage {
         }
 
         public static int getProgress(long t) {
-            if (Libtorrent.InfoTorrent(t) && Libtorrent.TorrentPendingBytesLength(t) != 0) {
-                return (int) (Libtorrent.TorrentPendingBytesCompleted(t) * 100 / Libtorrent.TorrentPendingBytesLength(t));
+            if (Libtorrent.InfoTorrent(t)) {
+                long p = Libtorrent.TorrentPendingBytesLength(t);
+                if (p == 0)
+                    return 0;
+                return (int) (Libtorrent.TorrentPendingBytesCompleted(t) * 100 / p);
             }
             return 0;
         }
