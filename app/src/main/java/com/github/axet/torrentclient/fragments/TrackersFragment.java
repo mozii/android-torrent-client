@@ -96,12 +96,12 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
 
             url.setText(f.getAddr());
 
-            String scrape = "Last Scrape: " + formatDate(f.getLastScrape());
+            String scrape = MainApplication.formatDate(f.getLastScrape());
 
             if (f.getLastScrape() != 0)
                 scrape += " (S:" + f.getSeeders() + " L:" + f.getLeechers() + " D:" + f.getDownloaded() + ")";
 
-            String ann = "Last Announce: " + formatDate(f.getLastAnnounce());
+            String ann = MainApplication.formatDate(f.getLastAnnounce());
 
             if (f.getError() != null && !f.getError().isEmpty()) {
                 ann += " (" + f.getError() + ")";
@@ -109,21 +109,12 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
                 if (f.getLastAnnounce() != 0)
                     ann += " (P:" + f.getPeers() + ")";
             }
-            lastAnnounce.setText(ann);
-            nextAnnounce.setText("Next Announce: " + formatDate(f.getNextAnnounce()));
-            lastScrape.setText(scrape);
+            MainApplication.setText(lastAnnounce, ann);
+            MainApplication.setDate(nextAnnounce, f.getNextAnnounce());
+            MainApplication.setText(lastScrape, scrape);
 
             return view;
         }
-    }
-
-    String formatDate(long d) {
-        if (d == 0)
-            return "N/A";
-
-        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        return s.format(new Date(d * 1000));
     }
 
     @Override
@@ -180,14 +171,14 @@ public class TrackersFragment extends Fragment implements MainActivity.TorrentFr
                 continue;
             }
             if (url.equals("DHT")) {
-                String str = "Last Announce: " + formatDate(tt.getLastAnnounce());
+                String str = MainApplication.formatDate(tt.getLastAnnounce());
                 if (tt.getError() != null && !tt.getError().isEmpty())
                     str += " (" + tt.getError() + ")";
                 else {
                     if (tt.getLastAnnounce() != 0)
                         str += " (P: " + tt.getPeers() + ")";
                 }
-                dhtLast.setText(str);
+                MainApplication.setText(dhtLast, str);
                 continue;
             }
             ff.add(tt);

@@ -70,9 +70,11 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1216,6 +1218,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     void addMagnet(String ff) {
+        ff = ff.trim();
+        if (ff.length() == 40) {
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            String[] ss = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
+            ff = "magnet:?xt=urn:btih:" + ff;
+            for (String s : ss) {
+                try {
+                    ff += "&tr=" + URLEncoder.encode(s, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                }
+            }
+        }
+
         String p = getStorage().getStoragePath().getPath();
         long t = Libtorrent.AddMagnet(p, ff);
         if (t == -1) {

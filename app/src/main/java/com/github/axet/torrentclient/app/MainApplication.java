@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
@@ -14,6 +16,8 @@ import com.github.axet.torrentclient.activities.ExitActivity;
 import com.github.axet.torrentclient.activities.MainActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import go.libtorrent.Libtorrent;
 
@@ -138,6 +142,31 @@ public class MainApplication extends Application {
             str = formatTime(diffMinutes) + ":" + formatTime(diffSeconds);
 
         return str;
+    }
+
+    static public void setText(View v, String text) {
+        TextView t = (TextView) v;
+        if (text.isEmpty()) {
+            t.setEnabled(false);
+            t.setText("N/A");
+        } else {
+            t.setEnabled(true);
+            t.setText(text);
+        }
+    }
+
+    static public void setDate(View v, long d) {
+        String s = formatDate(d);
+        setText(v, s);
+    }
+
+    public static String formatDate(long d) {
+        if (d == 0)
+            return "";
+
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        return s.format(new Date(d * 1000));
     }
 
     public Storage getStorage() {
