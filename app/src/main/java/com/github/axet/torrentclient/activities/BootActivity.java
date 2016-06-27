@@ -5,10 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class ExitActivity extends Activity {
+import com.github.axet.torrentclient.app.MainApplication;
+
+public class BootActivity extends Activity {
+    public MainApplication getApp() {
+        return (MainApplication) getApplication();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getApp().create();
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             finishAndRemoveTask();
@@ -17,8 +25,8 @@ public class ExitActivity extends Activity {
         }
     }
 
-    public static void exitApplication(Context context) {
-        Intent intent = new Intent(context, ExitActivity.class);
+    public static void createApplication(Context context) {
+        Intent intent = new Intent(context, BootActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 

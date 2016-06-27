@@ -71,9 +71,6 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     static final int TYPE_COLLAPSED = 0;
     static final int TYPE_EXPANDED = 1;
     static final int TYPE_DELETED = 2;
+
+    public final static String HIDE = "hide";
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     // delayedIntent delayedIntent
     Intent delayedIntent;
     Thread initThread;
-    Runnable init;
+    Runnable delayedInit;
 
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
@@ -777,11 +776,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         delayedIntent = getIntent();
 
-        init = new Runnable() {
+        delayedInit = new Runnable() {
             @Override
             public void run() {
-                TorrentService.startService(MainActivity.this, getStorage().formatHeader());
-
                 progress.setVisibility(View.GONE);
                 list.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.VISIBLE);
@@ -825,9 +822,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void run() {
                         // acctivity can be destoryed already do not init
-                        if (init != null) {
-                            init.run();
-                            init = null;
+                        if (delayedInit != null) {
+                            delayedInit.run();
+                            delayedInit = null;
                         }
                     }
                 });
@@ -850,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (myKM.inKeyguardRestrictedInputMode() || init != null) {
+        if (myKM.inKeyguardRestrictedInputMode() || delayedInit != null) {
             menu.removeItem(R.id.action_settings);
             menu.removeItem(R.id.action_show_folder);
         }
@@ -865,8 +862,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            // prevent delayed init
-            init = null;
+            // prevent delayed delayedInit
+            delayedInit = null;
         }
 
         refreshUI = null;
@@ -882,8 +879,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         Storage s = getStorage();
         if (s != null)
             s.save();
-
-        TorrentService.stopService(this);
 
         // do not close storage when mainactivity closes. only close it on shutdown()
         // getApp().close();
@@ -1003,24 +998,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 handler.removeCallbacks(refresh);
                 handler.postDelayed(refresh, 1000);
 
-                if (init != null)
+                if (delayedInit != null)
                     return;
 
                 getStorage().update();
 
                 updateHeader(getStorage());
-
-                {
-                    String header = getStorage().formatHeader();
-                    header += "\n";
-                    for (int i = 0; i < getStorage().count(); i++) {
-                        Storage.Torrent t = getStorage().torrent(i);
-                        if (Libtorrent.TorrentActive(t.t)) {
-                            header += "(" + t.getProgress() + "%) ";
-                        }
-                    }
-                    TorrentService.updateNotify(MainActivity.this, header);
-                }
 
                 torrents.update();
 
@@ -1095,7 +1078,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (init == null)
+                if (delayedInit == null)
                     list.smoothScrollToPosition(torrents.selected);
             }
         });
@@ -1168,7 +1151,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if (init == null)
+        if (delayedInit == null)
             openFile(intent);
         else
             this.delayedIntent = intent;

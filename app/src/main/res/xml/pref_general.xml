@@ -12,6 +12,12 @@
         android:summary="Initial announce trackers list for newly created torrents"
         android:title="Announces List" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="start_at_boot"
+        android:summary="Start Torrent Client at boot"
+        android:title="Start At Boot" />
+
     <ListPreference
         android:defaultValue="Theme_White"
         android:entries="@array/themes"
