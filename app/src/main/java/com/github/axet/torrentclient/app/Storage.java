@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.util.Log;
+
+import com.github.axet.torrentclient.services.TorrentService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +38,10 @@ public class Storage {
     ArrayList<Torrent> torrents = new ArrayList<>();
 
     ArrayList<Torrent> pause;
+
+    Handler handler;
+
+    Runnable refresh;
 
     public static class Torrent {
         public long t;
@@ -148,6 +155,8 @@ public class Storage {
         Log.d(TAG, "Storage.Close");
 
         this.context = context;
+
+        handler = new Handler(context.getMainLooper());
     }
 
     public MainApplication getApp() {
@@ -159,6 +168,18 @@ public class Storage {
 
         downloaded.step(b.getDownloaded());
         uploaded.step(b.getUploaded());
+    }
+
+    public void updateHeader() {
+        String header = formatHeader();
+        header += "\n";
+        for (int i = 0; i < count(); i++) {
+            Storage.Torrent t = torrent(i);
+            if (Libtorrent.TorrentActive(t.t)) {
+                header += "(" + t.getProgress() + "%) ";
+            }
+        }
+        TorrentService.updateNotify(context, header);
     }
 
     public void load() {
@@ -206,6 +227,8 @@ public class Storage {
     }
 
     public void create() {
+        TorrentService.startService(context, formatHeader());
+
         if (!Libtorrent.Create()) {
             throw new RuntimeException(Libtorrent.Error());
         }
@@ -217,6 +240,22 @@ public class Storage {
         uploaded.start(0);
 
         load();
+
+        refresh();
+    }
+
+    void refresh() {
+        if (refresh != null)
+            handler.removeCallbacks(refresh);
+
+        refresh = new Runnable() {
+            @Override
+            public void run() {
+                updateHeader();
+                handler.postDelayed(refresh, 1000);
+            }
+        };
+        refresh.run();
     }
 
     public void close() {
@@ -227,6 +266,13 @@ public class Storage {
         torrents.clear();
 
         Libtorrent.Close();
+
+        if (refresh != null) {
+            handler.removeCallbacks(refresh);
+            refresh = null;
+        }
+
+        TorrentService.stopService(context);
     }
 
     public void add(Torrent t) {
@@ -334,7 +380,7 @@ public class Storage {
             for (Torrent torrent : torrents) {
                 Libtorrent.RemoveTorrent(torrent.t);
             }
-            
+
             torrents.clear();
 
             load();

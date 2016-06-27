@@ -14,6 +14,7 @@ import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.ExitActivity;
 import com.github.axet.torrentclient.activities.MainActivity;
+import com.github.axet.torrentclient.services.TorrentService;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

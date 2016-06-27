@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!--<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name="com.github.axet.torrentclient.app.MainApplication"
@@ -28,6 +28,12 @@
         <activity
             android:name=".activities.ExitActivity"
             android:autoRemoveFromRecents="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.NoDisplay" />
+        <activity
+            android:name=".activities.BootActivity"
+            android:autoRemoveFromRecents="true"
+            android:launchMode="singleInstance"
             android:theme="@android:style/Theme.NoDisplay" />
         <activity
             android:name="com.github.axet.torrentclient.activities.SettingsActivity"
