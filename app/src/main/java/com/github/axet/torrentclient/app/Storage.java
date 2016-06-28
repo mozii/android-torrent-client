@@ -62,10 +62,6 @@ public class Storage {
             // can be empy for magnet links, show hash instead
             if (name.isEmpty()) {
                 name = Libtorrent.TorrentHash(t);
-            } else {
-                // magnets may have incorrect name including '/'
-                name = name.replaceAll(File.separator, File.pathSeparator);
-                name = name.replaceAll("|", File.pathSeparator);
             }
             return name;
         }
