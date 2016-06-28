@@ -20,6 +20,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import go.libtorrent.Libtorrent;
@@ -545,5 +547,54 @@ public class Storage {
         File f = getStoragePath();
         long free = getFree(f);
         return getApp().formatFree(free, downloaded.getCurrentSpeed(), uploaded.getCurrentSpeed());
+    }
+
+    public void addTorrentFromFile(String p) {
+        String s = getStoragePath().getPath();
+        long t = Libtorrent.AddTorrentFromFile(s, p);
+        if (t == -1) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+        add(new Storage.Torrent(t, s));
+    }
+
+    public void addMagnet(String ff) {
+        ff = ff.trim();
+        if (ff.length() == 40) {
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+            String[] ss = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
+            ff = "magnet:?xt=urn:btih:" + ff;
+            for (String s : ss) {
+                try {
+                    ff += "&tr=" + URLEncoder.encode(s, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                }
+            }
+        }
+
+        String p = getStoragePath().getPath();
+        long t = Libtorrent.AddMagnet(p, ff);
+        if (t == -1) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+        add(new Storage.Torrent(t, p));
+    }
+
+    public void addTorrent(byte[] buf) {
+        String s = getStoragePath().getPath();
+        long t = Libtorrent.AddTorrentFromBytes(s, buf);
+        if (t == -1) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+        add(new Storage.Torrent(t, s));
+    }
+
+    public void addTorrentFromURL(String p) {
+        String s = getStoragePath().getPath();
+        long t = Libtorrent.AddTorrentFromURL(s, p);
+        if (t == -1) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+        add(new Storage.Torrent(t, s));
     }
 }
