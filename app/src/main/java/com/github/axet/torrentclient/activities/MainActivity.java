@@ -691,8 +691,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
             if (str.startsWith("file")) {
                 Uri uri = Uri.parse(str);
-                String path = uri.getEncodedPath();
                 try {
+                    String path = uri.getEncodedPath();
                     path = URLDecoder.decode(path, "UTF-8");
                     storage.addTorrentFromFile(path);
                 } catch (UnsupportedEncodingException e) {
@@ -702,14 +702,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
 
             // .torrent?
-            try {
-                str = URLDecoder.decode(str, "UTF-8");
-                if (new File(str).exists()) {
-                    storage.addTorrentFromFile(str);
-                }
-            } catch (UnsupportedEncodingException e) {
-                // ignore
+            if (new File(str).exists()) {
+                storage.addTorrentFromFile(str);
             }
+
             return;
         }
 
