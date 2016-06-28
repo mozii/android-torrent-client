@@ -66,6 +66,7 @@
             tests:
 
              - Android Downloads: working
+             - Gmail attachment: working
              - FileBrowser: working
              - Open Folder intent: not working
              - New email notification: not working
@@ -81,80 +82,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:scheme="file" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/x-bittorrent"
-                    android:scheme="file" />
-            </intent-filter>
-            <!--gmail open .torrent attachment-->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:scheme="content" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/x-bittorrent"
-                    android:scheme="content" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:scheme="http" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/x-bittorrent"
-                    android:scheme="http" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:scheme="https" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:mimeType="application/x-bittorrent"
-                    android:scheme="https" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="application/x-bittorrent" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
