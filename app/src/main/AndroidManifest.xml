@@ -63,11 +63,17 @@
 
             seems like android ignores pathPattern, so we have to use mimetype.
 
+            tests:
+
              - Android Downloads: working
              - FileBrowser: working
-             -Open Folder intent: not working
+             - Open Folder intent: not working
+             - New email notification: not working
 
-             setting mimetype to "*/*" will trig them all, so filter by two types
+             setting mimetype to "*/*" will trig them all, so filter by two types.
+
+             seems like pathPattern not working for .ext:
+               http://stackoverflow.com/questions/3400072
              -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -77,7 +83,6 @@
 
                 <data
                     android:mimeType="application/octet-stream"
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
             </intent-filter>
             <intent-filter>
@@ -88,7 +93,6 @@
 
                 <data
                     android:mimeType="application/x-bittorrent"
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="file" />
             </intent-filter>
             <!--gmail open .torrent attachment-->
@@ -100,7 +104,6 @@
 
                 <data
                     android:mimeType="application/octet-stream"
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
@@ -111,7 +114,6 @@
 
                 <data
                     android:mimeType="application/x-bittorrent"
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
@@ -122,7 +124,6 @@
 
                 <data
                     android:mimeType="application/octet-stream"
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="http" />
             </intent-filter>
             <intent-filter>
@@ -133,17 +134,6 @@
 
                 <data
                     android:mimeType="application/x-bittorrent"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="http" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="http" />
             </intent-filter>
             <intent-filter>
@@ -154,7 +144,6 @@
 
                 <data
                     android:mimeType="application/octet-stream"
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="https" />
             </intent-filter>
             <intent-filter>
@@ -165,17 +154,6 @@
 
                 <data
                     android:mimeType="application/x-bittorrent"
-                    android:pathPattern=".*\\.torrent"
-                    android:scheme="https" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:pathPattern=".*\\.torrent"
                     android:scheme="https" />
             </intent-filter>
         </activity>

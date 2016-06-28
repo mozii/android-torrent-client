@@ -42,6 +42,7 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,7 +61,6 @@ import com.github.axet.torrentclient.fragments.TrackersFragment;
 import com.github.axet.torrentclient.animations.RecordingAnimation;
 import com.github.axet.torrentclient.app.MainApplication;
 import com.github.axet.torrentclient.app.Storage;
-import com.github.axet.torrentclient.services.TorrentService;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -626,6 +626,96 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
     }
 
+    public static class OpenIntentDialogFragment extends DialogFragment {
+        Handler handler = new Handler();
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            super.onDismiss(dialog);
+            final Activity activity = getActivity();
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final MainActivity activity = (MainActivity) getActivity();
+                    try {
+                        openURL(getArguments().getString("url"));
+                    } catch (final RuntimeException e) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.Error(e.getMessage());
+                            }
+                        });
+                    }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dismiss();
+                        }
+                    });
+                }
+            });
+            t.start();
+        }
+
+        public void openURL(String str) {
+            final MainActivity activity = (MainActivity) getActivity();
+
+            if (str.startsWith("magnet")) {
+                activity.addMagnet(str);
+                return;
+            }
+
+            if (str.startsWith("content")) {
+                try {
+                    Uri uri = Uri.parse(str);
+                    activity.getStorage().addTorrent(IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri)));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
+
+            if (str.startsWith("http")) {
+                activity.getStorage().addTorrentFromURL(str);
+                return;
+            }
+
+            if (str.startsWith("file")) {
+                Uri uri = Uri.parse(str);
+                String path = uri.getEncodedPath();
+                activity.getStorage().addTorrentFromFile(path);
+                return;
+            }
+
+            // .torrent?
+            Uri uri = Uri.parse(str);
+            String path = uri.getEncodedPath();
+            if (path.endsWith(".torrent")) {
+                activity.getStorage().addTorrentFromFile(str);
+                return;
+            }
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            ProgressBar view = new ProgressBar(inflater.getContext());
+            view.setIndeterminate(true);
+
+            // wait until torrent loaded
+            setCancelable(false);
+
+            //getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            return view;
+        }
+    }
+
     void showDetails(Long f) {
         dialog = TorrentDialogFragment.create(f);
         dialog.show(getSupportFragmentManager(), "");
@@ -733,7 +823,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File p = f.getCurrentPath();
-                        addTorentFromFile(p.getPath());
+                        addTorrentFromFile(p.getPath());
                     }
                 });
                 f.show();
@@ -805,7 +895,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 }
 
                 if (delayedIntent != null) {
-                    openFile(delayedIntent);
+                    openIntent(delayedIntent);
                     delayedIntent = null;
                 }
             }
@@ -1152,12 +1242,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         super.onNewIntent(intent);
 
         if (delayedInit == null)
-            openFile(intent);
+            openIntent(intent);
         else
             this.delayedIntent = intent;
     }
 
-    void openFile(Intent intent) {
+    void openIntent(Intent intent) {
         if (intent == null)
             return;
 
@@ -1165,95 +1255,48 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (openUri == null)
             return;
 
-        String str = openUri.toString();
+        OpenIntentDialogFragment dialog = new OpenIntentDialogFragment();
 
-        if (str.startsWith("magnet")) {
-            addMagnet(str);
-            return;
-        }
+        Bundle args = new Bundle();
+        args.putString("url", openUri.toString());
 
-        if (str.startsWith("content")) {
-            try {
-                addTorent(IOUtils.toByteArray(getContentResolver().openInputStream(openUri)));
-            } catch (IOException e) {
-                Error(e.toString());
-            }
-            return;
-        }
-
-        if (str.startsWith("http")) {
-            addTorentFromURL(str);
-            return;
-        }
-
-        if (str.startsWith("file")) {
-            String path = openUri.getEncodedPath();
-            addTorentFromFile(path);
-            return;
-        }
-
-        // .torrent?
-        String path = openUri.getEncodedPath();
-        if (path.endsWith(".torrent")) {
-            addTorentFromFile(str);
-            return;
-        }
+        dialog.setArguments(args);
+        dialog.show(getSupportFragmentManager(), "");
     }
 
     void addMagnet(String ff) {
-        ff = ff.trim();
-        if (ff.length() == 40) {
-            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-            String[] ss = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
-            ff = "magnet:?xt=urn:btih:" + ff;
-            for (String s : ss) {
-                try {
-                    ff += "&tr=" + URLEncoder.encode(s, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                }
-            }
+        try {
+            getStorage().addMagnet(ff);
+        } catch (RuntimeException e) {
+            Error(e.getMessage());
         }
-
-        String p = getStorage().getStoragePath().getPath();
-        long t = Libtorrent.AddMagnet(p, ff);
-        if (t == -1) {
-            Error(Libtorrent.Error());
-            return;
-        }
-        getStorage().add(new Storage.Torrent(t, p));
         torrents.notifyDataSetChanged();
     }
 
-    void addTorentFromFile(String p) {
-        String s = getStorage().getStoragePath().getPath();
-        long t = Libtorrent.AddTorrentFromFile(s, p);
-        if (t == -1) {
-            Error(Libtorrent.Error());
-            return;
+    void addTorrentFromFile(String p) {
+        try {
+            getStorage().addTorrentFromFile(p);
+        } catch (RuntimeException e) {
+            Error(e.getMessage());
         }
-        getStorage().add(new Storage.Torrent(t, s));
         torrents.notifyDataSetChanged();
     }
 
-    void addTorentFromURL(String p) {
-        String s = getStorage().getStoragePath().getPath();
-        long t = Libtorrent.AddTorrentFromURL(s, p);
-        if (t == -1) {
-            Error(Libtorrent.Error());
-            return;
+    void addTorrentFromURL(String p) {
+        try {
+            getStorage().addTorrentFromURL(p);
+        } catch (RuntimeException e) {
+            Error(e.getMessage());
         }
-        getStorage().add(new Storage.Torrent(t, s));
         torrents.notifyDataSetChanged();
     }
 
-    void addTorent(byte[] buf) {
-        String s = getStorage().getStoragePath().getPath();
-        long t = Libtorrent.AddTorrentFromBytes(s, buf);
-        if (t == -1) {
-            Error(Libtorrent.Error());
-            return;
+    void addTorrent(byte[] buf) {
+        try {
+            getStorage().addTorrent(buf);
+        } catch (RuntimeException e) {
+            Error(e.getMessage());
         }
-        getStorage().add(new Storage.Torrent(t, s));
         torrents.notifyDataSetChanged();
     }
 }
