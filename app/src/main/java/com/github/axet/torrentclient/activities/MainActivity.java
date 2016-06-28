@@ -71,6 +71,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -666,6 +667,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         public void openURL(String str) {
             final MainActivity activity = (MainActivity) getActivity();
+            final Storage storage = activity.getStorage();
 
             if (str.startsWith("magnet")) {
                 activity.getStorage().addMagnet(str);
@@ -675,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             if (str.startsWith("content")) {
                 try {
                     Uri uri = Uri.parse(str);
-                    activity.getStorage().addTorrent(IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri)));
+                    storage.addTorrent(IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri)));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -683,24 +685,32 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
 
             if (str.startsWith("http")) {
-                activity.getStorage().addTorrentFromURL(str);
+                storage.addTorrentFromURL(str);
                 return;
             }
 
             if (str.startsWith("file")) {
                 Uri uri = Uri.parse(str);
                 String path = uri.getEncodedPath();
-                activity.getStorage().addTorrentFromFile(path);
+                try {
+                    path = URLDecoder.decode(path, "UTF-8");
+                    storage.addTorrentFromFile(path);
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
                 return;
             }
 
             // .torrent?
-            Uri uri = Uri.parse(str);
-            String path = uri.getEncodedPath();
-            if (path.endsWith(".torrent")) {
-                activity.getStorage().addTorrentFromFile(str);
-                return;
+            try {
+                str = URLDecoder.decode(str, "UTF-8");
+                if (new File(str).exists()) {
+                    storage.addTorrentFromFile(str);
+                }
+            } catch (UnsupportedEncodingException e) {
+                // ignore
             }
+            return;
         }
 
         @Override
