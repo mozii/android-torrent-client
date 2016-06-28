@@ -668,7 +668,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             final MainActivity activity = (MainActivity) getActivity();
 
             if (str.startsWith("magnet")) {
-                activity.addMagnet(str);
+                activity.getStorage().addMagnet(str);
                 return;
             }
 
