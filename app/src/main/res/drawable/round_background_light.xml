@@ -1,6 +1,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="?attr/secondBackground" />
-    <stroke android:width="1dip" android:color="?attr/secondBackground"/>
+    <solid android:color="@color/secondBackgroundLight" />
+    <stroke android:width="1dip" android:color="@color/secondBackgroundLight"/>
     <corners android:radius="10dip" />
     <padding
         android:bottom="0dip"

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="secondBackground" format="color" />
+    <attr name="menu_labels_style_bg" format="reference" />
+    <attr name="progress_bg" format="reference" />
 </resources>

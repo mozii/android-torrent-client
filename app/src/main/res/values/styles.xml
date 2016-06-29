@@ -5,6 +5,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">#FF4081</item>
         <item name="secondBackground">#c2c2c2</item>
+        <item name="menu_labels_style_bg">@drawable/round_background_light</item>
+        <item name="progress_bg">@drawable/circular_progress_bar_light</item>
     </style>
 
     <style name="AppThemeLight.NoActionBar">
@@ -21,6 +23,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">#a4a4a4</item>
         <item name="secondBackground">#151515</item>
+        <item name="menu_labels_style_bg">@drawable/round_background_dark</item>
+        <item name="progress_bg">@drawable/circular_progress_bar_dark</item>
     </style>
 
     <style name="AppThemeDark.NoActionBar">
@@ -30,7 +34,7 @@
 
     <style name="menu_labels_style">
         <item name="android:padding">5dp</item>
-        <item name="android:background">@drawable/round_background</item>
+        <item name="android:background">?attr/menu_labels_style_bg</item>
     </style>
 
 </resources>
