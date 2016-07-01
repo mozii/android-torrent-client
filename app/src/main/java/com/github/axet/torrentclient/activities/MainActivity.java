@@ -4,9 +4,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -117,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     Intent delayedIntent;
     Thread initThread;
     Runnable delayedInit;
+
+    BroadcastReceiver screenreceiver;
 
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
@@ -870,6 +874,22 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         list.setVisibility(View.GONE);
         fab.setVisibility(View.GONE);
 
+        screenreceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                    Log.d(TAG, "Screen OFF");
+                    onBackPressed();
+                }
+            }
+        };
+
+        IntentFilter screenfilter = new IntentFilter();
+        screenfilter.addAction(Intent.ACTION_SCREEN_ON);
+        screenfilter.addAction(Intent.ACTION_SCREEN_OFF);
+
+        registerReceiver(screenreceiver, screenfilter);
+
         delayedIntent = getIntent();
 
         delayedInit = new Runnable() {
@@ -976,7 +996,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (s != null)
             s.save();
 
-        // do not close storage when mainactivity closes. only close it on shutdown()
+        unregisterReceiver(screenreceiver);
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        shared.unregisterOnSharedPreferenceChangeListener(MainActivity.this);
+
+        // do not close storage when mainactivity closes. it may be restarted due to theme change.
+        // only close it on shutdown()
         // getApp().close();
     }
 
