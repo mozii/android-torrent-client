@@ -2,5 +2,5 @@
 <resources>
     <attr name="secondBackground" format="color" />
     <attr name="menu_labels_style" format="reference" />
-    <attr name="progress_bg" format="reference" />
+    <attr name="roundprogress_style" format="reference" />
 </resources>

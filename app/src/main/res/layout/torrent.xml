@@ -34,7 +34,7 @@
                         android:indeterminate="false"
                         android:max="100"
                         android:progress="65"
-                        android:progressDrawable="?attr/progress_bg" />
+                        android:progressDrawable="?attr/roundprogress_style" />
 
                     <ImageView
                         android:id="@+id/torrent_state_image"
