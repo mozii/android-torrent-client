@@ -3,9 +3,10 @@
     <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">#FF4081</item>
-        <item name="secondBackground">#c2c2c2</item>
-        <item name="progress_bg">@drawable/circular_progress_bar_light</item>
+        <item name="colorAccent">@color/colorAccentLight</item>
+        <item name="secondBackground">@color/secondBackgroundLight</item>
+        <item name="progress_bg">@drawable/roundprogress_bar_light</item>
+        <item name="menu_labels_style">@style/menu_labels_style_light</item>
     </style>
 
     <style name="AppThemeLight.NoActionBar">
@@ -20,9 +21,10 @@
     <style name="AppThemeDark" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">#a4a4a4</item>
-        <item name="secondBackground">#151515</item>
-        <item name="progress_bg">@drawable/circular_progress_bar_dark</item>
+        <item name="colorAccent">@color/colorAccentDark</item>
+        <item name="secondBackground">@color/secondBackgroundDark</item>
+        <item name="progress_bg">@drawable/roundprogress_bar_dark</item>
+        <item name="menu_labels_style">@style/menu_labels_style_dark</item>
     </style>
 
     <style name="AppThemeDark.NoActionBar">
@@ -30,8 +32,14 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="menu_labels_style">
+    <style name="menu_labels_style_light">
         <item name="android:padding">5dp</item>
+        <item name="android:background">@drawable/roundlabel_light</item>
+    </style>
+
+    <style name="menu_labels_style_dark">
+        <item name="android:padding">5dp</item>
+        <item name="android:background">@drawable/roundlabel_dark</item>
     </style>
 
 </resources>
