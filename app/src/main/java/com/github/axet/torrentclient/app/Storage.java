@@ -103,6 +103,7 @@ public class Storage {
             String str = "";
 
             switch (Libtorrent.TorrentStatus(t)) {
+                case Libtorrent.StatusChecking:
                 case Libtorrent.StatusPaused:
                     // str += "Paused";
                     if (Libtorrent.InfoTorrent(t))
