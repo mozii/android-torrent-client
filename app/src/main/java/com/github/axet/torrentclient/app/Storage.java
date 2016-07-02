@@ -219,7 +219,7 @@ public class Storage {
             add(tt);
 
             if (status != Libtorrent.StatusPaused) {
-                tt.start();
+                start(tt);
             }
         }
     }
