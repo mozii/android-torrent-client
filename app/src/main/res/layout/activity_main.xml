@@ -32,7 +32,7 @@
         fab:fab_addButtonColorNormal="?colorAccent"
         fab:fab_addButtonColorPressed="?secondBackground"
         fab:fab_addButtonSize="normal"
-        fab:fab_labelStyle="@style/menu_labels_style"
+        fab:fab_labelStyle="?attr/menu_labels_style"
         fab:fab_labelsPosition="left">
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -66,7 +66,6 @@
             fab:fab_colorPressed="@android:color/white"
             fab:fab_size="mini"
             fab:fab_title="Add Magnet" />
-
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>

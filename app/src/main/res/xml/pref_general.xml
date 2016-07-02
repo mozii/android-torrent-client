@@ -18,6 +18,12 @@
         android:summary="Start Torrent Client at boot"
         android:title="Start At Boot" />
 
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="wifi"
+        android:summary="Work on wifi connection only"
+        android:title="Wifi Only" />
+
     <ListPreference
         android:defaultValue="Theme_White"
         android:entries="@array/themes"

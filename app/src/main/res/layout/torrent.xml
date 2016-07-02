@@ -30,20 +30,20 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:background="@drawable/circle_shape"
+                        android:background="@drawable/roundprogress_bg"
                         android:indeterminate="false"
                         android:max="100"
                         android:progress="65"
-                        android:progressDrawable="?attr/progress_bg" />
+                        android:progressDrawable="?attr/roundprogress_style" />
 
                     <ImageView
                         android:id="@+id/torrent_state_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:alpha="0.3"
                         android:src="@drawable/play"
-                        android:tint="?attr/colorAccent" />
+                        android:tint="?attr/colorAccent"
+                        android:tintMode="multiply" />
 
                     <TextView
                         android:id="@+id/torrent_process_text"
