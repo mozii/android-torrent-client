@@ -917,7 +917,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 list.setAdapter(torrents);
 
                 if (permitted()) {
-                    getStorage().migrateLocalStorage();
+                    try {
+                        getStorage().migrateLocalStorage();
+                    } catch (RuntimeException e) {
+                        Error(e.getMessage());
+                    }
                 } else {
                     // with no permission we can't choise files to 'torrent', or select downloaded torrent
                     // file, since we have no persmission to user files.
@@ -1159,7 +1163,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         switch (requestCode) {
             case 1:
                 if (permitted(permissions)) {
-                    getStorage().migrateLocalStorage();
+                    try {
+                        getStorage().migrateLocalStorage();
+                    } catch (RuntimeException e) {
+                        Error(e.getMessage());
+                    }
                     create.setVisibility(View.VISIBLE);
                     add.setVisibility(View.VISIBLE);
                 } else {

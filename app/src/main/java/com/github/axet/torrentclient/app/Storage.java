@@ -21,6 +21,8 @@ import android.util.Log;
 
 import com.github.axet.torrentclient.services.TorrentService;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -480,7 +482,10 @@ public class Storage {
 
         int i = 1;
         while (file.exists()) {
-            fileName = String.format("%s (%d).%s", name, i, ext);
+            if (ext.isEmpty())
+                fileName = String.format("%s (%d)", name, i);
+            else
+                fileName = String.format("%s (%d).%s", name, i, ext);
             file = new File(parent, fileName);
             i++;
         }
@@ -525,9 +530,12 @@ public class Storage {
     }
 
     public void move(File f, File to) {
-        Log.d(TAG, "migrate: " + f + " to:" + to);
+        Log.d(TAG, "migrate: " + f + " --> " + to);
         if (f.isDirectory()) {
             to.mkdirs();
+            if (!to.exists()) {
+                throw new RuntimeException("No permission " + to);
+            }
             String[] files = f.list();
             if (files != null) {
                 for (String n : files) {
@@ -535,21 +543,21 @@ public class Storage {
                     move(ff, new File(to, n));
                 }
             }
-            f.delete();
+            FileUtils.deleteQuietly(f);
             return;
         }
         try {
             InputStream in = new FileInputStream(f);
             OutputStream out = new FileOutputStream(to);
 
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[1024 * 1024];
             int len;
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
             }
             in.close();
             out.close();
-            f.delete();
+            FileUtils.deleteQuietly(f);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
