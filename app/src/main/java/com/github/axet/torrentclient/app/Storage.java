@@ -663,10 +663,13 @@ public class Storage {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
 
-        if (!wifi || isConnectedWifi())
+        if (!wifi || isConnectedWifi()) {
             t.start();
-        else
-            pause.add(t);
+        } else {
+            if (!pause.contains(t)) {
+                pause.add(t);
+            }
+        }
     }
 
     public void stop(Torrent t) {
