@@ -73,7 +73,9 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -708,8 +710,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
             if (str.startsWith("http")) {
                 try {
-                    Uri uri = Uri.parse(str);
-                    final byte[] buf = IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri));
+                    final byte[] buf = IOUtils.toByteArray(new URL(str).openStream());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
