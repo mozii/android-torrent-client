@@ -710,7 +710,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
             if (str.startsWith("http")) {
                 try {
-                    final byte[] buf = IOUtils.toByteArray(new URL(str).openStream());
+                    final byte[] buf = IOUtils.toByteArray(new URL(str));
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
