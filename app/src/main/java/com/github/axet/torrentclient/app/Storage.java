@@ -532,10 +532,6 @@ public class Storage {
     public void move(File f, File to) {
         Log.d(TAG, "migrate: " + f + " --> " + to);
         if (f.isDirectory()) {
-            to.mkdirs();
-            if (!to.exists()) {
-                throw new RuntimeException("No permission " + to);
-            }
             String[] files = f.list();
             if (files != null) {
                 for (String n : files) {
@@ -546,6 +542,13 @@ public class Storage {
             FileUtils.deleteQuietly(f);
             return;
         }
+
+        File parent = to.getParentFile();
+        parent.mkdirs();
+        if (!parent.exists()) {
+            throw new RuntimeException("No permission: " + parent);
+        }
+
         try {
             InputStream in = new FileInputStream(f);
             OutputStream out = new FileOutputStream(to);
