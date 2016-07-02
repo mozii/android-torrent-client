@@ -216,7 +216,7 @@ public class Storage {
                 continue;
             }
             Torrent tt = new Torrent(t, path);
-            add(tt);
+            torrents.add(tt);
 
             if (status != Libtorrent.StatusPaused) {
                 start(tt);
