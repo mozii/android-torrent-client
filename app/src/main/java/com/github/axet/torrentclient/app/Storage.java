@@ -665,8 +665,11 @@ public class Storage {
 
         if (!wifi || isConnectedWifi())
             t.start();
-        else
-            pause.add(t);
+        else {
+            if (!pause.contains(t)) {
+                pause.add(t);
+            }
+        }
     }
 
     public void stop(Torrent t) {
