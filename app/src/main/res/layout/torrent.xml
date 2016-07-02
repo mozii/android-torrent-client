@@ -41,9 +41,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:alpha="0.3"
                         android:src="@drawable/play"
-                        android:tint="?attr/colorAccent" />
+                        android:tint="?attr/colorAccent"
+                        android:tintMode="multiply" />
 
                     <TextView
                         android:id="@+id/torrent_process_text"

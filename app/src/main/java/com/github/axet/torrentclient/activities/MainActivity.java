@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -434,10 +435,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         return;
                     }
 
-                    if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusPaused)
-                        t.start();
+                    if (getStorage().status(t) == Libtorrent.StatusPaused)
+                        getStorage().start(t);
                     else
-                        t.stop();
+                        getStorage().stop(t);
                     torrents.notifyDataSetChanged();
                 }
             });
@@ -451,40 +452,46 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                 long p = t.getProgress();
 
+                int color = 0;
+                String text = "";
+
                 Drawable d = null;
-                switch (Libtorrent.TorrentStatus(t.t)) {
+                switch (getStorage().status(t)) {
                     case Libtorrent.StatusChecking:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
-                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground));
-                        stateImage.setAlpha(1f);
-                        bar.getProgressDrawable().setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_IN);
-                        tt.setText(p + "%");
+                        color = Color.YELLOW;
+                        text = p + "%";
                         break;
                     case Libtorrent.StatusPaused:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
-                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground));
-                        stateImage.setAlpha(1f);
-                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground), PorterDuff.Mode.SRC_IN);
-                        tt.setText(p + "%");
+                        color = ThemeUtils.getThemeColor(getContext(), R.attr.secondBackground);
+                        text = p + "%";
+                        break;
+                    case Libtorrent.StatusQueued:
+                        d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
+                        color = Color.GREEN;
+                        text = "Qued";
                         break;
                     case Libtorrent.StatusDownloading:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.play);
-                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
-                        stateImage.setAlpha(0.3f);
-                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent), PorterDuff.Mode.SRC_IN);
-                        tt.setText(p + "%");
+                        color = ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent);
+                        text = p + "%";
                         break;
                     case Libtorrent.StatusSeeding:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.play);
-                        stateImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
-                        stateImage.setAlpha(0.3f);
-                        bar.getProgressDrawable().setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent), PorterDuff.Mode.SRC_IN);
-                        tt.setText("Seed");
+                        color = ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent);
+                        text = "Seed";
                         break;
                 }
+                PorterDuffColorFilter filter = new PorterDuffColorFilter(0x60000000 | (0xFFFFFF & color), PorterDuff.Mode.MULTIPLY);
+                stateImage.setColorFilter(filter);
                 stateImage.setImageDrawable(d);
 
+                bar.getBackground().setColorFilter(filter);
+                bar.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 bar.setProgress((int) p);
+
+                tt.setText(text);
             }
 
             ImageView expand = (ImageView) convertView.findViewById(R.id.torrent_expand);
@@ -883,11 +890,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 }
             }
         };
-
         IntentFilter screenfilter = new IntentFilter();
         screenfilter.addAction(Intent.ACTION_SCREEN_ON);
         screenfilter.addAction(Intent.ACTION_SCREEN_OFF);
-
         registerReceiver(screenreceiver, screenfilter);
 
         delayedIntent = getIntent();
@@ -989,14 +994,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             refresh = null;
         }
 
-        if (torrents != null)
+        if (torrents != null) {
             torrents.close();
+            torrents = null;
+        }
 
         Storage s = getStorage();
         if (s != null)
             s.save();
 
-        unregisterReceiver(screenreceiver);
+        if (screenreceiver != null) {
+            unregisterReceiver(screenreceiver);
+            screenreceiver = null;
+        }
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         shared.unregisterOnSharedPreferenceChangeListener(MainActivity.this);

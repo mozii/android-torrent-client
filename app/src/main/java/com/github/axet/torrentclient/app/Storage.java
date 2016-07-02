@@ -1,9 +1,16 @@
 package com.github.axet.torrentclient.app;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StatFs;
@@ -39,11 +46,13 @@ public class Storage {
 
     ArrayList<Torrent> torrents = new ArrayList<>();
 
-    ArrayList<Torrent> pause;
+    ArrayList<Torrent> pause = new ArrayList<>();
 
     Handler handler;
 
     Runnable refresh;
+
+    BroadcastReceiver wifiReciver;
 
     public static class Torrent {
         public long t;
@@ -221,7 +230,7 @@ public class Storage {
             Torrent t = torrents.get(i);
             byte[] b = Libtorrent.SaveTorrent(t.t);
             String state = Base64.encodeToString(b, Base64.DEFAULT);
-            edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
+            edit.putInt("TORRENT_" + i + "_STATUS", status(t));
             edit.putString("TORRENT_" + i + "_STATE", state);
             edit.putString("TORRENT_" + i + "_PATH", t.path);
         }
@@ -237,6 +246,24 @@ public class Storage {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         Libtorrent.SetDefaultAnnouncesList(shared.getString(MainApplication.PREFERENCE_ANNOUNCE, ""));
+
+        IntentFilter wifiFilter = new IntentFilter();
+        wifiFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        wifiReciver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+                if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+                    SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+                    if (SupplicantState.isValidState(state) && state == SupplicantState.COMPLETED) {
+                        resume();
+                    } else {
+                        pause();
+                    }
+                }
+            }
+        };
+        context.registerReceiver(wifiReciver, wifiFilter);
 
         downloaded.start(0);
         uploaded.start(0);
@@ -272,6 +299,11 @@ public class Storage {
         if (refresh != null) {
             handler.removeCallbacks(refresh);
             refresh = null;
+        }
+
+        if (wifiReciver != null) {
+            context.unregisterReceiver(wifiReciver);
+            wifiReciver = null;
         }
 
         TorrentService.stopService(context);
@@ -493,6 +525,7 @@ public class Storage {
     }
 
     public void move(File f, File to) {
+        Log.d(TAG, "migrate: " + f + " to:" + to);
         if (f.isDirectory()) {
             to.mkdirs();
             String[] files = f.list();
@@ -523,8 +556,6 @@ public class Storage {
     }
 
     public void pause() {
-        pause = new ArrayList<>();
-
         for (Torrent t : torrents) {
             if (Libtorrent.TorrentActive(t.t))
                 pause.add(t);
@@ -536,11 +567,11 @@ public class Storage {
         for (Torrent t : pause) {
             t.start();
         }
-        pause = null;
+        pause.clear();
     }
 
     public boolean isPause() {
-        return pause != null;
+        return !pause.isEmpty();
     }
 
     public String formatHeader() {
@@ -596,5 +627,33 @@ public class Storage {
             throw new RuntimeException(Libtorrent.Error());
         }
         add(new Storage.Torrent(t, s));
+    }
+
+    boolean isConnectedWifi() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return mWifi.isConnected();
+    }
+
+    public int status(Torrent t) {
+        if (pause.contains(t))
+            return Libtorrent.StatusQueued;
+
+        return Libtorrent.TorrentStatus(t.t);
+    }
+
+    public void start(Torrent t) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
+
+        if (!wifi || isConnectedWifi())
+            t.start();
+        else
+            pause.add(t);
+    }
+
+    public void stop(Torrent t) {
+        pause.remove(t);
+        t.stop();
     }
 }

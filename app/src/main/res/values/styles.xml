@@ -5,7 +5,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccentLight</item>
         <item name="secondBackground">@color/secondBackgroundLight</item>
-        <item name="progress_bg">@drawable/roundprogress_bar_light</item>
+        <item name="roundprogress_style">@drawable/roundprogress_bar_light</item>
         <item name="menu_labels_style">@style/menu_labels_style_light</item>
     </style>
 
@@ -23,7 +23,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccentDark</item>
         <item name="secondBackground">@color/secondBackgroundDark</item>
-        <item name="progress_bg">@drawable/roundprogress_bar_dark</item>
+        <item name="roundprogress_style">@drawable/roundprogress_bar_dark</item>
         <item name="menu_labels_style">@style/menu_labels_style_dark</item>
     </style>
 
