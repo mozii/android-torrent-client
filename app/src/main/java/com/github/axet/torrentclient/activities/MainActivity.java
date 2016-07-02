@@ -676,19 +676,30 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             t.start();
         }
 
-        public void openURL(String str) {
+        public void openURL(final String str) {
             final MainActivity activity = (MainActivity) getActivity();
             final Storage storage = activity.getStorage();
 
             if (str.startsWith("magnet")) {
-                activity.getStorage().addMagnet(str);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.addMagnet(str);
+                    }
+                });
                 return;
             }
 
             if (str.startsWith("content")) {
                 try {
                     Uri uri = Uri.parse(str);
-                    storage.addTorrent(IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri)));
+                    final byte[] buf = IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.addTorrent(buf);
+                        }
+                    });
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -696,7 +707,18 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             }
 
             if (str.startsWith("http")) {
-                storage.addTorrentFromURL(str);
+                try {
+                    Uri uri = Uri.parse(str);
+                    final byte[] buf = IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.addTorrent(buf);
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 return;
             }
 
@@ -704,8 +726,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 Uri uri = Uri.parse(str);
                 try {
                     String path = uri.getEncodedPath();
-                    path = URLDecoder.decode(path, "UTF-8");
-                    storage.addTorrentFromFile(path);
+                    final String s = URLDecoder.decode(path, "UTF-8");
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.addTorrentFromFile(s);
+                        }
+                    });
                 } catch (UnsupportedEncodingException e) {
                     throw new RuntimeException(e);
                 }
@@ -714,7 +741,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
             // .torrent?
             if (new File(str).exists()) {
-                storage.addTorrentFromFile(str);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.addTorrentFromFile(str);
+                    }
+                });
             }
 
             return;
