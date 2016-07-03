@@ -438,17 +438,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         Libtorrent.StopTorrent(t.t);
                         return;
                     }
-                    // library report for queue, we shall priority
-                    if (s == Libtorrent.StatusQueued) {
-                        getStorage().start(t);
-                        return;
-                    }
 
                     s = getStorage().status(t);
 
-                    // queued from wifi, stop it
                     if (s == Libtorrent.StatusQueued) {
-                        getStorage().stop(t);
+                        // are we on wifi pause mode?
+                        if (getStorage().isPause()) // drop torrent from queue
+                            getStorage().stop(t);
+                        else // nope, we are on library pause, start torrent
+                            getStorage().start(t);
                         return;
                     }
 
