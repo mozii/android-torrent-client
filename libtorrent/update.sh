@@ -5,4 +5,4 @@
 
 go get -u github.com/axet/libtorrent || exit 1
 
-gomobile bind -o libtorrent.aar github.com/axet/libtorrent || exit 1
+gomobile bind -o libtorrent.aar -ldflags "-s" github.com/axet/libtorrent || exit 1
