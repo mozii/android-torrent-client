@@ -30,6 +30,7 @@ public class MainApplication extends Application {
     public static final String PREFERENCE_ANNOUNCE = "announces_list";
     public static final String PREFERENCE_START = "start_at_boot";
     public static final String PREFERENCE_WIFI = "wifi";
+    public static final String PREFERENCE_LAST_PATH = "lastpath";
 
     Storage storage;
 
