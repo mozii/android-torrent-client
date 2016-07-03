@@ -433,12 +433,26 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusChecking) {
+                    int s = Libtorrent.TorrentStatus(t.t);
+                    if (s == Libtorrent.StatusChecking) {
                         Libtorrent.StopTorrent(t.t);
                         return;
                     }
+                    // library report for queue, we shall priority
+                    if (s == Libtorrent.StatusQueued) {
+                        getStorage().start(t);
+                        return;
+                    }
 
-                    if (getStorage().status(t) == Libtorrent.StatusPaused)
+                    s = getStorage().status(t);
+
+                    // queued from wifi, stop it
+                    if (s == Libtorrent.StatusQueued) {
+                        getStorage().stop(t);
+                        return;
+                    }
+
+                    if (s == Libtorrent.StatusPaused)
                         getStorage().start(t);
                     else
                         getStorage().stop(t);
