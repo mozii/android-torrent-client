@@ -1013,6 +1013,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         if (key.equals(MainApplication.PREFERENCE_ANNOUNCE)) {
             Libtorrent.SetDefaultAnnouncesList(sharedPreferences.getString(MainApplication.PREFERENCE_ANNOUNCE, ""));
         }
+        if (key.equals(MainApplication.PREFERENCE_WIFI)) {
+            if (!sharedPreferences.getBoolean(MainApplication.PREFERENCE_WIFI, true))
+                getStorage().resume(); // wifi only disabled
+            else {
+                // wifi only enabed
+                if (!getStorage().isConnectedWifi()) // are we on wifi?
+                    getStorage().pause(); // no, pause all
+            }
+        }
     }
 
     @Override

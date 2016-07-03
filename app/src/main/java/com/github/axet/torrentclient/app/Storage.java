@@ -377,11 +377,8 @@ public class Storage {
 
         // we are not local
 
-        File[] ff = l.listFiles();
-        if (ff != null && ff.length > 0) {
-            migrateTorrents();
-            migrateFiles();
-        }
+        migrateTorrents();
+        migrateFiles();
     }
 
     void migrateTorrents() {
@@ -398,16 +395,16 @@ public class Storage {
                 String name = Libtorrent.TorrentName(torrent.t);
                 File f = new File(torrent.path, name);
                 File tt = getNextFile(t, f);
+                touch = true;
                 if (f.exists()) {
-                    touch = true;
                     move(f, tt);
                     // target name changed update torrent meta or pause it
                     if (!tt.getName().equals(name)) {
                         // TODO replace with rename when it will be impelemented
                         //Libtorrent.TorrentFileRename(torrent.t, 0, tt.getName());
                     }
-                    torrent.path = t.getPath();
                 }
+                torrent.path = t.getPath();
             }
         }
 
@@ -641,7 +638,7 @@ public class Storage {
         add(new Storage.Torrent(t, s));
     }
 
-    boolean isConnectedWifi() {
+    public boolean isConnectedWifi() {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (activeNetwork != null) { // connected to the internet
