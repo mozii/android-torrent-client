@@ -10,90 +10,82 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.github.axet.androidlibrary.widgets.EqualLinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <FrameLayout
+                android:id="@+id/torrent_play"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_centerVertical="true">
 
-                <FrameLayout
-                    android:id="@+id/torrent_play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
-
-                    <ProgressBar
-                        android:id="@+id/torrent_process"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/roundprogress_bg"
-                        android:indeterminate="false"
-                        android:max="100"
-                        android:progress="65"
-                        android:progressDrawable="?attr/roundprogress_style" />
-
-                    <ImageView
-                        android:id="@+id/torrent_state_image"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/play"
-                        android:tint="?attr/colorAccent"
-                        android:tintMode="multiply" />
-
-                    <TextView
-                        android:id="@+id/torrent_process_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="65%" />
-
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="left"
-                    android:orientation="vertical">
-
-                    <com.github.axet.androidlibrary.widgets.PathMax
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:id="@+id/torrent_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="5dp"
-                            android:text="2015.10.11 4:11:11.wav"
-                            android:textColor="?attr/colorPrimary"
-                            android:textSize="20dp" />
-                    </com.github.axet.androidlibrary.widgets.PathMax>
-
-                    <TextView
-                        android:id="@+id/torrent_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp"
-                        android:text="Left: 5m 30s · ↓ 1.5Mb/s · ↑ 0.6Mb/s" />
-                </LinearLayout>
+                <ProgressBar
+                    android:id="@+id/torrent_process"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/roundprogress_bg"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="65"
+                    android:progressDrawable="?attr/roundprogress_style" />
 
                 <ImageView
-                    android:id="@+id/torrent_expand"
+                    android:id="@+id/torrent_state_image"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:padding="20dp"
-                    android:src="@drawable/ic_expand_more_black_24dp"
-                    android:tint="?attr/colorAccent" />
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/play"
+                    android:tint="?attr/colorAccent"
+                    android:tintMode="multiply" />
 
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/torrent_process_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="65%" />
 
-        </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
+            </FrameLayout>
+
+            <ImageView
+                android:id="@+id/torrent_expand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:padding="20dp"
+                android:src="@drawable/ic_expand_more_black_24dp"
+                android:tint="?attr/colorAccent" />
+
+            <com.github.axet.androidlibrary.widgets.PathMax
+                android:id="@+id/torrent_title_max"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/torrent_expand"
+                android:layout_toRightOf="@id/torrent_play">
+
+                <TextView
+                    android:id="@+id/torrent_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="2015.10.11 4:11:11.wav"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="20dp" />
+            </com.github.axet.androidlibrary.widgets.PathMax>
+
+            <TextView
+                android:id="@+id/torrent_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/torrent_title_max"
+                android:layout_toRightOf="@id/torrent_play"
+                android:padding="5dp"
+                android:text="Left: 3d 11h 5m 30s · ↓ 1.5Mb/s · ↑ 0.6Mb/s" />
+
+        </RelativeLayout>
 
         <FrameLayout
             android:layout_width="match_parent"

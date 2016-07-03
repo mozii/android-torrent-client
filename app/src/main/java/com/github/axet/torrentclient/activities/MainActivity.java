@@ -19,6 +19,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -827,10 +828,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 String path = "";
 
                 final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                shared.getString(MainApplication.PREFERENCE_STORAGE, "");
 
                 if (path == null || path.isEmpty()) {
-                    path = "/sdcard";
+                    path = shared.getString(MainApplication.PREFERENCE_LAST_PATH, Environment.getExternalStorageDirectory().getPath());
                 }
 
                 f.setCurrentPath(new File(path));
@@ -838,6 +838,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File p = f.getCurrentPath();
+
+                        shared.edit().putString(MainApplication.PREFERENCE_LAST_PATH, p.getParent()).commit();
+
                         File pp = p.getParentFile();
                         long t = Libtorrent.CreateTorrent(p.getPath());
                         if (t == -1) {
@@ -862,10 +865,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 String path = "";
 
                 final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                shared.getString(MainApplication.PREFERENCE_STORAGE, "");
 
                 if (path == null || path.isEmpty()) {
-                    path = "/sdcard";
+                    path = shared.getString(MainApplication.PREFERENCE_LAST_PATH, Environment.getExternalStorageDirectory().getPath());
                 }
 
                 f.setCurrentPath(new File(path));
@@ -873,6 +875,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File p = f.getCurrentPath();
+
+                        shared.edit().putString(MainApplication.PREFERENCE_LAST_PATH, p.getParent()).commit();
+
                         addTorrentFromFile(p.getPath());
                     }
                 });
