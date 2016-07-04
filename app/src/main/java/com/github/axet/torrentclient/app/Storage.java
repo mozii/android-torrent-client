@@ -23,6 +23,8 @@ import com.github.axet.torrentclient.services.TorrentService;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -548,8 +550,8 @@ public class Storage {
         }
 
         try {
-            InputStream in = new FileInputStream(f);
-            OutputStream out = new FileOutputStream(to);
+            InputStream in = new BufferedInputStream(new FileInputStream(f));
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(to));
 
             byte[] buf = new byte[1024 * 1024];
             int len;
