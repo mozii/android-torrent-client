@@ -327,7 +327,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         @Override
         public int getCount() {
-            return getStorage().count();
+            Storage s = getStorage();
+            if (s == null) // happens on shutdown() from ListView
+                return 0;
+            return s.count();
         }
 
         @Override
