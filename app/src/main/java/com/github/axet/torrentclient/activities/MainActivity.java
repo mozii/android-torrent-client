@@ -383,10 +383,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle("Delete Torrent");
 
-                    String name = Libtorrent.InfoTorrent(t.t) ? ".../" + t.name() : t.name();
+                    String name = Libtorrent.MetaTorrent(t.t) ? ".../" + t.name() : t.name();
 
                     builder.setMessage(name + "\n\n" + "Are you sure ? ");
-                    if (Libtorrent.InfoTorrent(t.t)) {
+                    if (Libtorrent.MetaTorrent(t.t)) {
                         builder.setNeutralButton("Delete With Data", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

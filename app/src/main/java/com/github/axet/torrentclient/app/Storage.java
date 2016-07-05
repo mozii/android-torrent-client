@@ -82,20 +82,20 @@ public class Storage {
         public void start() {
             if (!Libtorrent.StartTorrent(t))
                 throw new RuntimeException(Libtorrent.Error());
-            Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
+            Libtorrent.StatsTorrent b = Libtorrent.TorrentStats(t);
             downloaded.start(b.getDownloaded());
             uploaded.start(b.getUploaded());
         }
 
         public void update() {
-            Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
+            Libtorrent.StatsTorrent b = Libtorrent.TorrentStats(t);
             downloaded.step(b.getDownloaded());
             uploaded.step(b.getUploaded());
         }
 
         public void stop() {
             Libtorrent.StopTorrent(t);
-            Libtorrent.StatsInfo b = Libtorrent.TorrentStats(t);
+            Libtorrent.StatsTorrent b = Libtorrent.TorrentStats(t);
             downloaded.end(b.getDownloaded());
             uploaded.end(b.getUploaded());
         }
@@ -108,7 +108,7 @@ public class Storage {
                 case Libtorrent.StatusChecking:
                 case Libtorrent.StatusPaused:
                     // str += "Paused";
-                    if (Libtorrent.InfoTorrent(t))
+                    if (Libtorrent.MetaTorrent(t))
                         str += MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
 
                     str += "↓ " + MainApplication.formatSize(0) + "/s";
@@ -116,7 +116,7 @@ public class Storage {
                     break;
                 case Libtorrent.StatusSeeding:
                     // str += "Seeding";
-                    if (Libtorrent.InfoTorrent(t))
+                    if (Libtorrent.MetaTorrent(t))
                         str += MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
 
                     str += "↓ " + MainApplication.formatSize(downloaded.getCurrentSpeed()) + "/s";
@@ -124,7 +124,7 @@ public class Storage {
                     break;
                 case Libtorrent.StatusDownloading:
                     long c = 0;
-                    if (Libtorrent.InfoTorrent(t))
+                    if (Libtorrent.MetaTorrent(t))
                         c = Libtorrent.TorrentPendingBytesLength(t) - Libtorrent.TorrentPendingBytesCompleted(t);
                     int a = downloaded.getAverageSpeed();
                     if (c > 0 && a > 0) {
@@ -142,7 +142,7 @@ public class Storage {
         }
 
         public static int getProgress(long t) {
-            if (Libtorrent.InfoTorrent(t)) {
+            if (Libtorrent.MetaTorrent(t)) {
                 long p = Libtorrent.TorrentPendingBytesLength(t);
                 if (p == 0)
                     return 0;
@@ -157,7 +157,7 @@ public class Storage {
 
         public boolean isDownloading() {
             if (Libtorrent.TorrentActive(t)) {
-                if (Libtorrent.InfoTorrent(t)) {
+                if (Libtorrent.MetaTorrent(t)) {
                     return Libtorrent.TorrentBytesCompleted(t) < Libtorrent.TorrentBytesLength(t);
                 }
                 return true;

@@ -63,7 +63,7 @@ public class Pieces extends View {
     }
 
     public void setTorrent(long t) {
-        if(!Libtorrent.InfoTorrent(t))
+        if(!Libtorrent.MetaTorrent(t))
             return;
 
         cells = CELLS;
