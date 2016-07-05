@@ -229,8 +229,8 @@ public class FilesFragment extends Fragment implements MainActivity.TorrentFragm
     public void update() {
         long t = getArguments().getLong("torrent");
 
-        download.setVisibility(Libtorrent.InfoTorrent(t) ? View.GONE : View.VISIBLE);
-        toolbar.setVisibility(Libtorrent.InfoTorrent(t) ? View.VISIBLE : View.GONE);
+        download.setVisibility(Libtorrent.MetaTorrent(t) ? View.GONE : View.VISIBLE);
+        toolbar.setVisibility(Libtorrent.MetaTorrent(t) ? View.VISIBLE : View.GONE);
 
         torrentName = Libtorrent.TorrentName(t);
 

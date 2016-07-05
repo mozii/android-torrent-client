@@ -92,7 +92,7 @@ public class PeersFragment extends Fragment implements MainActivity.TorrentFragm
 
             String str = "";
 
-            if (Libtorrent.InfoTorrent(t))
+            if (Libtorrent.MetaTorrent(t))
                 str += f.getPiecesCompleted() * 100 / Libtorrent.TorrentPiecesCount(t) + "% ";
 
             if (f.getSupportsEncryption())
