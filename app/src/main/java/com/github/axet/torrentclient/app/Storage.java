@@ -105,15 +105,9 @@ public class Storage {
             String str = "";
 
             switch (Libtorrent.TorrentStatus(t)) {
+                case Libtorrent.StatusQueued:
                 case Libtorrent.StatusChecking:
                 case Libtorrent.StatusPaused:
-                    // str += "Paused";
-                    if (Libtorrent.MetaTorrent(t))
-                        str += MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
-
-                    str += "↓ " + MainApplication.formatSize(0) + "/s";
-                    str += " · ↑ " + MainApplication.formatSize(0) + "/s";
-                    break;
                 case Libtorrent.StatusSeeding:
                     // str += "Seeding";
                     if (Libtorrent.MetaTorrent(t))

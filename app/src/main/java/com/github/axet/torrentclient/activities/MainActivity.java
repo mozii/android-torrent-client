@@ -315,14 +315,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 }
             }
 
-            notifyDataSetInvalidated();
+            notifyDataSetChanged();
         }
 
         public void close() {
-        }
-
-        public void changed() {
-            super.notifyDataSetChanged();
         }
 
         @Override
