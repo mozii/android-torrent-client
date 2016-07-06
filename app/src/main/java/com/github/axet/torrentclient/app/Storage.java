@@ -387,6 +387,8 @@ public class Storage {
         torrents.remove(t);
 
         save();
+
+        Libtorrent.RemoveTorrent(t.t);
     }
 
     public boolean permitted(String[] ss) {
