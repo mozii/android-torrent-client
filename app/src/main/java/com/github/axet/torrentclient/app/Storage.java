@@ -16,12 +16,14 @@ import android.os.Handler;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
 import com.github.axet.torrentclient.services.TorrentService;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.HexDump;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,8 +34,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 import go.libtorrent.Libtorrent;
 
@@ -109,7 +117,6 @@ public class Storage {
                 case Libtorrent.StatusChecking:
                 case Libtorrent.StatusPaused:
                 case Libtorrent.StatusSeeding:
-                    // str += "Seeding";
                     if (Libtorrent.MetaTorrent(t))
                         str += MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)) + " · ";
 
@@ -135,6 +142,17 @@ public class Storage {
             return str.trim();
         }
 
+        public String toString() {
+            String str = name();
+
+            if (Libtorrent.MetaTorrent(t))
+                str += " · " + MainApplication.formatSize(Libtorrent.TorrentBytesLength(t));
+
+            str += " · (" + getProgress() + "%)";
+
+            return str;
+        }
+
         public static int getProgress(long t) {
             if (Libtorrent.MetaTorrent(t)) {
                 long p = Libtorrent.TorrentPendingBytesLength(t);
@@ -158,6 +176,41 @@ public class Storage {
             } else {
                 return false;
             }
+        }
+    }
+
+    // seeds should go to start. !seeds to the end (so start download it).
+    // seed ordered by seed time desc. !seed ordered by percent
+    public static class LoadTorrents implements Comparator<Torrent> {
+
+        @Override
+        public int compare(Torrent lhs, Torrent rhs) {
+            Boolean lseed = Libtorrent.PendingCompleted(lhs.t);
+            Boolean rseed = Libtorrent.PendingCompleted(rhs.t);
+
+            // booth done
+            if (lseed && rseed) {
+                Long ltime = Libtorrent.TorrentStats(lhs.t).getSeeding();
+                Long rtime = Libtorrent.TorrentStats(rhs.t).getSeeding();
+
+                // seed time desc
+                return rtime.compareTo(ltime);
+            }
+
+            // seed to start, download to the end
+            if (lseed || rseed) {
+                return rseed.compareTo(lseed);
+            }
+
+            if (!lseed && !rseed) {
+                Integer lp = lhs.getProgress();
+                Integer rp = rhs.getProgress();
+
+                // seed time desc
+                return lp.compareTo(rp);
+            }
+
+            return 0;
         }
     }
 
@@ -193,6 +246,8 @@ public class Storage {
     }
 
     public void load() {
+        ArrayList<Torrent> resume = new ArrayList<>();
+
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         int count = shared.getInt("TORRENT_COUNT", 0);
         for (int i = 0; i < count; i++) {
@@ -216,8 +271,14 @@ public class Storage {
             torrents.add(tt);
 
             if (status != Libtorrent.StatusPaused) {
-                start(tt);
+                resume.add(tt);
             }
+        }
+
+        Collections.sort(resume, new LoadTorrents());
+
+        for (Torrent t : resume) {
+            start(t);
         }
     }
 
@@ -595,25 +656,55 @@ public class Storage {
     }
 
     public void addMagnet(String ff) {
+        String p = getStoragePath().getPath();
+
         ff = ff.trim();
-        if (ff.length() == 40) {
-            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            String[] ss = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
-            ff = "magnet:?xt=urn:btih:" + ff;
-            for (String s : ss) {
-                try {
-                    ff += "&tr=" + URLEncoder.encode(s, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
+
+        // try split by 40 chars and if they all hex accept it as magnets
+        try {
+            if (ff.length() % 40 == 0) {
+                List<String> strings = new ArrayList<>();
+                int index = 0;
+
+                // check all are 40 bytes hex strings
+                while (index < ff.length()) {
+                    String mag = ff.substring(index, index + 40);
+                    strings.add(mag);
+                    index += mag.length();
+                    new BigInteger(mag, 16);
+                }
+
+                for (String mag : strings) {
+                    final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+                    String[] ss = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
+                    ff = "magnet:?xt=urn:btih:" + mag;
+                    for (String s : ss) {
+                        try {
+                            ff += "&tr=" + URLEncoder.encode(s, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                        }
+                    }
+
+                    long t = Libtorrent.AddMagnet(p, ff);
+                    if (t == -1) {
+                        throw new RuntimeException(Libtorrent.Error());
+                    }
+                    add(new Storage.Torrent(t, p));
                 }
             }
+        } catch (NumberFormatException e) {
+            // nope just try normal magnet
         }
 
-        String p = getStoragePath().getPath();
-        long t = Libtorrent.AddMagnet(p, ff);
-        if (t == -1) {
-            throw new RuntimeException(Libtorrent.Error());
+        String[] ss = ff.split("magnet:");
+
+        for (String s : ss) {
+            long t = Libtorrent.AddMagnet(p, ff);
+            if (t == -1) {
+                throw new RuntimeException(Libtorrent.Error());
+            }
+            add(new Storage.Torrent(t, p));
         }
-        add(new Storage.Torrent(t, p));
     }
 
     public void addTorrent(byte[] buf) {
