@@ -170,7 +170,7 @@ public class MainApplication extends Application {
 
         SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        return s.format(new Date(d * 1000));
+        return s.format(new Date(d / 1000000));
     }
 
     public Storage getStorage() {
