@@ -1374,7 +1374,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     void addMagnet(String ff) {
         try {
-            getStorage().addMagnet(ff);
+            getStorage().addMagnetSplit(ff);
         } catch (RuntimeException e) {
             Error(e.getMessage());
         }

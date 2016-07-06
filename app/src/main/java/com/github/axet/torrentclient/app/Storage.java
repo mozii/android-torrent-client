@@ -655,56 +655,61 @@ public class Storage {
         add(new Storage.Torrent(t, s));
     }
 
-    public void addMagnet(String ff) {
-        String p = getStoragePath().getPath();
-
+    public void addMagnetSplit(String ff) {
         ff = ff.trim();
 
-        // try split by 40 chars and if they all hex accept it as magnets
-        try {
-            if (ff.length() % 40 == 0) {
-                List<String> strings = new ArrayList<>();
-                int index = 0;
-
-                // check all are 40 bytes hex strings
-                while (index < ff.length()) {
-                    String mag = ff.substring(index, index + 40);
-                    strings.add(mag);
-                    index += mag.length();
-                    new BigInteger(mag, 16);
-                }
-
-                for (String mag : strings) {
-                    final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-                    String[] ss = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
-                    ff = "magnet:?xt=urn:btih:" + mag;
-                    for (String s : ss) {
-                        try {
-                            ff += "&tr=" + URLEncoder.encode(s, "UTF-8");
-                        } catch (UnsupportedEncodingException e) {
-                        }
-                    }
-
-                    long t = Libtorrent.AddMagnet(p, ff);
-                    if (t == -1) {
-                        throw new RuntimeException(Libtorrent.Error());
-                    }
-                    add(new Storage.Torrent(t, p));
-                }
+        String scheme = "magnet:";
+        String[] ss = ff.split(scheme);
+        if (ss.length > 1) {
+            for (String s : ss) {
+                s = s.trim();
+                if (s.isEmpty())
+                    continue;
+                addMagnet(scheme + s);
             }
-        } catch (NumberFormatException e) {
-            // nope just try normal magnet
+            return;
         }
 
-        String[] ss = ff.split("magnet:");
+        ss = ff.split("\\W+");
 
         for (String s : ss) {
-            long t = Libtorrent.AddMagnet(p, ff);
-            if (t == -1) {
-                throw new RuntimeException(Libtorrent.Error());
+            s = s.trim();
+            if (s.isEmpty())
+                continue;
+            int len = 40;
+            if (s.length() % len == 0) {
+                int index = 0;
+                // check all are 40 bytes hex strings
+                while (index < s.length()) {
+                    String mag = s.substring(index, index + len);
+                    index += mag.length();
+                    try {
+                        new BigInteger(mag, 16);
+
+                        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+                        String[] tt = shared.getString(MainApplication.PREFERENCE_ANNOUNCE, "").split("\n");
+                        ff = "magnet:?xt=urn:btih:" + mag;
+                        for (String t : tt) {
+                            try {
+                                ff += "&tr=" + URLEncoder.encode(t, "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                            }
+                        }
+                        addMagnet(ff);
+                    } catch (NumberFormatException e) {
+                    }
+                }
             }
-            add(new Storage.Torrent(t, p));
         }
+    }
+
+    public void addMagnet(String s) {
+        String p = getStoragePath().getPath();
+        long t = Libtorrent.AddMagnet(p, s);
+        if (t == -1) {
+            throw new RuntimeException(Libtorrent.Error());
+        }
+        add(new Storage.Torrent(t, p));
     }
 
     public void addTorrent(byte[] buf) {
