@@ -246,6 +246,7 @@ public class Storage {
     }
 
     public void load() {
+        Log.d(TAG, "load()");
         ArrayList<Torrent> resume = new ArrayList<>();
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -315,7 +316,8 @@ public class Storage {
                 final String action = intent.getAction();
                 if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
                     SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-                    if (SupplicantState.isValidState(state) && state == SupplicantState.COMPLETED) {
+                    Log.d(TAG, state + " " + SupplicantState.isValidState(state));
+                    if (isConnectedWifi()) {
                         resume();
                     } else {
                         pause();
@@ -624,14 +626,16 @@ public class Storage {
     }
 
     public void pause() {
+        Log.d(TAG, "pause()");
         for (Torrent t : torrents) {
-            if (Libtorrent.TorrentActive(t.t))
+            if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused)
                 pause.add(t);
             t.stop();
         }
     }
 
     public void resume() {
+        Log.d(TAG, "resume()");
         for (Torrent t : pause) {
             t.start();
         }
