@@ -148,9 +148,9 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         MainApplication.setDate(completed, info.getDateCompleted());
 
         TextView downloading = (TextView) v.findViewById(R.id.torrent_downloading);
-        downloading.setText(MainApplication.formatDuration(b.getDownloading() * 1000));
+        downloading.setText(MainApplication.formatDuration(b.getDownloading() / 1000000));
 
         TextView seeding = (TextView) v.findViewById(R.id.torrent_seeding);
-        seeding.setText(MainApplication.formatDuration(b.getSeeding() * 1000));
+        seeding.setText(MainApplication.formatDuration(b.getSeeding() / 1000000));
     }
 }
