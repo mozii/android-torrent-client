@@ -307,6 +307,10 @@ public class Storage {
         wifiReciver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
+                if (!wifi)
+                    return;
+
                 final String action = intent.getAction();
                 if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
                     SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
@@ -316,15 +320,25 @@ public class Storage {
                     } else {
                         pause();
                     }
+                    return;
                 }
                 if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                     NetworkInfo state = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                     Log.d(TAG, state.toString());
-                    if (isConnectedWifi() || state.isConnected()) {
-                        resume();
-                    } else {
-                        pause();
+                    if (state.isConnected()) {
+                        switch (state.getType()) {
+                            case ConnectivityManager.TYPE_WIFI:
+                            case ConnectivityManager.TYPE_ETHERNET:
+                                resume();
+                                return;
+                        }
                     }
+                    if (isConnectedWifi()) {
+                        resume();
+                        return;
+                    }
+                    pause();
+                    return;
                 }
             }
         };
