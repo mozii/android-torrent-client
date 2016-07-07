@@ -36,23 +36,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
-        android:stretchColumns="1">
+        android:stretchColumns="1"
+        android:shrinkColumns="1">
 
         <TableRow>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
                 android:text="Announce:" />
 
             <TextView
                 android:id="@+id/torrent_trackers_lastannounce"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
                 android:paddingLeft="10dp"
-                android:text="23 June 2016 at 15:12 (P:123)" />
+                android:text="23 June 2016 at 15:12 (Error announce tracker for data torrent P:123)" />
 
 
         </TableRow>
@@ -62,14 +61,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
                 android:text="next:" />
 
             <TextView
                 android:id="@+id/torrent_trackers_nextannounce"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
                 android:paddingLeft="10dp"
                 android:text="23 June 2016 at 15:12" />
 
@@ -81,14 +78,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
                 android:text="Scrape:" />
 
             <TextView
                 android:id="@+id/torrent_trackers_lastscrape"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
                 android:paddingLeft="10dp"
                 android:text="23 June 2016 at 15:12 (S:1 L:323 D:111)" />
         </TableRow>
