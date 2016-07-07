@@ -308,40 +308,56 @@ public class Storage {
             @Override
             public void onReceive(Context context, Intent intent) {
                 boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
-                if (!wifi)
-                    return;
-
                 final String action = intent.getAction();
-                if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
-                    SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-                    Log.d(TAG, state.toString());
-                    if (isConnectedWifi() || intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
-                        resume();
-                    } else {
+                if (wifi) { // spulicant only related to 'wifi only'
+                    if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+                        SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+                        Log.d(TAG, state.toString());
+                        if (isConnectedWifi() || intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
+                            resume();
+                            return;
+                        }
                         pause();
+                        return;
                     }
-                    return;
                 }
                 if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                     NetworkInfo state = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                     Log.d(TAG, state.toString());
                     if (state.isConnected()) {
-                        switch (state.getType()) {
-                            case ConnectivityManager.TYPE_WIFI:
-                            case ConnectivityManager.TYPE_ETHERNET:
-                                resume();
-                                return;
+                        if (wifi) { // wifi only?
+                            switch (state.getType()) {
+                                case ConnectivityManager.TYPE_WIFI:
+                                case ConnectivityManager.TYPE_ETHERNET:
+                                    resume();
+                                    return;
+                            }
+                        } else { // resume for any connection type
+                            resume();
+                            return;
                         }
                     }
-                    if (isConnectedWifi()) {
-                        resume();
-                        return;
+                    // if not state.isConnected() maybe it is not correct, check service information
+                    if (wifi) {
+                        if (isConnectedWifi()) {
+                            resume();
+                            return;
+                        }
+                    } else {
+                        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                        if (activeNetwork != null) { // connected to the internet
+                            resume();
+                            return;
+                        }
                     }
                     pause();
                     return;
                 }
             }
-        };
+        }
+
+        ;
         context.registerReceiver(wifiReciver, wifiFilter);
 
         downloaded.start(0);
