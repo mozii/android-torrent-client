@@ -46,7 +46,6 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,12 +72,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -709,7 +707,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            activity.addTorrent(buf);
+                            activity.addTorrentFromBytes(buf);
                         }
                     });
                 } catch (IOException e) {
@@ -724,7 +722,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            activity.addTorrent(buf);
+                            activity.addTorrentFromBytes(buf);
                         }
                     });
                 } catch (IOException e) {
@@ -738,13 +736,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 try {
                     String path = uri.getEncodedPath();
                     final String s = URLDecoder.decode(path, "UTF-8");
+                    final byte[] buf = IOUtils.toByteArray(new FileInputStream(new File(s)));
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            activity.addTorrentFromFile(s);
+                            activity.addTorrentFromBytes(buf);
                         }
                     });
-                } catch (UnsupportedEncodingException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 return;
@@ -752,12 +751,17 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
             // .torrent?
             if (new File(str).exists()) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        activity.addTorrentFromFile(str);
-                    }
-                });
+                try {
+                    final byte[] buf = IOUtils.toByteArray(new FileInputStream(new File(str)));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.addTorrentFromBytes(buf);
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             return;
@@ -887,7 +891,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                         shared.edit().putString(MainApplication.PREFERENCE_LAST_PATH, p.getParent()).commit();
 
-                        addTorrentFromFile(p.getPath());
+                        File pp = p.getParentFile();
+
+                        long t = Libtorrent.AddTorrent(p.getPath());
+
+                        getStorage().add(new Storage.Torrent(t, pp.getPath()));
                     }
                 });
                 f.show();
@@ -1379,15 +1387,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
-    void addTorrentFromFile(String p) {
-        try {
-            getStorage().addTorrentFromFile(p);
-        } catch (RuntimeException e) {
-            Error(e.getMessage());
-        }
-        torrents.notifyDataSetChanged();
-    }
-
     void addTorrentFromURL(String p) {
         try {
             getStorage().addTorrentFromURL(p);
@@ -1397,9 +1396,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
-    void addTorrent(byte[] buf) {
+    void addTorrentFromBytes(byte[] buf) {
         try {
-            getStorage().addTorrent(buf);
+            getStorage().addTorrentFromBytes(buf);
         } catch (RuntimeException e) {
             Error(e.getMessage());
         }

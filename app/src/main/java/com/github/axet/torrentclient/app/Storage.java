@@ -652,15 +652,6 @@ public class Storage {
         return getApp().formatFree(free, downloaded.getCurrentSpeed(), uploaded.getCurrentSpeed());
     }
 
-    public void addTorrentFromFile(String p) {
-        String s = getStoragePath().getPath();
-        long t = Libtorrent.AddTorrentFromFile(s, p);
-        if (t == -1) {
-            throw new RuntimeException(Libtorrent.Error());
-        }
-        add(new Storage.Torrent(t, s));
-    }
-
     public void addMagnetSplit(String ff) {
         ff = ff.trim();
 
@@ -718,7 +709,7 @@ public class Storage {
         add(new Storage.Torrent(t, p));
     }
 
-    public void addTorrent(byte[] buf) {
+    public void addTorrentFromBytes(byte[] buf) {
         String s = getStoragePath().getPath();
         long t = Libtorrent.AddTorrentFromBytes(s, buf);
         if (t == -1) {
