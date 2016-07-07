@@ -309,11 +309,15 @@ public class Storage {
             public void onReceive(Context context, Intent intent) {
                 boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
                 final String action = intent.getAction();
-                if (wifi) { // spulicant only related to 'wifi only'
-                    if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
-                        SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-                        Log.d(TAG, state.toString());
-                        if (isConnectedWifi() || intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
+                if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+                    SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+                    Log.d(TAG, state.toString());
+                    if (wifi) { // suplicant only related to 'wifi only'
+                        if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
+                            resume();
+                            return;
+                        }
+                        if (isConnectedWifi()) { // maybe 'state' have incorrect state. check system service additionaly.
                             resume();
                             return;
                         }
@@ -357,7 +361,6 @@ public class Storage {
             }
         }
 
-        ;
         context.registerReceiver(wifiReciver, wifiFilter);
 
         downloaded.start(0);
