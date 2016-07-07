@@ -39,8 +39,6 @@ public class MainApplication extends Application {
         super.onCreate();
         Log.d(TAG, "onCreate");
 
-        Log.d(TAG, "PortInfo: " + Libtorrent.PortMapping().getTCP() + " " + Libtorrent.PortMapping().getUDP());
-
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 
         Context context = this;
@@ -51,6 +49,7 @@ public class MainApplication extends Application {
         if (storage == null) {
             storage = new Storage(this);
             storage.create();
+            Log.d(TAG, "PortInfo: " + Libtorrent.PortMapping().getTCP() + " " + Libtorrent.PortMapping().getUDP());
         }
     }
 
@@ -65,6 +64,39 @@ public class MainApplication extends Application {
     public void onTerminate() {
         super.onTerminate();
         Log.d(TAG, "onTerminate");
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Log.d(TAG, "onLowMemory");
+    }
+
+
+    public static String onTrimString(int level) {
+        switch (level) {
+            case TRIM_MEMORY_COMPLETE:
+                return "TRIM_MEMORY_COMPLETE";
+            case TRIM_MEMORY_MODERATE:
+                return "TRIM_MEMORY_MODERATE";
+            case TRIM_MEMORY_BACKGROUND:
+                return "TRIM_MEMORY_BACKGROUND";
+            case TRIM_MEMORY_UI_HIDDEN:
+                return "TRIM_MEMORY_UI_HIDDEN";
+            case TRIM_MEMORY_RUNNING_CRITICAL:
+                return "TRIM_MEMORY_RUNNING_CRITICAL";
+            case TRIM_MEMORY_RUNNING_LOW:
+                return "TRIM_MEMORY_RUNNING_LOW";
+            case TRIM_MEMORY_RUNNING_MODERATE:
+                return "TRIM_MEMORY_RUNNING_MODERATE";
+        }
+        return "unknown";
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Log.d(TAG, "onTrimMemory: " + onTrimString(level));
     }
 
     public static int getTheme(Context context, int light, int dark) {

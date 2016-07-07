@@ -1,5 +1,6 @@
 package com.github.axet.torrentclient.services;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -76,6 +77,8 @@ public class TorrentService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(receiver, filter);
+
+        startForeground(NOTIFICATION_TORRENT_ICON, buildNotification(""));
     }
 
     MainApplication getApp() {
@@ -120,46 +123,51 @@ public class TorrentService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestory");
 
+        stopForeground(false);
+
         showNotificationAlarm(false, null);
 
         unregisterReceiver(receiver);
     }
 
+    Notification buildNotification(String title) {
+        PendingIntent main = PendingIntent.getService(this, 0,
+                new Intent(this, TorrentService.class).setAction(SHOW_ACTIVITY),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+//        PendingIntent pe = PendingIntent.getService(this, 0,
+//                new Intent(this, TorrentService.class).setAction(PAUSE_BUTTON),
+//                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(getBaseContext(),
+                R.layout.notifictaion_recording_light,
+                R.layout.notifictaion_recording_dark));
+
+        //boolean pause = false;//getStorage().isPause();
+
+        view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
+        view.setTextViewText(R.id.notification_text, title);
+        //view.setOnClickPendingIntent(R.id.notification_pause, pe);
+        //view.setImageViewResource(R.id.notification_pause, pause ? R.drawable.play : R.drawable.pause);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setOngoing(true)
+                .setContentTitle("Torrent Client")
+                .setSmallIcon(R.drawable.ic_application_icon)
+                .setContent(view);
+
+        if (Build.VERSION.SDK_INT >= 21)
+            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        return builder.build();
+    }
+
     public void showNotificationAlarm(boolean show, String title) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
         if (!show) {
             notificationManager.cancel(NOTIFICATION_TORRENT_ICON);
         } else {
-            PendingIntent main = PendingIntent.getService(this, 0,
-                    new Intent(this, TorrentService.class).setAction(SHOW_ACTIVITY),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            PendingIntent pe = PendingIntent.getService(this, 0,
-                    new Intent(this, TorrentService.class).setAction(PAUSE_BUTTON),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(getBaseContext(),
-                    R.layout.notifictaion_recording_light,
-                    R.layout.notifictaion_recording_dark));
-
-            boolean pause = false;//getStorage().isPause();
-
-            view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
-            view.setTextViewText(R.id.notification_text, title);
-            view.setOnClickPendingIntent(R.id.notification_pause, pe);
-            view.setImageViewResource(R.id.notification_pause, pause ? R.drawable.play : R.drawable.pause);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setOngoing(true)
-                    .setContentTitle("Torrent Client")
-                    .setSmallIcon(R.drawable.ic_application_icon)
-                    .setContent(view);
-
-            if (Build.VERSION.SDK_INT >= 21)
-                builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
-            notificationManager.notify(NOTIFICATION_TORRENT_ICON, builder.build());
+            notificationManager.notify(NOTIFICATION_TORRENT_ICON, buildNotification(title));
         }
     }
 }
