@@ -815,6 +815,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
 
         setAppTheme(getAppTheme());
 
@@ -1217,6 +1218,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "onPause");
 
         refreshUI = null;
     }
@@ -1292,6 +1294,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestory");
 
         close();
     }
@@ -1320,6 +1323,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     @Override
     public void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
