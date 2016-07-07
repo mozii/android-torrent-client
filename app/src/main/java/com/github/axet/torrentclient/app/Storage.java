@@ -359,7 +359,7 @@ public class Storage {
                     return;
                 }
             }
-        }
+        };
 
         context.registerReceiver(wifiReciver, wifiFilter);
 
