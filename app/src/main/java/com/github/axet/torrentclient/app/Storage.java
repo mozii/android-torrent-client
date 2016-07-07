@@ -164,17 +164,6 @@ public class Storage {
         public int getProgress() {
             return getProgress(t);
         }
-
-        public boolean isDownloading() {
-            if (Libtorrent.TorrentActive(t)) {
-                if (Libtorrent.MetaTorrent(t)) {
-                    return Libtorrent.TorrentBytesCompleted(t) < Libtorrent.TorrentBytesLength(t);
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
     }
 
     // seeds should go to start. !seeds to the end (so start download it).
@@ -289,7 +278,7 @@ public class Storage {
             Torrent t = torrents.get(i);
             byte[] b = Libtorrent.SaveTorrent(t.t);
             String state = Base64.encodeToString(b, Base64.DEFAULT);
-            edit.putInt("TORRENT_" + i + "_STATUS", status(t));
+            edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
             edit.putString("TORRENT_" + i + "_STATE", state);
             edit.putString("TORRENT_" + i + "_PATH", t.path);
         }
@@ -321,16 +310,21 @@ public class Storage {
                 final String action = intent.getAction();
                 if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
                     SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-                    Log.d(TAG, state + " " + SupplicantState.isValidState(state));
+                    Log.d(TAG, state.toString());
+                    if (isConnectedWifi() || intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
+                        resume();
+                    } else {
+                        pause();
+                    }
                 }
                 if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                     NetworkInfo state = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                     Log.d(TAG, state.toString());
-                }
-                if (isConnectedWifi()) {
-                    resume();
-                } else {
-                    pause();
+                    if (isConnectedWifi() || state.isConnected()) {
+                        resume();
+                    } else {
+                        pause();
+                    }
                 }
             }
         };
@@ -734,10 +728,6 @@ public class Storage {
             }
         }
         return false;
-    }
-
-    public int status(Torrent t) {
-        return Libtorrent.TorrentStatus(t.t);
     }
 
     public void start(Torrent t) {
