@@ -136,7 +136,12 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         uploaded.setText(MainApplication.formatSize(b.getUploaded()));
 
         TextView ratio = (TextView) v.findViewById(R.id.torrent_ratio);
-        float r = b.getDownloaded() > 0 ? b.getUploaded() / (float) b.getDownloaded() : 0;
+        float r;
+        if (b.getDownloaded() >= Libtorrent.TorrentBytesLength(t)) {
+            r = b.getUploaded() / (float) b.getDownloaded();
+        } else {
+            r = b.getUploaded() / (float) Libtorrent.TorrentBytesLength(t);
+        }
         ratio.setText(String.format("%.2f", r));
 
         Libtorrent.InfoTorrent info = Libtorrent.TorrentInfo(t);
