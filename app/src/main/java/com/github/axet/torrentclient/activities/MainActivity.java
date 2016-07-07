@@ -429,12 +429,22 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 @Override
                 public void onClick(View view) {
                     int s = Libtorrent.TorrentStatus(t.t);
+
                     if (s == Libtorrent.StatusChecking) {
                         Libtorrent.StopTorrent(t.t);
+                        torrents.notifyDataSetChanged();
                         return;
                     }
 
-                    s = getStorage().status(t);
+                    if (s == Libtorrent.StatusQueued) {
+                        // are we on wifi pause mode?
+                        if (Libtorrent.Paused()) // drop torrent from queue
+                            getStorage().stop(t);
+                        else // nope, we are on library pause, start torrent
+                            getStorage().start(t);
+                        torrents.notifyDataSetChanged();
+                        return;
+                    }
 
                     if (s == Libtorrent.StatusPaused)
                         getStorage().start(t);
@@ -457,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 String text = "";
 
                 Drawable d = null;
-                switch (getStorage().status(t)) {
+                switch (Libtorrent.TorrentStatus(t.t)) {
                     case Libtorrent.StatusChecking:
                         d = ContextCompat.getDrawable(getContext(), R.drawable.ic_pause_24dp);
                         color = Color.YELLOW;
