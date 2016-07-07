@@ -58,8 +58,6 @@ public class Storage {
 
     ArrayList<Torrent> torrents = new ArrayList<>();
 
-    ArrayList<Torrent> pause = new ArrayList<>();
-
     Handler handler;
 
     Runnable refresh;
@@ -308,8 +306,15 @@ public class Storage {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         Libtorrent.SetDefaultAnnouncesList(shared.getString(MainApplication.PREFERENCE_ANNOUNCE, ""));
 
+        boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
+
+        if (wifi && !isConnectedWifi()) {
+            pause();
+        }
+
         IntentFilter wifiFilter = new IntentFilter();
         wifiFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+        wifiFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         wifiReciver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -317,11 +322,15 @@ public class Storage {
                 if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
                     SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
                     Log.d(TAG, state + " " + SupplicantState.isValidState(state));
-                    if (isConnectedWifi()) {
-                        resume();
-                    } else {
-                        pause();
-                    }
+                }
+                if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                    NetworkInfo state = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                    Log.d(TAG, state.toString());
+                }
+                if (isConnectedWifi()) {
+                    resume();
+                } else {
+                    pause();
                 }
             }
         };
@@ -627,23 +636,12 @@ public class Storage {
 
     public void pause() {
         Log.d(TAG, "pause()");
-        for (Torrent t : torrents) {
-            if (Libtorrent.TorrentStatus(t.t) != Libtorrent.StatusPaused)
-                pause.add(t);
-            t.stop();
-        }
+        Libtorrent.Pause();
     }
 
     public void resume() {
         Log.d(TAG, "resume()");
-        for (Torrent t : pause) {
-            t.start();
-        }
-        pause.clear();
-    }
-
-    public boolean isPause() {
-        return !pause.isEmpty();
+        Libtorrent.Resume();
     }
 
     public String formatHeader() {
@@ -739,27 +737,14 @@ public class Storage {
     }
 
     public int status(Torrent t) {
-        if (pause.contains(t))
-            return Libtorrent.StatusQueued;
-
         return Libtorrent.TorrentStatus(t.t);
     }
 
     public void start(Torrent t) {
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean wifi = shared.getBoolean(MainApplication.PREFERENCE_WIFI, true);
-
-        if (!wifi || isConnectedWifi()) {
-            t.start();
-        } else {
-            if (!pause.contains(t)) {
-                pause.add(t);
-            }
-        }
+        t.start();
     }
 
     public void stop(Torrent t) {
-        pause.remove(t);
         t.stop();
     }
 }
