@@ -248,13 +248,13 @@
                 </FrameLayout>
             </LinearLayout>
 
-        </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="5dp"
+                android:background="@color/colorPrimary" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_margin="5dp"
-            android:background="@color/colorPrimary" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -287,11 +287,5 @@
             android:textColor="?attr/colorAccent"
             android:textStyle="bold" />
     </LinearLayout>
-
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/torrent_files_toolbar"></ListView>
 
 </RelativeLayout>
