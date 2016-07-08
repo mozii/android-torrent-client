@@ -19,23 +19,6 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/footer"
         android:layout_below="@id/tab_layout" />
 
-    <LinearLayout
-        android:id="@+id/footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:paddingBottom="5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp">
-
-        <Button
-            android:id="@+id/torrent_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Close" />
-    </LinearLayout>
 </RelativeLayout>

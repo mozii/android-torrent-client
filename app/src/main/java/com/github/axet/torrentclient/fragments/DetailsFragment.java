@@ -53,7 +53,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         MainApplication.setText(size, !Libtorrent.MetaTorrent(t) ? "" : MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
 
         TextView pieces = (TextView) v.findViewById(R.id.torrent_pieces);
-        MainApplication.setText(pieces, !Libtorrent.MetaTorrent(t) ? "" : Libtorrent.TorrentPiecesCount(t) + ", Length: " + MainApplication.formatSize(Libtorrent.TorrentPieceLength(t)));
+        MainApplication.setText(pieces, !Libtorrent.MetaTorrent(t) ? "" : Libtorrent.TorrentPiecesCount(t) + " / " + MainApplication.formatSize(Libtorrent.TorrentPieceLength(t)));
 
         final String h = Libtorrent.TorrentHash(t);
         final TextView hash = (TextView) v.findViewById(R.id.torrent_hash);

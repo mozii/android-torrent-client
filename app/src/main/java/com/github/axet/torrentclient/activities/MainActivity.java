@@ -1,7 +1,6 @@
 package com.github.axet.torrentclient.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
@@ -22,25 +21,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
@@ -57,10 +51,10 @@ import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.PopupShareActionProvider;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
-import com.github.axet.torrentclient.fragments.DetailsFragment;
-import com.github.axet.torrentclient.fragments.FilesFragment;
-import com.github.axet.torrentclient.fragments.PeersFragment;
-import com.github.axet.torrentclient.fragments.TrackersFragment;
+import com.github.axet.torrentclient.dialogs.AddDialogFragment;
+import com.github.axet.torrentclient.dialogs.CreateDialogFragment;
+import com.github.axet.torrentclient.dialogs.OpenIntentDialogFragment;
+import com.github.axet.torrentclient.dialogs.TorrentDialogFragment;
 import com.github.axet.torrentclient.animations.RecordingAnimation;
 import com.github.axet.torrentclient.app.MainApplication;
 import com.github.axet.torrentclient.app.Storage;
@@ -69,16 +63,9 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import go.libtorrent.Libtorrent;
 
@@ -101,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     Runnable refresh;
     Runnable refreshUI;
-    TorrentDialogFragment dialog;
+    TorrentFragmentInterface dialog;
 
     Torrents torrents;
     ProgressBar progress;
@@ -161,134 +148,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     public interface TorrentFragmentInterface {
         void update();
-    }
-
-    public static class TorrentPagerAdapter extends FragmentPagerAdapter {
-        long t;
-
-        Map<Integer, Fragment> map = new HashMap<>();
-
-        public TorrentPagerAdapter(FragmentManager fm, long t) {
-            super(fm);
-
-            this.t = t;
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            Fragment f;
-
-            switch (i) {
-                case 0:
-                    f = new DetailsFragment();
-                    break;
-                case 1:
-                    f = new FilesFragment();
-                    break;
-                case 2:
-                    f = new PeersFragment();
-                    break;
-                case 3:
-                    f = new TrackersFragment();
-                    break;
-                default:
-                    return null;
-            }
-
-            map.put(i, f);
-
-            Bundle args = new Bundle();
-            args.putLong("torrent", t);
-            f.setArguments(args);
-
-            return f;
-        }
-
-        public TorrentFragmentInterface getFragment(int i) {
-            return (TorrentFragmentInterface) map.get(i);
-        }
-
-        @Override
-        public int getCount() {
-            return 4;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "DETAILS";
-                case 1:
-                    return "FILES";
-                case 2:
-                    return "PEERS";
-                case 3:
-                    return "TRACKERS";
-                default:
-                    return "EMPTY";
-            }
-        }
-    }
-
-    public static class TorrentDialogFragment extends DialogFragment {
-        ViewPager pager;
-
-        public static TorrentDialogFragment create(Long t) {
-            TorrentDialogFragment f = new TorrentDialogFragment();
-            Bundle args = new Bundle();
-            args.putLong("torrent", t);
-            f.setArguments(args);
-            return f;
-        }
-
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            super.onDismiss(dialog);
-            final Activity activity = getActivity();
-            if (activity instanceof DialogInterface.OnDismissListener) {
-                ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
-            }
-        }
-
-        public void update() {
-            // dialog maybe created but onCreateView not yet called
-            if (pager == null)
-                return;
-
-            int i = pager.getCurrentItem();
-            TorrentPagerAdapter a = (TorrentPagerAdapter) pager.getAdapter();
-            TorrentFragmentInterface f = a.getFragment(i);
-            if (f == null)
-                return;
-            f.update();
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.torrent_details, container);
-
-            View v = view.findViewById(R.id.torrent_close);
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    getDialog().dismiss();
-                }
-            });
-
-            long t = getArguments().getLong("torrent");
-
-            pager = (ViewPager) view.findViewById(R.id.pager);
-            TorrentPagerAdapter adapter = new TorrentPagerAdapter(getChildFragmentManager(), t);
-            pager.setAdapter(adapter);
-
-            TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-            tabLayout.setupWithViewPager(pager);
-
-            pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-            return view;
-        }
     }
 
     public class Torrents extends BaseAdapter {
@@ -389,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                                     @Override
                                     public void run() {
                                         t.stop();
-                                        File f = new File(getStorage().getStoragePath(), t.name());
+                                        File f = new File(t.path, t.name());
                                         FileUtils.deleteQuietly(f);
                                         getStorage().remove(t);
                                         Tag.setTag(view, TYPE_DELETED, -1);
@@ -649,141 +508,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
     }
 
-    public static class OpenIntentDialogFragment extends DialogFragment {
-        Handler handler = new Handler();
-
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            super.onDismiss(dialog);
-            final Activity activity = getActivity();
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    final MainActivity activity = (MainActivity) getActivity();
-                    try {
-                        openURL(getArguments().getString("url"));
-                    } catch (final RuntimeException e) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                activity.Error(e.getMessage());
-                            }
-                        });
-                    }
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            dismiss();
-                        }
-                    });
-                }
-            });
-            t.start();
-        }
-
-        public void openURL(final String str) {
-            final MainActivity activity = (MainActivity) getActivity();
-            final Storage storage = activity.getStorage();
-
-            if (str.startsWith("magnet")) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        activity.addMagnet(str);
-                    }
-                });
-                return;
-            }
-
-            if (str.startsWith("content")) {
-                try {
-                    Uri uri = Uri.parse(str);
-                    final byte[] buf = IOUtils.toByteArray(activity.getContentResolver().openInputStream(uri));
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity.addTorrentFromBytes(buf);
-                        }
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                return;
-            }
-
-            if (str.startsWith("http")) {
-                try {
-                    final byte[] buf = IOUtils.toByteArray(new URL(str));
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity.addTorrentFromBytes(buf);
-                        }
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                return;
-            }
-
-            if (str.startsWith("file")) {
-                Uri uri = Uri.parse(str);
-                try {
-                    String path = uri.getEncodedPath();
-                    final String s = URLDecoder.decode(path, "UTF-8");
-                    final byte[] buf = IOUtils.toByteArray(new FileInputStream(new File(s)));
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity.addTorrentFromBytes(buf);
-                        }
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                return;
-            }
-
-            // .torrent?
-            if (new File(str).exists()) {
-                try {
-                    final byte[] buf = IOUtils.toByteArray(new FileInputStream(new File(str)));
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity.addTorrentFromBytes(buf);
-                        }
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            return;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            ProgressBar view = new ProgressBar(inflater.getContext());
-            view.setIndeterminate(true);
-
-            // wait until torrent loaded
-            setCancelable(false);
-
-            //getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-            return view;
-        }
-    }
-
     void showDetails(Long f) {
-        dialog = TorrentDialogFragment.create(f);
-        dialog.show(getSupportFragmentManager(), "");
+        TorrentDialogFragment d = TorrentDialogFragment.create(f);
+        dialog = d;
+        d.show(getSupportFragmentManager(), "");
     }
 
     void renameDialog(final Long f) {
@@ -862,8 +590,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                             Error(Libtorrent.Error());
                             return;
                         }
-                        getStorage().add(new Storage.Torrent(t, pp.getPath()));
-                        torrents.notifyDataSetChanged();
+                        if (shared.getBoolean(MainApplication.PREFERENCE_DIALOG, false)) {
+                            createTorrentDialog(t, pp.getPath());
+                        } else {
+                            getStorage().add(new Storage.Torrent(t, pp.getPath()));
+                            torrents.notifyDataSetChanged();
+                        }
                     }
                 });
                 f.show();
@@ -893,11 +625,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
                         shared.edit().putString(MainApplication.PREFERENCE_LAST_PATH, p.getParent()).commit();
 
-                        File pp = p.getParentFile();
-
                         long t = Libtorrent.AddTorrent(p.getPath());
 
-                        getStorage().add(new Storage.Torrent(t, pp.getPath()));
+                        if (t == -1) {
+                            Error(Libtorrent.Error());
+                            return;
+                        }
+
+                        addTorrentDialog(t, p.getParent());
                     }
                 });
                 f.show();
@@ -1345,6 +1080,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     @Override
     public void onDismiss(DialogInterface dialogInterface) {
         dialog = null;
+        torrents.notifyDataSetChanged();
     }
 
     void updateHeader(Storage s) {
@@ -1383,16 +1119,32 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         dialog.show(getSupportFragmentManager(), "");
     }
 
-    void addMagnet(String ff) {
+    public void addMagnet(String ff) {
         try {
-            getStorage().addMagnetSplit(ff);
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            List<String> m = getStorage().splitMagnets(ff);
+            if (shared.getBoolean(MainApplication.PREFERENCE_DIALOG, false) && m.size() == 1) {
+                String s = m.get(0);
+
+                String p = getStorage().getStoragePath().getPath();
+                long t = Libtorrent.AddMagnet(p, s);
+                if (t == -1) {
+                    throw new RuntimeException(Libtorrent.Error());
+                }
+
+                addTorrentDialog(t, p);
+            } else {
+                for (String s : m) {
+                    getStorage().addMagnet(s);
+                }
+            }
         } catch (RuntimeException e) {
             Error(e.getMessage());
         }
         torrents.notifyDataSetChanged();
     }
 
-    void addTorrentFromURL(String p) {
+    public void addTorrentFromURL(String p) {
         try {
             getStorage().addTorrentFromURL(p);
         } catch (RuntimeException e) {
@@ -1401,12 +1153,60 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         torrents.notifyDataSetChanged();
     }
 
-    void addTorrentFromBytes(byte[] buf) {
+    public void addTorrentFromBytes(byte[] buf) {
         try {
-            getStorage().addTorrentFromBytes(buf);
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            if (shared.getBoolean(MainApplication.PREFERENCE_DIALOG, false)) {
+                String s = getStorage().getStoragePath().getPath();
+                long t = Libtorrent.AddTorrentFromBytes(s, buf);
+                if (t == -1) {
+                    throw new RuntimeException(Libtorrent.Error());
+                }
+                addTorrentDialog(t, s);
+            } else {
+                getStorage().addTorrentFromBytes(buf);
+            }
         } catch (RuntimeException e) {
             Error(e.getMessage());
         }
         torrents.notifyDataSetChanged();
+    }
+
+    void addTorrentDialog(long t, String path) {
+        AddDialogFragment fragment = new AddDialogFragment();
+
+//        final TypedValue outValue = new TypedValue();
+//        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
+//        int themeResId = outValue.resourceId;
+//        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
+
+        dialog = fragment;
+
+        Bundle args = new Bundle();
+        args.putLong("torrent", t);
+        args.putString("path", path);
+
+        fragment.setArguments(args);
+
+        fragment.show(getSupportFragmentManager(), "");
+    }
+
+    void createTorrentDialog(long t, String path) {
+        CreateDialogFragment fragment = new CreateDialogFragment();
+
+//        final TypedValue outValue = new TypedValue();
+//        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
+//        int themeResId = outValue.resourceId;
+//        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
+
+        dialog = fragment;
+
+        Bundle args = new Bundle();
+        args.putLong("torrent", t);
+        args.putString("path", path);
+
+        fragment.setArguments(args);
+
+        fragment.show(getSupportFragmentManager(), "");
     }
 }

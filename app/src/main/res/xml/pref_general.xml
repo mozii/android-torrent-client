@@ -14,6 +14,12 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
+        android:key="dialog"
+        android:summary="Show Open Torrent Dialog evey time"
+        android:title="Open Torrent Dialog" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
         android:key="start_at_boot"
         android:summary="Start Torrent Client at boot"
         android:title="Start At Boot" />

@@ -31,6 +31,9 @@ public class MainApplication extends Application {
     public static final String PREFERENCE_START = "start_at_boot";
     public static final String PREFERENCE_WIFI = "wifi";
     public static final String PREFERENCE_LAST_PATH = "lastpath";
+    public static final String PREFERENCE_DIALOG = "dialog";
+
+    public static final String NA = "N/A";
 
     Storage storage;
 
@@ -184,7 +187,7 @@ public class MainApplication extends Application {
         TextView t = (TextView) v;
         if (text.isEmpty()) {
             t.setEnabled(false);
-            t.setText("N/A");
+            t.setText(NA);
         } else {
             t.setEnabled(true);
             t.setText(text);
