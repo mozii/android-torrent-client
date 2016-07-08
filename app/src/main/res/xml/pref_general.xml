@@ -15,8 +15,8 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="dialog"
-        android:summary="Show Open Torrent Dialog evey time"
-        android:title="Open Torrent Dialog" />
+        android:summary="Show 'Open Torrent Dialog' evey time"
+        android:title="Open Torrent Dialogs" />
 
     <CheckBoxPreference
         android:defaultValue="false"

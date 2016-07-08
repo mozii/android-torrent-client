@@ -44,6 +44,7 @@ import go.libtorrent.Libtorrent;
 
 public class AddDialogFragment extends DialogFragment implements MainActivity.TorrentFragmentInterface {
     View v;
+    View header;
     ListView list;
     View toolbar;
     View download;
@@ -259,11 +260,11 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
     }
 
     public View createView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.torrent_add, container, false);
+        header = inflater.inflate(R.layout.torrent_add, container, false);
 
         long t = getArguments().getLong("torrent");
 
-        download = v.findViewById(R.id.torrent_files_metadata);
+        download = header.findViewById(R.id.torrent_files_metadata);
         download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -275,15 +276,19 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
             }
         });
 
-        list = (ListView) v.findViewById(R.id.list);
+        list = new ListView(getContext());
 
-        toolbar = v.findViewById(R.id.torrent_files_toolbar);
+        list.addHeaderView(header);
+
+        v = list;
+
+        toolbar = header.findViewById(R.id.torrent_files_toolbar);
 
         files = new Files();
 
         list.setAdapter(files);
 
-        View none = v.findViewById(R.id.torrent_files_none);
+        View none = header.findViewById(R.id.torrent_files_none);
         none.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -295,7 +300,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
             }
         });
 
-        View all = v.findViewById(R.id.torrent_files_all);
+        View all = header.findViewById(R.id.torrent_files_all);
         all.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -307,7 +312,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
             }
         });
 
-        View browse = v.findViewById(R.id.torrent_add_browse);
+        View browse = header.findViewById(R.id.torrent_add_browse);
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -336,7 +341,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
         });
 
         final String h = Libtorrent.TorrentHash(t);
-        final TextView hash = (TextView) v.findViewById(R.id.torrent_hash);
+        final TextView hash = (TextView) header.findViewById(R.id.torrent_hash);
         hash.setText(h);
 
         update();
@@ -352,19 +357,19 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
 
         long t = getArguments().getLong("torrent");
 
-        View info = v.findViewById(R.id.torrent_add_info_section);
+        View info = header.findViewById(R.id.torrent_add_info_section);
         info.setVisibility(Libtorrent.MetaTorrent(t) ? View.VISIBLE : View.GONE);
 
-        TextView size = (TextView) v.findViewById(R.id.torrent_size);
+        TextView size = (TextView) header.findViewById(R.id.torrent_size);
         MainApplication.setText(size, !Libtorrent.MetaTorrent(t) ? "" : MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
 
-        TextView pieces = (TextView) v.findViewById(R.id.torrent_pieces);
+        TextView pieces = (TextView) header.findViewById(R.id.torrent_pieces);
         MainApplication.setText(pieces, !Libtorrent.MetaTorrent(t) ? "" : Libtorrent.TorrentPiecesCount(t) + " / " + MainApplication.formatSize(Libtorrent.TorrentPieceLength(t)));
 
-        TextView path = (TextView) v.findViewById(R.id.torrent_add_path);
+        TextView path = (TextView) header.findViewById(R.id.torrent_add_path);
         path.setText(getArguments().getString("path"));
 
-        ImageButton check = (ImageButton) v.findViewById(R.id.torrent_add_check);
+        ImageButton check = (ImageButton) header.findViewById(R.id.torrent_add_check);
         check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -389,7 +394,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
             check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_done_all_black_24dp));
         }
 
-        Pieces pview = (Pieces) v.findViewById(R.id.torrent_status_pieces);
+        Pieces pview = (Pieces) header.findViewById(R.id.torrent_status_pieces);
         pview.setTorrent(t);
 
         download.setVisibility(Libtorrent.MetaTorrent(t) ? View.GONE : View.VISIBLE);
@@ -406,7 +411,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
 
         Collections.sort(ff, new SortFiles());
 
-        TextView name = (TextView) v.findViewById(R.id.torrent_name);
+        TextView name = (TextView) header.findViewById(R.id.torrent_name);
         if (Libtorrent.MetaTorrent(t)) {
             String n = "./" + Libtorrent.TorrentName(t);
             if (l > 1)
