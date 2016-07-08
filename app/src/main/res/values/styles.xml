@@ -7,6 +7,11 @@
         <item name="secondBackground">@color/secondBackgroundLight</item>
         <item name="roundprogress_style">@drawable/roundprogress_bar_light</item>
         <item name="menu_labels_style">@style/menu_labels_style_light</item>
+        <item name="dialogTheme">@style/AppThemeDialogLight</item>
+    </style>
+
+    <style name="AppThemeDialogLight" parent="@style/Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/colorAccentLight</item>
     </style>
 
     <style name="AppThemeLight.NoActionBar">
@@ -25,6 +30,11 @@
         <item name="secondBackground">@color/secondBackgroundDark</item>
         <item name="roundprogress_style">@drawable/roundprogress_bar_dark</item>
         <item name="menu_labels_style">@style/menu_labels_style_dark</item>
+        <item name="dialogTheme">@style/AppThemeDialogDark</item>
+    </style>
+
+    <style name="AppThemeDialogDark" parent="@style/Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/colorAccentDark</item>
     </style>
 
     <style name="AppThemeDark.NoActionBar">

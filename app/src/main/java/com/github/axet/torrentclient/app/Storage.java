@@ -677,7 +677,9 @@ public class Storage {
         return getApp().formatFree(free, downloaded.getCurrentSpeed(), uploaded.getCurrentSpeed());
     }
 
-    public void addMagnetSplit(String ff) {
+    public List<String> splitMagnets(String ff) {
+        List<String> ret = new ArrayList<>();
+
         ff = ff.trim();
 
         String scheme = "magnet:";
@@ -687,9 +689,9 @@ public class Storage {
                 s = s.trim();
                 if (s.isEmpty())
                     continue;
-                addMagnet(scheme + s);
+                ret.add(scheme + s);
             }
-            return;
+            return ret;
         }
 
         ss = ff.split("\\W+");
@@ -717,12 +719,13 @@ public class Storage {
                             } catch (UnsupportedEncodingException e) {
                             }
                         }
-                        addMagnet(ff);
+                        ret.add(ff);
                     } catch (NumberFormatException e) {
                     }
                 }
             }
         }
+        return ret;
     }
 
     public void addMagnet(String s) {

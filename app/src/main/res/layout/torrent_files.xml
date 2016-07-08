@@ -20,19 +20,27 @@
         android:layout_below="@id/torrent_files_metadata"
         android:layout_centerHorizontal="true">
 
-        <Button
+        <TextView
             android:id="@+id/torrent_files_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="Select All" />
+            android:layout_marginRight="10dp"
+            android:text="Select All"
+            android:textAllCaps="true"
+            android:textColor="?attr/colorAccent"
+            android:textStyle="bold" />
 
-        <Button
+        <TextView
             android:id="@+id/torrent_files_none"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="Select None" />
+            android:layout_marginLeft="10dp"
+            android:text="Select None"
+            android:textAllCaps="true"
+            android:textColor="?attr/colorAccent"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
