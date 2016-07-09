@@ -60,7 +60,11 @@ public class Storage {
 
     Handler handler;
 
+    // refresh title
     Runnable refresh;
+
+    // save state every 5 min
+    Runnable save;
 
     BroadcastReceiver wifiReciver;
 
@@ -369,6 +373,8 @@ public class Storage {
         load();
 
         refresh();
+
+        savePeriod();
     }
 
     void refresh() {
@@ -385,6 +391,20 @@ public class Storage {
         refresh.run();
     }
 
+    void savePeriod() {
+        if (save != null)
+            handler.removeCallbacks(save);
+
+        save = new Runnable() {
+            @Override
+            public void run() {
+                save();
+                handler.postDelayed(refresh, 5 * 60 * 1000);
+            }
+        };
+        save.run();
+    }
+
     public void close() {
         Log.d(TAG, "Storage.Close");
 
@@ -397,6 +417,11 @@ public class Storage {
         if (refresh != null) {
             handler.removeCallbacks(refresh);
             refresh = null;
+        }
+
+        if (save != null) {
+            handler.removeCallbacks(save);
+            save = null;
         }
 
         if (wifiReciver != null) {
