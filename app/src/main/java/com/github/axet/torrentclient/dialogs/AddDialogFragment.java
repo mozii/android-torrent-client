@@ -207,6 +207,16 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
+
+        long t = getArguments().getLong("torrent");
+        if (t != -1) {
+            Libtorrent.RemoveTorrent(t);
+            getArguments().putLong("torrent", -1);
+        }
+
+        // stop update
+        v = null;
+
         final Activity activity = getActivity();
         if (activity instanceof DialogInterface.OnDismissListener) {
             ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
@@ -221,7 +231,9 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 long t = getArguments().getLong("torrent");
                                 String path = getArguments().getString("path");
+                                getArguments().putLong("torrent", -1);
                                 getApp().getStorage().add(new Storage.Torrent(t, path));
+                                dialog.dismiss();
                                 onDismiss(dialog);
                             }
                         }
@@ -229,8 +241,6 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
                 .setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                long t = getArguments().getLong("torrent");
-                                Libtorrent.RemoveTorrent(t);
                                 dialog.dismiss();
                                 onDismiss(dialog);
                             }
