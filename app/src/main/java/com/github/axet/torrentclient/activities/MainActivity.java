@@ -889,6 +889,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     }
 
     public void openFolder(File path) {
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            Toast.makeText(this, "Not permitted", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Uri selectedUri = Uri.fromFile(path);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(selectedUri, "resource/folder");
