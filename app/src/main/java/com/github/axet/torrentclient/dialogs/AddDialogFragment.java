@@ -415,7 +415,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
         if (Libtorrent.MetaTorrent(t)) {
             String n = "./" + Libtorrent.TorrentName(t);
             if (l > 1)
-                n += "/...";
+                n += "/";
             name.setText(n);
         } else {
             String n = Libtorrent.TorrentName(t);
