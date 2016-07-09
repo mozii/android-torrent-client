@@ -279,14 +279,25 @@ public class Storage {
         SharedPreferences.Editor edit = shared.edit();
         edit.putInt("TORRENT_COUNT", torrents.size());
         for (int i = 0; i < torrents.size(); i++) {
-            Torrent t = torrents.get(i);
-            byte[] b = Libtorrent.SaveTorrent(t.t);
-            String state = Base64.encodeToString(b, Base64.DEFAULT);
-            edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
-            edit.putString("TORRENT_" + i + "_STATE", state);
-            edit.putString("TORRENT_" + i + "_PATH", t.path);
+            save(edit, i);
         }
         edit.commit();
+    }
+
+    void save(Torrent t) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor edit = shared.edit();
+        save(edit, torrents.indexOf(t));
+        edit.commit();
+    }
+
+    void save(SharedPreferences.Editor edit, int i) {
+        Torrent t = torrents.get(i);
+        byte[] b = Libtorrent.SaveTorrent(t.t);
+        String state = Base64.encodeToString(b, Base64.DEFAULT);
+        edit.putInt("TORRENT_" + i + "_STATUS", Libtorrent.TorrentStatus(t.t));
+        edit.putString("TORRENT_" + i + "_STATE", state);
+        edit.putString("TORRENT_" + i + "_PATH", t.path);
     }
 
     public void create() {
@@ -374,7 +385,8 @@ public class Storage {
 
         refresh();
 
-        savePeriod();
+        if (active())
+            saveUpdate();
     }
 
     void refresh() {
@@ -391,7 +403,15 @@ public class Storage {
         refresh.run();
     }
 
-    void savePeriod() {
+    boolean active() {
+        for (Torrent t : torrents) {
+            if (Libtorrent.TorrentActive(t.t))
+                return true;
+        }
+        return false;
+    }
+
+    void saveUpdate() {
         if (save != null)
             handler.removeCallbacks(save);
 
@@ -399,10 +419,14 @@ public class Storage {
             @Override
             public void run() {
                 save();
-                handler.postDelayed(refresh, 5 * 60 * 1000);
+
+                if (!active())
+                    return;
+
+                saveUpdate();
             }
         };
-        save.run();
+        handler.postDelayed(save, 1 * 60 * 1000);
     }
 
     public void close() {
@@ -802,9 +826,13 @@ public class Storage {
 
     public void start(Torrent t) {
         t.start();
+
+        saveUpdate();
     }
 
     public void stop(Torrent t) {
         t.stop();
+
+        saveUpdate();
     }
 }
