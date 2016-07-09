@@ -882,17 +882,21 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         }
 
         if (id == R.id.action_show_folder) {
-            Uri selectedUri = Uri.fromFile(getStorage().getStoragePath());
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(selectedUri, "resource/folder");
-            if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "No folder view application installed", Toast.LENGTH_SHORT).show();
-            }
+            openFolder(getStorage().getStoragePath());
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openFolder(File path) {
+        Uri selectedUri = Uri.fromFile(path);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(selectedUri, "resource/folder");
+        if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "No folder view application installed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

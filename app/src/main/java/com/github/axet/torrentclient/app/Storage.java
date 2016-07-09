@@ -429,6 +429,15 @@ public class Storage {
         Libtorrent.RemoveTorrent(t.t);
     }
 
+    public String path(long t) {
+        for (Torrent a : torrents) {
+            if (a.t == t) {
+                return a.path;
+            }
+        }
+        throw new RuntimeException("unable to find");
+    }
+
     public boolean permitted(String[] ss) {
         for (String s : ss) {
             if (ContextCompat.checkSelfPermission(context, s) != PackageManager.PERMISSION_GRANTED) {
