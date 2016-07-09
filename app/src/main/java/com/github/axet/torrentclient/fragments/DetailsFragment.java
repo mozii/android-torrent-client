@@ -33,30 +33,42 @@ import go.libtorrent.Libtorrent;
 public class DetailsFragment extends Fragment implements MainActivity.TorrentFragmentInterface {
     View v;
 
+    Pieces pview;
+    TextView size;
+    TextView hash;
+    TextView pieces;
+    TextView creator;
+    TextView createdon;
+    TextView comment;
+    TextView status;
+    TextView progress;
+    TextView added;
+    TextView completed;
+    TextView downloading;
+    TextView seeding;
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.torrent_status, container, false);
 
-        update();
+        pview = (Pieces) v.findViewById(R.id.torrent_status_pieces);
+        size = (TextView) v.findViewById(R.id.torrent_size);
+        hash = (TextView) v.findViewById(R.id.torrent_hash);
+        pieces = (TextView) v.findViewById(R.id.torrent_pieces);
+        creator = (TextView) v.findViewById(R.id.torrent_creator);
+        createdon = (TextView) v.findViewById(R.id.torrent_created_on);
+        comment = (TextView) v.findViewById(R.id.torrent_comment);
+        status = (TextView) v.findViewById(R.id.torrent_status);
+        progress = (TextView) v.findViewById(R.id.torrent_progress);
+        added = (TextView) v.findViewById(R.id.torrent_added);
+        completed = (TextView) v.findViewById(R.id.torrent_completed);
+        downloading = (TextView) v.findViewById(R.id.torrent_downloading);
+        seeding = (TextView) v.findViewById(R.id.torrent_seeding);
 
-        return v;
-    }
-
-    public void update() {
-        long t = getArguments().getLong("torrent");
-
-        Pieces pview = (Pieces) v.findViewById(R.id.torrent_status_pieces);
-        pview.setTorrent(t);
-
-        TextView size = (TextView) v.findViewById(R.id.torrent_size);
-        MainApplication.setText(size, !Libtorrent.MetaTorrent(t) ? "" : MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
-
-        TextView pieces = (TextView) v.findViewById(R.id.torrent_pieces);
-        MainApplication.setText(pieces, !Libtorrent.MetaTorrent(t) ? "" : Libtorrent.TorrentPiecesCount(t) + " / " + MainApplication.formatSize(Libtorrent.TorrentPieceLength(t)));
+        final long t = getArguments().getLong("torrent");
 
         final String h = Libtorrent.TorrentHash(t);
-        final TextView hash = (TextView) v.findViewById(R.id.torrent_hash);
         hash.setText(h);
 
         View hashCopy = v.findViewById(R.id.torrent_hash_copy);
@@ -70,16 +82,41 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
             }
         });
 
+
+        final String p = ((MainApplication) getContext().getApplicationContext()).getStorage().path(t);
+
+        TextView path = (TextView) v.findViewById(R.id.torrent_path);
+        path.setText(p);
+
+        View pathButton = v.findViewById(R.id.torrent_path_open);
+        pathButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity) getActivity()).openFolder(new File(p));
+            }
+        });
+
+        update();
+
+        return v;
+    }
+
+    public void update() {
+        long t = getArguments().getLong("torrent");
+
+        pview.setTorrent(t);
+
+        MainApplication.setText(size, !Libtorrent.MetaTorrent(t) ? "" : MainApplication.formatSize(Libtorrent.TorrentBytesLength(t)));
+
+        MainApplication.setText(pieces, !Libtorrent.MetaTorrent(t) ? "" : Libtorrent.TorrentPiecesCount(t) + " / " + MainApplication.formatSize(Libtorrent.TorrentPieceLength(t)));
+
         Libtorrent.InfoTorrent i = Libtorrent.TorrentInfo(t);
 
-        TextView creator = (TextView) v.findViewById(R.id.torrent_creator);
         MainApplication.setText(creator, i.getCreator());
 
-        TextView createdon = (TextView) v.findViewById(R.id.torrent_created_on);
         MainApplication.setDate(createdon, i.getCreateOn());
 
         final String c = i.getComment().trim();
-        final TextView comment = (TextView) v.findViewById(R.id.torrent_comment);
         MainApplication.setText(comment, c);
         comment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +146,6 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
             }
         });
 
-        TextView status = (TextView) v.findViewById(R.id.torrent_status);
         switch (Libtorrent.TorrentStatus(t)) {
             case Libtorrent.StatusDownloading:
                 status.setText("Downloading");
@@ -125,7 +161,6 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
                 break;
         }
 
-        TextView progress = (TextView) v.findViewById(R.id.torrent_progress);
         progress.setText(String.format("%d%%", Storage.Torrent.getProgress(t)));
 
         TextView downloaded = (TextView) v.findViewById(R.id.torrent_downloaded);
@@ -136,7 +171,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         uploaded.setText(MainApplication.formatSize(b.getUploaded()));
 
         TextView ratio = (TextView) v.findViewById(R.id.torrent_ratio);
-        float r = 0 ;
+        float r = 0;
         if (Libtorrent.MetaTorrent(t)) {
             if (b.getDownloaded() >= Libtorrent.TorrentBytesLength(t)) {
                 r = b.getUploaded() / (float) b.getDownloaded();
@@ -148,16 +183,12 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
 
         Libtorrent.InfoTorrent info = Libtorrent.TorrentInfo(t);
 
-        TextView added = (TextView) v.findViewById(R.id.torrent_added);
         MainApplication.setDate(added, info.getDateAdded());
 
-        TextView completed = (TextView) v.findViewById(R.id.torrent_completed);
         MainApplication.setDate(completed, info.getDateCompleted());
 
-        TextView downloading = (TextView) v.findViewById(R.id.torrent_downloading);
         downloading.setText(MainApplication.formatDuration(b.getDownloading() / 1000000));
 
-        TextView seeding = (TextView) v.findViewById(R.id.torrent_seeding);
         seeding.setText(MainApplication.formatDuration(b.getSeeding() / 1000000));
     }
 }
