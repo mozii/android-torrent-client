@@ -1,9 +1,10 @@
 package com.github.axet.torrentclient.app;
 
-import android.app.AlertDialog;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -12,11 +13,7 @@ import android.widget.TextView;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
-import com.github.axet.torrentclient.activities.ExitActivity;
-import com.github.axet.torrentclient.activities.MainActivity;
-import com.github.axet.torrentclient.services.TorrentService;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -32,10 +29,27 @@ public class MainApplication extends Application {
     public static final String PREFERENCE_WIFI = "wifi";
     public static final String PREFERENCE_LAST_PATH = "lastpath";
     public static final String PREFERENCE_DIALOG = "dialog";
+    public static final String PREFERENCE_RUN = "run";
 
     public static final String NA = "N/A";
 
+    public static final String SAVE_STATE = MainApplication.class.getName() + ".SAVE_STATE";
+
     Storage storage;
+
+    SaveState savestate;
+
+    class SaveState extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive" + intent);
+            if (intent.getAction().equals(SAVE_STATE)) {
+                Storage s = getStorage();
+                if (s != null)
+                    s.save();
+            }
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -49,10 +63,24 @@ public class MainApplication extends Application {
     }
 
     public void create() {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit =  shared.edit();
+        edit.putBoolean(PREFERENCE_RUN, true);
+        edit.commit();
+
         if (storage == null) {
             storage = new Storage(this);
             storage.create();
             Log.d(TAG, "PortInfo: " + Libtorrent.PortMapping().getTCP() + " " + Libtorrent.PortMapping().getUDP());
+        }
+        if (savestate == null) {
+            savestate = new SaveState();
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(SAVE_STATE);
+            filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+            filter.addAction(Intent.ACTION_MY_PACKAGE_REPLACED);
+            filter.addAction(Intent.ACTION_PACKAGE_RESTARTED);
+            registerReceiver(savestate, filter);
         }
     }
 
@@ -61,6 +89,14 @@ public class MainApplication extends Application {
             storage.close();
             storage = null;
         }
+        if (savestate != null) {
+            unregisterReceiver(savestate);
+            savestate = null;
+        }
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit =  shared.edit();
+        edit.putBoolean(PREFERENCE_RUN, false);
+        edit.commit();
     }
 
     @Override

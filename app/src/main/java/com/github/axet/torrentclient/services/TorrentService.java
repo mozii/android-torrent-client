@@ -123,6 +123,8 @@ public class TorrentService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestory");
 
+        sendBroadcast(new Intent(MainApplication.SAVE_STATE));
+
         stopForeground(false);
 
         showNotificationAlarm(false, null);
