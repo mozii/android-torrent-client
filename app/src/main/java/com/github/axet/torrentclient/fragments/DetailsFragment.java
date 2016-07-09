@@ -1,21 +1,25 @@
 package com.github.axet.torrentclient.fragments;
 
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.torrentclient.R;
 import com.github.axet.torrentclient.activities.MainActivity;
 import com.github.axet.torrentclient.app.MainApplication;
@@ -46,6 +50,10 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
     TextView completed;
     TextView downloading;
     TextView seeding;
+    View pathButton;
+    ImageButton pathImage;
+
+    KeyguardManager myKM;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -88,13 +96,17 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         TextView path = (TextView) v.findViewById(R.id.torrent_path);
         path.setText(p);
 
-        View pathButton = v.findViewById(R.id.torrent_path_open);
+        pathButton = v.findViewById(R.id.torrent_path_open);
         pathButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivity) getActivity()).openFolder(new File(p));
             }
         });
+
+        pathImage = (ImageButton) v.findViewById(R.id.torrent_path_image);
+
+        myKM = (KeyguardManager) getContext().getSystemService(Context.KEYGUARD_SERVICE);
 
         update();
 
@@ -103,6 +115,14 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
 
     public void update() {
         long t = getArguments().getLong("torrent");
+
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            pathButton.setEnabled(false);
+            pathImage.setColorFilter(Color.GRAY);
+        } else {
+            pathButton.setEnabled(true);
+            pathImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+        }
 
         pview.setTorrent(t);
 
