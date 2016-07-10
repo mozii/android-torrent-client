@@ -226,7 +226,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), getTheme())
+        AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
                 .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {

@@ -1155,11 +1155,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     void addTorrentDialog(long t, String path) {
         AddDialogFragment fragment = new AddDialogFragment();
 
-//        final TypedValue outValue = new TypedValue();
-//        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
-//        int themeResId = outValue.resourceId;
-//        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
-
         dialog = fragment;
 
         Bundle args = new Bundle();
@@ -1173,11 +1168,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     void createTorrentDialog(long t, String path) {
         CreateDialogFragment fragment = new CreateDialogFragment();
-
-//        final TypedValue outValue = new TypedValue();
-//        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
-//        int themeResId = outValue.resourceId;
-//        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
 
         dialog = fragment;
 
