@@ -327,7 +327,7 @@ public class Storage {
                 if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
                     SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
                     Log.d(TAG, state.toString());
-                    if (wifi) { // suplicant only related to 'wifi only'
+                    if (wifi) { // suplicant only correspond to 'wifi only'
                         if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
                             resume();
                             return;

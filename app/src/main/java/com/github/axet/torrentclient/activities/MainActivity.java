@@ -379,45 +379,21 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     }
                 });
 
-                final ImageView check = (ImageView) convertView.findViewById(R.id.recording_player_check);
+                final ImageView open = (ImageView) convertView.findViewById(R.id.recording_player_open);
 
-                final Runnable checkUpdate = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusChecking) {
-                            check.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_stop_black_24dp));
-                        } else {
-                            check.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_done_all_black_24dp));
-                        }
-                    }
-                };
-
-                checkUpdate.run();
-
-                check.setOnClickListener(new View.OnClickListener() {
+                open.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (Libtorrent.TorrentStatus(t.t) == Libtorrent.StatusChecking) {
-                            Libtorrent.StopTorrent(t.t);
-                            Toast.makeText(MainActivity.this, "Stop Checking", Toast.LENGTH_SHORT).show();
-                            checkUpdate.run();
-                            return;
-                        }
-
-                        Libtorrent.CheckTorrent(t.t);
-                        Toast.makeText(MainActivity.this, "Start Checking", Toast.LENGTH_SHORT).show();
-                        checkUpdate.run();
+                        openFolder(new File(t.path));
                     }
                 });
 
-                switch (Libtorrent.TorrentStatus(t.t)) {
-                    case Libtorrent.StatusPaused:
-                    case Libtorrent.StatusChecking:
-                        check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
-                        break;
-                    default:
-                        check.setColorFilter(Color.GRAY);
-                        check.setOnClickListener(null);
+                KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                if (myKM.inKeyguardRestrictedInputMode()) {
+                    open.setColorFilter(Color.GRAY);
+                    open.setOnClickListener(null);
+                } else {
+                    open.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
                 }
 
                 final View share = convertView.findViewById(R.id.recording_player_share);

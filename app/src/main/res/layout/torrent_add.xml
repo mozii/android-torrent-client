@@ -218,23 +218,9 @@
                             android:text="1323 / 11 kb" />
                     </TableRow>
 
-                    <TableRow>
-
-                        <ImageButton
-                            android:id="@+id/torrent_add_check"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_span="3"
-                            android:src="@drawable/ic_done_all_black_24dp"
-                            android:text="Check"
-                            android:tint="?attr/colorAccent" />
-                    </TableRow>
-
-
                 </TableLayout>
 
-                <FrameLayout
+                <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -243,9 +229,21 @@
                         android:id="@+id/torrent_status_pieces"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
                         android:layout_gravity="center" />
 
-                </FrameLayout>
+                    <ImageView
+                        android:id="@+id/torrent_add_check"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="right|center_vertical"
+                        android:layout_toRightOf="@id/torrent_status_pieces"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_done_all_black_24dp"
+                        android:tint="?attr/colorAccent" />
+
+                </RelativeLayout>
             </LinearLayout>
 
             <View
