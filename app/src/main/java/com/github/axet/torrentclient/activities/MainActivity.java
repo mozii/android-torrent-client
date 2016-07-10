@@ -1155,10 +1155,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     void addTorrentDialog(long t, String path) {
         AddDialogFragment fragment = new AddDialogFragment();
 
-//        final TypedValue outValue = new TypedValue();
-//        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
-//        int themeResId = outValue.resourceId;
-//        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
+        // not sure why it not receive it automatically
+        final TypedValue outValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
+        int themeResId = outValue.resourceId;
+        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
 
         dialog = fragment;
 
@@ -1174,10 +1175,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     void createTorrentDialog(long t, String path) {
         CreateDialogFragment fragment = new CreateDialogFragment();
 
-//        final TypedValue outValue = new TypedValue();
-//        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
-//        int themeResId = outValue.resourceId;
-//        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
+        // not sure why it not receive it automatically
+        final TypedValue outValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);
+        int themeResId = outValue.resourceId;
+        fragment.setStyle(DialogFragment.STYLE_NORMAL, themeResId);
 
         dialog = fragment;
 
