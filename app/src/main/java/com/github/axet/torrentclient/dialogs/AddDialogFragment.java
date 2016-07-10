@@ -21,6 +21,7 @@ import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -379,7 +380,7 @@ public class AddDialogFragment extends DialogFragment implements MainActivity.To
         TextView path = (TextView) header.findViewById(R.id.torrent_add_path);
         path.setText(getArguments().getString("path"));
 
-        ImageButton check = (ImageButton) header.findViewById(R.id.torrent_add_check);
+        ImageView check = (ImageView) header.findViewById(R.id.torrent_add_check);
         check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

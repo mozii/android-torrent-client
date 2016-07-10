@@ -11,10 +11,12 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +54,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
     TextView seeding;
     View pathButton;
     ImageButton pathImage;
+    ImageView check;
 
     KeyguardManager myKM;
 
@@ -73,6 +76,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         completed = (TextView) v.findViewById(R.id.torrent_completed);
         downloading = (TextView) v.findViewById(R.id.torrent_downloading);
         seeding = (TextView) v.findViewById(R.id.torrent_seeding);
+        check = (ImageView) v.findViewById(R.id.torrent_status_check);
 
         final long t = getArguments().getLong("torrent");
 
@@ -89,7 +93,6 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
                 Toast.makeText(getContext(), "Hash copied!", Toast.LENGTH_SHORT).show();
             }
         });
-
 
         final String p = ((MainApplication) getContext().getApplicationContext()).getStorage().path(t);
 
@@ -114,7 +117,7 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
     }
 
     public void update() {
-        long t = getArguments().getLong("torrent");
+        final long t = getArguments().getLong("torrent");
 
         if (myKM.inKeyguardRestrictedInputMode()) {
             pathButton.setEnabled(false);
@@ -123,6 +126,33 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
             pathButton.setEnabled(true);
             pathImage.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
         }
+
+        final Runnable checkUpdate = new Runnable() {
+            @Override
+            public void run() {
+                if (Libtorrent.TorrentStatus(t) == Libtorrent.StatusChecking) {
+                    check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_stop_black_24dp));
+                } else {
+                    check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_done_all_black_24dp));
+                }
+            }
+        };
+        checkUpdate.run();
+        check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Libtorrent.TorrentStatus(t) == Libtorrent.StatusChecking) {
+                    Libtorrent.StopTorrent(t);
+                    Toast.makeText(getContext(), "Stop Checking", Toast.LENGTH_SHORT).show();
+                    checkUpdate.run();
+                    return;
+                }
+
+                Libtorrent.CheckTorrent(t);
+                Toast.makeText(getContext(), "Start Checking", Toast.LENGTH_SHORT).show();
+                checkUpdate.run();
+            }
+        });
 
         pview.setTorrent(t);
 

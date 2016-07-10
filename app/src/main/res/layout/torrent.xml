@@ -122,11 +122,11 @@
                         android:layout_weight="1"></View>
 
                     <ImageView
-                        android:id="@+id/recording_player_check"
+                        android:id="@+id/recording_player_open"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_done_all_black_24dp"
+                        android:src="@drawable/ic_folder_open_black_24dp"
                         android:tint="?attr/colorAccent" />
 
                     <View
