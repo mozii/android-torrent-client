@@ -130,10 +130,23 @@ public class DetailsFragment extends Fragment implements MainActivity.TorrentFra
         final Runnable checkUpdate = new Runnable() {
             @Override
             public void run() {
-                if (Libtorrent.TorrentStatus(t) == Libtorrent.StatusChecking) {
-                    check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_stop_black_24dp));
-                } else {
-                    check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_done_all_black_24dp));
+                switch (Libtorrent.TorrentStatus(t)) {
+                    case Libtorrent.StatusChecking:
+                        check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_stop_black_24dp));
+                        check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                        check.setEnabled(true);
+                        break;
+                    case Libtorrent.StatusDownloading:
+                    case Libtorrent.StatusQueued:
+                        check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_done_all_black_24dp));
+                        check.setColorFilter(Color.GRAY);
+                        check.setEnabled(false);
+                        break;
+                    default:
+                        check.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_done_all_black_24dp));
+                        check.setColorFilter(ThemeUtils.getThemeColor(getContext(), R.attr.colorAccent));
+                        check.setEnabled(true);
+                        break;
                 }
             }
         };

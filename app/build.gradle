@@ -8,8 +8,8 @@ android {
         applicationId "com.github.axet.torrentclient"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 101
-        versionName "0.0.94"
+        versionCode 102
+        versionName "0.0.95"
     }
     signingConfigs {
         release {
