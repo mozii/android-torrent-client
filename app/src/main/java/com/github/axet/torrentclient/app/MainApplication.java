@@ -71,7 +71,6 @@ public class MainApplication extends Application {
         if (storage == null) {
             storage = new Storage(this);
             storage.create();
-            Log.d(TAG, "PortInfo: " + Libtorrent.PortMapping().getTCP() + " " + Libtorrent.PortMapping().getUDP());
         }
         if (savestate == null) {
             savestate = new SaveState();

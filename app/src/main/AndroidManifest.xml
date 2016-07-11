@@ -8,16 +8,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name="com.github.axet.torrentclient.app.MainApplication"
+        android:name=".app.MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppThemeLight">
-        <service android:name="com.github.axet.torrentclient.services.TorrentService" />
+        <service android:name=".services.TorrentService" />
 
         <receiver
             android:name=".services.StartServiceReceiver"
@@ -30,6 +29,7 @@
         <receiver android:name=".services.OnUpgradeReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
@@ -45,10 +45,10 @@
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.NoDisplay" />
         <activity
-            android:name="com.github.axet.torrentclient.activities.SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:label="@string/app_name" />
         <activity
-            android:name="com.github.axet.torrentclient.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_main"
             android:launchMode="singleInstance"
@@ -58,7 +58,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--Broswer magnet handler. Always working no magic-->
+            <!-- Broswer magnet handler. Always working no magic -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -84,7 +84,7 @@
 
              seems like pathPattern not working for .ext:
                http://stackoverflow.com/questions/3400072
-             -->
+            -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -95,7 +95,6 @@
                 <data android:scheme="http" />
                 <data android:scheme="content" />
                 <data android:scheme="file" />
-
                 <data android:mimeType="application/octet-stream" />
                 <data android:mimeType="application/x-bittorrent" />
             </intent-filter>
