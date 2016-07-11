@@ -13,12 +13,12 @@
         android:text="./metadata" />
 
     <TableLayout
-        android:stretchColumns="1"
-        android:shrinkColumns="1"
         android:id="@+id/torrent_files_file"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:shrinkColumns="1"
+        android:stretchColumns="1">
 
         <TableRow>
 
@@ -26,16 +26,16 @@
                 android:id="@+id/torrent_files_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                />
+                android:layout_gravity="center_vertical" />
+
             <TextView
-                android:layout_gravity="center_vertical"
                 android:id="@+id/torrent_files_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:paddingLeft="5dp"
                 android:text="demo fragmentdemo fragmentdemo fragment.avi"
-                android:textColor="?attr/colorPrimary" />
+                android:textColor="?attr/titleColor" />
 
             <TextView
                 android:id="@+id/torrent_files_percent"
@@ -47,7 +47,9 @@
         </TableRow>
 
         <TableRow>
+
             <Space />
+
             <TextView
                 android:id="@+id/torrent_files_size"
                 android:layout_width="wrap_content"

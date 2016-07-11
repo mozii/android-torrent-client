@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:padding="5dp"
                     android:text="2015.10.11 4:11:11.wav"
-                    android:textColor="?attr/colorPrimary"
+                    android:textColor="?attr/titleColor"
                     android:textSize="20dp" />
             </com.github.axet.androidlibrary.widgets.PathMax>
 
