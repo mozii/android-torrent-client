@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_torrents"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Torrents" />
+
+    </group>
+
+    <item android:title="Interfaces">
+        <menu>
+            <item
+                android:id="@+id/nav_ip"
+                android:actionLayout="@layout/torrent_ip"
+                android:icon="@drawable/ic_info_black_24dp"
+                android:title="IP"
+                app:showAsAction="always" />
+        </menu>
+    </item>
+
+</menu>
