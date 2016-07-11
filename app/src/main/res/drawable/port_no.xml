@@ -3,7 +3,7 @@
     <!-- Larger blue circle in back -->
     <item>
         <shape android:shape="oval">
-            <solid android:color="@android:color/black"/>
+            <solid android:color="@android:color/darker_gray"/>
             <size
                 android:width="15dp"
                 android:height="15dp"/>
@@ -14,7 +14,7 @@
         <shape android:shape="oval">
             <!-- transparent stroke = larger_circle_size - smaller_circle_size -->
             <stroke android:color="@android:color/transparent"
-                android:width="5dp"/>
+                android:width="2dp"/>
             <solid android:color="@android:color/white"/>
             <size
                 android:width="10dp"

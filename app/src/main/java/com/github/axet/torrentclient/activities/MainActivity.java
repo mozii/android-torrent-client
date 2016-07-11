@@ -23,22 +23,18 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -84,7 +80,9 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     static final int TYPE_EXPANDED = 1;
     static final int TYPE_DELETED = 2;
 
-    static final long INFO_REFRESH = 5 * 1000;
+    static final long INFO_MANUAL_REFRESH = 5 * 1000;
+
+    static final long INFO_AUTO_REFRESH = 5 * 60 * 1000;
 
     public final static String HIDE = "hide";
 
@@ -108,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     PopupShareActionProvider shareProvider;
 
     NavigationView navigationView;
+    DrawerLayout drawer;
 
     Libtorrent.InfoClient infoOld;
     boolean infoPort;
@@ -550,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         toolbar.setBackground(new ColorDrawable(MainApplication.getActionbarColor(this)));
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -558,7 +557,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_torrents);
 
         handler = new Handler();
 
@@ -1016,7 +1014,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -1107,45 +1104,58 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         externalip.setVisibility(info.getExternal().isEmpty() ? View.GONE : View.VISIBLE);
         externalip.setText(info.getExternal());
 
-        View torrent_port_button = navigationView.findViewById(R.id.torrent_port_button);
+        View portButton = navigationView.findViewById(R.id.torrent_port_button);
         ImageView portIcon = (ImageView) navigationView.findViewById(R.id.torrent_port_icon);
         TextView port = (TextView) navigationView.findViewById(R.id.torrent_port_text);
 
-        if (infoPort) {
-            portIcon.setImageResource(R.drawable.port_ok);
-            port.setText("Port Open");
-        } else {
-            portIcon.setImageResource(R.drawable.port_no);
-            port.setText("Port Closed");
-        }
-
-        torrent_port_button.setOnClickListener(new View.OnClickListener() {
+        portButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 long time = System.currentTimeMillis();
-                if (infoTime + INFO_REFRESH < time) {
+                if (infoTime + INFO_MANUAL_REFRESH < time) {
                     infoTime = time;
                     infoOld = null;
                 }
             }
         });
 
+        long time = System.currentTimeMillis();
+        if (infoTime + INFO_AUTO_REFRESH < time) {
+            infoTime = time;
+            infoOld = null;
+        }
+
         if (infoOld == null || !infoOld.getClientAddr().equals(info.getClientAddr()) || !infoOld.getExternal().equals(info.getExternal())) {
-            infoOld = info;
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    final boolean b = Libtorrent.PortCheck();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            infoPort = b;
-                        }
-                    });
-                }
-            });
-            t.start();
-            port.setText("Port checking...");
+            if (drawer.isDrawerOpen(GravityCompat.START)) { // only probe port when drawer is open
+                infoOld = info;
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final boolean b = Libtorrent.PortCheck();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                infoPort = b;
+                            }
+                        });
+                    }
+                });
+                t.start();
+                infoPort = false;
+                portIcon.setImageResource(R.drawable.port_no);
+                port.setText("Port checking...");
+            } else {
+                portIcon.setImageResource(R.drawable.port_no);
+                port.setText("Port Closed");
+            }
+        } else {
+            if (infoPort) {
+                portIcon.setImageResource(R.drawable.port_ok);
+                port.setText("Port Open");
+            } else {
+                portIcon.setImageResource(R.drawable.port_no);
+                port.setText("Port Closed");
+            }
         }
     }
 
@@ -1267,11 +1277,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_torrents) {
-            // Handle the camera action
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
