@@ -1,6 +1,7 @@
 <resources>
 
     <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="titleColor">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccentLight</item>
@@ -9,6 +10,7 @@
         <item name="menu_labels_style">@style/menu_labels_style_light</item>
         <item name="dialogTheme">@style/AppThemeDialogLight</item>
         <item name="alertDialogTheme">@style/AppThemeDialogLight</item>
+        <item name="side_nav_bar">@drawable/side_nav_bar_light</item>
     </style>
 
     <style name="AppThemeDialogLight" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
@@ -20,19 +22,26 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="menu_labels_style_light">
+        <item name="android:padding">5dp</item>
+        <item name="android:background">@drawable/roundlabel_light</item>
+    </style>
+
     <style name="AppThemeLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppThemeDark" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="titleColor">@android:color/primary_text_dark</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
+        <item name="colorPrimary">@color/primary_material_dark</item>
         <item name="colorAccent">@color/colorAccentDark</item>
         <item name="secondBackground">@color/secondBackgroundDark</item>
         <item name="roundprogress_style">@drawable/roundprogress_bar_dark</item>
         <item name="menu_labels_style">@style/menu_labels_style_dark</item>
         <item name="dialogTheme">@style/AppThemeDialogDark</item>
         <item name="alertDialogTheme">@style/AppThemeDialogDark</item>
+        <item name="side_nav_bar">@drawable/side_nav_bar_dark</item>
     </style>
 
     <style name="AppThemeDialogDark" parent="@style/Theme.AppCompat.Dialog.Alert">
@@ -42,11 +51,6 @@
     <style name="AppThemeDark.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="menu_labels_style_light">
-        <item name="android:padding">5dp</item>
-        <item name="android:background">@drawable/roundlabel_light</item>
     </style>
 
     <style name="menu_labels_style_dark">

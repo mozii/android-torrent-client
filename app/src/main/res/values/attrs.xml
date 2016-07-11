@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="titleColor" format="color" />
     <attr name="secondBackground" format="color" />
     <attr name="menu_labels_style" format="reference" />
     <attr name="roundprogress_style" format="reference" />
+    <attr name="side_nav_bar" format="reference" />
 </resources>
